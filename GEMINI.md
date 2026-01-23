@@ -1,13 +1,15 @@
 
+# Guía para IA y Colaboradores – MVP Gestión de Solicitudes de Compra (SAP MM)
+
 # Mi contexto real
 
-Soy una profesional que, tras varios años fuera de la industria, tiene el firme objetivo de reinsertarse en el mundo IT. Estoy enfocada en un perfil de QA + SAP MM, apoyándome en mi formación como Ingeniera Informática y en el acompañamiento de la IA durante esta etapa de autopreparación.
+Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA + SAP MM, apoyada en mi experiencia y en el acompañamiento de la IA durante esta etapa de autopreparación.
 
 Como parte de este objetivo, estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra en SAP MM, donde pueda evidenciar el ciclo de desarrollo de software y mis capacidades como QA funcional.
 
 Hasta el momento tengo definido los siguientes elementos:
 
-# 1.Dominio de Negocio (MVP):
+# 1. Dominio de Negocio (MVP)
 
 Gestión del Proceso de Solicitudes de Compra (Purchase Requisition – SAP MM)
 
@@ -33,35 +35,42 @@ Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan e
 
 Estas áreas podrán considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
 
-# 2.Módulos del Negocio (Fundamentales e Indispensables)
+# 2. Módulos del Negocio (Fundamentales e Indispensables)
 
   - Módulo 1 (Core Funcional) : Gestión de Solicitud de Compra
-  - Moódulo 2: Gestión del Ciclo de Vida de la Solicitud (Estados)
+  - Módulo 2: Gestión del Ciclo de Vida de la Solicitud (Estados)
   - Módulo 3: Autenticación y Roles  
   - Módulo 4: Gestión de Usuarios (Simplificado) 
 
 
-# 3.Identificación de Funcionalidades (Críticas e Indispensables)
+# 3. Identificación de Funcionalidades (Críticas e Indispensables)
 
 - Crear Solicitud de Compra
 - Modificar Solicitud de Compra
 - Visualizar Solicitud de Compra
 - Listar Solicitudes de Compra
--  Asignación de Estado Inicial
+- Asignación de Estado Inicial
 - Cambio de Estado de la Solicitud
 - Validación de Transiciones de Estado
 - Inicio de Sesión
 - Control de Acceso por Rol
 - Restricción de Acceso a Funcionalidades
 
-# 4.Generación de primeras Historias de Usuario (v1)
+Cada funcionalidad se detalla en historias de usuario dentro de las siguientes categorías:
+
+   - PR-Flow | GSC: Gestión de Solicitudes de Compra.
+   - PR-Flow | GE: Gestión de Estados.
+   - PR-Flow | AR: Autenticación y Roles.
+   - PR-Flow | USER: Gestión de Usuarios (simplificado).
+
+# 4. Generación de primeras Historias de Usuario (v1)
 
   * Nota metodológica (como PO):
     - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
     - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
     - El lenguaje está pensado para ser testeable por QA y alineado a procesos SAP MM (PR).
 
-### Resumen de Historias de Usuario del Flujo de Solicitudes de Compra (PR-Flow)
+## Resumen de Historias de Usuario del Flujo de Solicitudes de Compra (PR-Flow)
 
 - **PR-Flow \| GSC \| Crear una solicitud de compra**  
   - **Descripción (Cómo, Quiero, Para)**:  
@@ -114,7 +123,7 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - **Prioridad**: Alta  
   - **Labels**: PRFlow, GestionDeSolicitudesDeCompra, ListarSolicitudesDeCompra  
 
-### Resumen de Historias de Usuario de Gestión del Ciclo de Vida de la Solicitud (Estados) (PR-Flow | GE)
+## Resumen de Historias de Usuario de Gestión del Ciclo de Vida de la Solicitud (Estados) (PR-Flow | GE)
 
 - **PR-Flow \| GE \| Asignar el estado inicial a la solicitud**  
   - **Descripción (Cómo, Quiero, Para)**:  
@@ -153,7 +162,7 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - **Prioridad**: Alta  
   - **Labels**: PRFlow, GestionDeEstados, ValidarTransicionesDeEstado  
 
-  ### Resumen de Historias de Usuario de Autenticación y Roles (PR-Flow | AR)
+## Resumen de Historias de Usuario de Autenticación y Roles (PR-Flow | AR)
 
 - **PR-Flow \| AR \| Iniciar sesión en el sistema**  
   - **Descripción (Cómo, Quiero, Para)**:  
@@ -179,7 +188,7 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - **Prioridad**: Alta  
   - **Labels**: PRFlow, AutenticacionYRoles, ControlDeAccesoPorRol  
 
-  ### Resumen de Historias de Usuario de Gestión de Usuarios (PR-Flow | USER)
+## Resumen de Historias de Usuario de Gestión de Usuarios (PR-Flow | USER)
 
 - **PR-Flow \| USER \| Dar de alta un usuario**  
   - **Descripción (Cómo, Quiero, Para)**:  
@@ -206,104 +215,7 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - **Prioridad**: Media  
   - **Labels**: PRFlow, UsuariosSimplificado, ConsultaDeUsuarios  
 
-# Luego de esta definición realicé las siguientes acciones:
-
-- Definir Epics para el MVP
-- Formato definido:
-    - Descripción
-    - Objetivo
-    - Alcance Funcional
-    - DoR (Global para todo el MVP)
-    - Valor para el Negocio
-    - DoD (para cada Epic)
-    - Módulos de la Epic
-    - Funcionalidades
-    - Historias de Usuario
-
-# Para los Módulos se definieron los siguientes elementos:
-- Formato definido:
-    - Objetivo
-    - Principal Problema que Resuelve
-    - Principales Usuarios
-    - Reglas de Negocio Claves
-    - Justificación Inicial para el MVP
-    - Posibles Funcionalidades
-
-# De las funcionalidades especifiqué:
-- Formato definido:
-    - Justificación
-    - Dependencias
-
-# Y finalmente para las Historias de Usuario se definieron de la siguiente forma:
-- Formato definido:
-    - Descripción
-    - DoR(Referenciado del Global)
-    - Reglas de Negocio
-    - Criterios de Aceptación y Escenarios en Gherkin
-    - Consideraciones QA
-    - Dependencias
-
-# Además definí varios workflows en Jira para:
-
-- US
-- Task
-- Epic
-- Bug
-
-# Y gestione lo que hasta el momento tengo definido, en Jira Free.
-
-# Por último
-
-- Comencé recién una etapa de Refinamiento de Historias de Usuario.
-- Y además estoy usando un enfoque Shift-Left-Testing
-- No tengo dominio de SAP, estoy aprendiendo y por eso decidí crear mi portafolios basado en ello.
-- Quiero lograr un interfaz funcional (MVP) bien sencilla para aportar valor.
-- No domino herramientas como Git, Github, Selenium, Cypress, Playwrigh, etc
-- Pero tengo toda la disposicion para aprender a usarlas. 
-- Ahora vamos a comenzar a definir la estructura del proyecto de forma profesional, para simular un entorno real de trabajo. Para ello usaremos:
-  - Wsl + Ubuntu
-  - Gemini CLi
-  - Git (para control de versiones)
-  - GitHub (Para que mi proyecto pueda ser compartido en un futuro)
-  - Jira (Para Gestión de EPICs, US, Bugs, etc.)
-
-# Eventualmente y conforme aparezca la necesida se incluiran mas frameworks y herramientas. Espero tu ayuda en este proceso.
-
-
-# Guía para IA y Colaboradores – MVP Gestión de Solicitudes de Compra (SAP MM)
-
-## 1. Contexto del proyecto
-
-Soy Ingeniera Informática con experiencia previa, retomando mi carrera con un enfoque en QA + SAP MM.  
-Este repositorio contiene un MVP orientado a la **Gestión de Solicitudes de Compra (Purchase Requisition – SAP MM)**, pensado como parte de mi **portafolio profesional**.
-
-Objetivos principales:
-
-- Practicar y demostrar un ciclo completo de desarrollo de software (análisis → diseño → implementación → QA → versión en git).
-- Resaltar habilidades como QA Analyst + SAP MM.
-- Aplicar un enfoque **Shift-Left Testing**, incorporando calidad y pruebas desde el inicio.
-- Usar IA como acompañante en el proceso (refinamiento de historias, diseño técnico, revisión de código, QA, desarrollo).
-
-## 2. Dominio y épicas del MVP
-
-Dominio de negocio: **Gestión del Proceso de Solicitudes de Compra**, inspirado en las transacciones SAP MM:
-
-- ME51N – Crear solicitud de compra
-- ME52N – Modificar solicitud
-- ME53N – Visualizar solicitud
-
-Las épicas principales están documentadas en:
-
-- `DOCS/EPICS/EP-01-gestion-solicitudes-compra.md`  
-  Core funcional: crear, modificar, visualizar y listar Solicitudes de Compra.
-- `DOCS/EPICS/EP-02-gestion-ciclo-vida-solicitud.md`  
-  Gestión de estados: Creada, En Revisión, Aprobada, Rechazada y sus transiciones válidas.
-- `DOCS/EPICS/EP-03-gestion-usuarios-seguridad.md`  
-  Usuarios, autenticación básica y control de acceso por roles.
-
-Las historias de usuario (US-01…US-11) se derivan de estas épicas y se gestionan en Jira, pero están descritas también dentro de cada archivo de US.
-
-## 3. Roles y responsabilidades (MVP)
+# 5. Roles y responsabilidades (MVP)
 
 Roles principales definidos:
 
@@ -316,13 +228,13 @@ Roles principales definidos:
 
 Las reglas detalladas de cada rol y sus permisos se encuentran en:
 
-- `DOCS/EPICS/EP-01-gestion-solicitudes-compra.md`
-- `DOCS/EPICS/EP-02-gestion-ciclo-vida-solicitud.md`
-- `DOCS/EPICS/EP-03-gestion-usuarios-seguridad.md`
+- `DOCS/EPICS/EPIC-01-gestion-solicitudes-compra.md`
+- `DOCS/EPICS/EPIC-02-gestion-ciclo-vida-solicitud.md`
+- `DOCS/EPICS/EPIC-03-gestion-usuarios-seguridad.md`
 
-## 4. DoR y DoD (nivel MVP)
+# 6. DoR y DoD (nivel MVP)
 
-### Definition of Ready (DoR) – Global
+## Definition of Ready (DoR) – Global
 
 Una Historia de Usuario se considera **Ready** cuando:
 
@@ -334,7 +246,7 @@ Una Historia de Usuario se considera **Ready** cuando:
 
 Si algo de esto no se cumple, la historia permanece en **Refinamiento**.
 
-### Definition of Done (DoD) – Global
+## Definition of Done (DoD) – Global
 
 Una Historia de Usuario se considera **Done** cuando:
 
@@ -348,7 +260,7 @@ Una Historia de Usuario se considera **Done** cuando:
 
 Los matices específicos por épica están en cada archivo de `DOCS/EPICS`.
 
-## 5. Enfoque de QA y Shift-Left Testing
+# 7. Enfoque de QA y Shift-Left Testing
 
 Este proyecto prioriza QA desde el inicio:
 
@@ -366,41 +278,71 @@ Cuando la IA proponga cambios, se espera que:
 1. Verifique el impacto en reglas de negocio y estados.
 2. Sugiera escenarios de prueba (manuales o automatizados) alineados con los criterios de aceptación.
 3. Señale posibles huecos de cobertura o riesgos.
+4. La IA debe evitar introducir cambios que amplíen el alcance funcional del MVP sin validarlo explícitamente conmigo.
 
-## 6. Convenciones de git para este proyecto
+# 8. Convenciones de git para este proyecto
 
-### Rama principal
+## Rama principal
 
-- `main`  
-  Debe contener solo funcionalidad que cumpla al menos el DoD global del MVP para esas historias.
+ - `main`  
+  Debe contener solo documentación y funcionalidad aceptada para el MVP.
 
-### Ramas por Historia de Usuario
+  Estructura esperada (alto nivel):
 
-Formato sugerido:
-
-- `feature/US-01-crear-solicitud-compra`
-- `feature/US-02-modificar-solicitud-compra`
-- `feature/US-03-visualizar-solicitud-compra`
-- etc.
-
-Cada rama se asocia a una US concreta (US-XX) definida en las épicas y en Jira.
+  - `DOCS/`
+   - `EPICAS_FINALIZADAS_MVP/`
+   - `MODELO_DOMINIO/`
+   - `API/`
+   - `QA/`
+   - `HISTORIAS_USUARIO_REFINADAS/`
+  - `README.md`
+  - `GEMINI.md`
 
 ### Mensajes de commit
 
 Formato sugerido:
 
-- `US-01: estructura inicial del formulario de creación de solicitud`
-- `US-01: validaciones de campos obligatorios`
-- `US-05: asignación automática de estado inicial`
-- `US-08: flujo básico de login`
+| Tipo      | Cuándo usarlo                 |
+| ----------| ------------------------------|
+| `docs`    | Cambios en documentación      |
+| `feat`    | Nuevo contenido funcional     |
+| `qa`      | Escenarios, criterios, pruebas|
+| `refactor`| Mejora sin cambiar alcance    |
+| `chore`   | Orden, estructura, limpieza   |
+
+
+- `docs: agregar EPICs finalizadas del MVP SAP-MM`
+- `chore: inicializar documentación base del proyecto`
+- `refactor: mejorar redacción y consistencia de US y EPICs`
+- etc.
+
+## Ramas por EPICAS
+
+Formato sugerido:
+
+- `feature/EPIC-01-crear-solicitud-compra`
+- `feature/EPIC-02-modificar-solicitud-compra`
+- `feature/EPIC-03-visualizar-solicitud-compra`
+- etc.
+
+Cada rama se asocia a una Epica concreta (EPIC-XX) definida en las épicas y en Jira.
+
+### Mensajes de commit
+
+Formato sugerido:
+
+- `feat: documentar EPIC-01 creación de solicitud de compra`
+- `feat: documentar EPIC-02 gestión de estados`
+- `feat: documentar EPIC-03 gestión de usuarios y seguridad`
+
 
 Reglas:
 
 - Cada commit debe tener un objetivo pequeño y claro.
-- Siempre que sea posible, debe referenciar la US correspondiente (US-XX).
+- Siempre que sea posible, debe referenciar la EPIC correspondiente (EPIC-XX).
 - Evitar commits tipo “cambios varios” sin contexto.
 
-## 7. Flujo de trabajo por Historia de Usuario
+# 9. Flujo de trabajo por Historia de Usuario
 
 Para cada US (ej. **US-01 | Crear Solicitud de Compra**):
 
@@ -428,7 +370,7 @@ Para cada US (ej. **US-01 | Crear Solicitud de Compra**):
 5. **Integración**
    - Al finalizar, fusionar la rama en `main` una vez que la US cumple el DoD.
 
-## 8. Cómo debe colaborar la IA en este proyecto
+# 10. Cómo debe colaborar la IA en este proyecto
 
 Cuando se pida ayuda a la IA, se espera que:
 
@@ -447,10 +389,11 @@ Cuando se pida ayuda a la IA, se espera que:
      - Las reglas de negocio definidas en las épicas.
      - El modelo de estados de la solicitud.
      - Las reglas de seguridad y roles del MVP.
+     - Siempre que use reglas de negocio o de estados, la IA debe indicar de qué épica o documento (`DOCS/EPICS/...`) las está tomando.
    - Sugiera:
      - Refactors que mejoren claridad sin cambiar reglas funcionales.
      - Validaciones y controles adicionales si detecta huecos.
-
+  
 3. **Al trabajar con git**
    - Proponga nombres de ramas y mensajes de commit siguiendo las convenciones anteriores.
    - Ayude a dividir cambios grandes en commits lógicos.
