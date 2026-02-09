@@ -232,6 +232,7 @@ Background:
 ```
 ## Criterios de Usabilidad (UX)
 
+```gherkin
 @UX @preventivo
 Scenario: Prevención de pérdida de datos no guardados
 
@@ -248,6 +249,7 @@ Scenario: Feedback visual tras creación exitosa de la solicitud
   Then el sistema muestra una notificación operación exitosa
   And la notificación incluye el número de documento generado
   And desaparece automáticamente después de un tiempo razonable
+```
  
 ## 5. Consideraciones de QA
 
