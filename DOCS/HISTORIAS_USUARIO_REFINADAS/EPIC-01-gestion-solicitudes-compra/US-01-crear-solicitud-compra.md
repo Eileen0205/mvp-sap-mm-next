@@ -233,6 +233,7 @@ Background:
 ## Criterios de Usabilidad (UX)
 
 ```gherkin
+
 @UX @preventivo
 Scenario: Prevención de pérdida de datos no guardados
 
@@ -249,64 +250,17 @@ Scenario: Feedback visual tras creación exitosa de la solicitud
   Then el sistema muestra una notificación operación exitosa
   And la notificación incluye el número de documento generado
   And desaparece automáticamente después de un tiempo razonable
+
 ```
  
 ## 5. Consideraciones de QA
 
-**Integridad de la Transacción (Validaciones Backend)**
+> Nota: Aplican las Consideraciones Generales QA definidas para EPIC-01
 
-- Validación Atómica: Todas las reglas de negocio (RN01–RN10) deben validarse en el servidor de forma prioritaria.
-- Rollback: Si cualquiera de las validaciones falla, el sistema no debe crear ningún registro parcial. La operación debe ser "todo o nada"
-- Validación Descripción: Si la longitud del campo es <10 (aplicando trim para ignorar espacios vacíos) , el sistema debe retornar el error: "La descripción es demasiado breve (mín. 10 caracteres)".
-- Validación de duplicados: El backend debe asegurar que un reintento de creación del usuario tras un fallo de red, no genere una solicitud duplicada.
+**Tener en cuenta además qué:**
 
-**Definición de Datos y Formatos (Casos de Borde)**
-
-- **Cantidad (RN05):**
-
-  - El sistema debe rechazar valores <= 0
-  - Formato numérico decimal mediante Regex ^\d{1,10}(.\d{1,3})?$. Soporta hasta 10 enteros y 3 decimales.
-  - Bloqueo total de caracteres alfabéticos o especiales.
-
-- **Fechas (RN03):**
-
-  - Hoy: Es un valor válido (se toma como fecha límite el cierre del día del sistema). 
-  - Pasado: Cualquier fecha (ej. Ayer) debe ser rechazada. 
-  - Futuro: Máximo 90 días (3 meses) a partir de la fecha actual.
-
-- **Descripción:**
-
-  - Longitud: El campo debe validar un rango de [10 - 40] caracteres.
-  - El sistema debe mostrar un contador de caracteres restante (ej: 15/40) para guiar al usuario.
-
-**Lógica de Duplicidad (RN09)**
-
-- Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: Material/Servicio + Centro + Fecha de Entrega
-- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha), el sistema debe procesarlo como una nueva solicitud válida.
-
-**Comportamiento de la Interfaz (UI/UX)** 
-
-- Las validaciones de obligatoriedad (RN07) y formato (RN05) deben ejecutarse preferiblemente on-blur (al salir del campo) para guiar al usuario antes de presionar "Guardar".
-- Si el usuario selecciona tipo “Servicio“ el campo “Almacén“ no deberá mostrarse en el formulario.
-
-**Gestión de Errores**
-
-- Específicos: Los mensajes deben indicar claramente el campo afectado (Ej: "La fecha de entrega no puede ser anterior a hoy"). 
-- Persistencia: El mensaje de error debe permanecer visible hasta que el usuario corrija el dato o cierre la notificación.
-
-**Seguridad y Acceso**
-
-- Bloqueo Prematuro: Usuarios sin el rol Solicitante o en estado Inactivo no deben visualizar el botón "Crear Solicitud". Si intentan acceder por URL directa, el sistema debe redirigir a la página de error 403 (Acceso Denegado).
-
-**Fallos de Sistema (fallos inesperados de infraestructura o conectividad)**
-
-- Ante un error inesperado o pérdida de conexión, los datos ingresados deben persistir en los campos para permitir que el usuario reintente el guardado una vez restablecido el servicio.
-- En caso de error técnico, se debe evitar el uso de logs técnicos en la interfaz, se deben mostrar mensajes amigables, claros y concisos. 
-
-**Requerimientos No Funcionales (comportamiento esperado del sistema bajo condiciones normales Performance (Rendimiento))**
-
-- Tiempo de Respuesta: Tras pulsar "Guardar", la respuesta del sistema (ya sea éxito o error) debe producirse en un tiempo razonable. 
-- Métrica: El tiempo objetivo es menor a 2 segundos bajo condiciones normales de red y carga.
+- Usuarios sin el rol Solicitante o en estado Inactivo no deben visualizar el botón "Crear Solicitud". Si intentan acceder por URL directa, el sistema debe redirigir a la página de error 403 (Acceso Denegado).
+- Si el usuario selecciona tipo “Servicio“ el campo "Almacén" no deberá mostrarse en el formulario.
 
 ## 6. DoD (Definition of Done)
 
