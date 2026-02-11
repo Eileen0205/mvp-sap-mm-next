@@ -135,7 +135,6 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
     - Fecha Requerida
     - Unidad de Medida (UM)
 - El tipo de solicitud, centro y almacén no pueden modificarse una vez creada la solicitud.
-- Una Solictud de Compra solo puede ser Aprobada o Rechazada por un usuario con rol "Aprobador"
 
 # Ciclo de Vida de la Solicitud de Compra
 

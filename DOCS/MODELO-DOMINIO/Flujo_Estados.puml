@@ -1,0 +1,14 @@
+@startuml
+' Definición de estados
+[*] --> CREADA
+CREADA : Solicitante crea solicitud
+CREADA --> EN_REVISIÓN : Solicitante envía la solicitud a Revisión
+EN_REVISIÓN : EN REVISIÓN
+EN_REVISIÓN --> APROBADA : Aprobador aprueba solicitud
+EN_REVISIÓN --> RECHAZADA : Aprobador rechaza solicitud
+APROBADA : APROBADA
+RECHAZADA : RECHAZADA
+APROBADA --> FIN : Estado final
+RECHAZADA --> FIN : Estado final
+FIN --> [*]
+@enduml

@@ -1,0 +1,98 @@
+@startuml
+title Modelo de Dominio - EPIC-01 Gestión de Solicitudes de Compra
+
+' =========================
+' ENUMERACIONES
+' =========================
+
+enum TipoSolicitud {
+  MATERIAL
+  SERVICIO
+}
+
+enum EstadoSolicitud {
+  CREADA
+  EN_REVISION
+  APROBADA
+  RECHAZADA
+}
+
+enum EstadoUsuario {
+  ACTIVO
+  INACTIVO
+}
+
+' =========================
+' ENTIDADES PRINCIPALES
+' =========================
+
+class SolicitudCompra {
+  +id: String
+  +tipo: TipoSolicitud
+  +descripcion: String
+  +cantidad: Decimal
+  +unidadMedida: String
+  +fechaRequerida: Date
+  +fechaCreacion: Date
+  +estado: EstadoSolicitud
+}
+
+class Usuario {
+  +id: String
+  +estado: EstadoUsuario
+}
+
+class Rol {
+  +id: String
+  +nombre: String
+}
+
+class Centro {
+  +id: String
+  +nombre: String
+}
+
+class Almacen {
+  +id: String
+  +nombre: String
+}
+
+class Material {
+  +id: String
+  +descripcion: String
+}
+
+class Servicio {
+  +id: String
+  +descripcion: String
+}
+
+' =========================
+' RELACIONES
+' =========================
+
+' Usuario crea Solicitudes
+Usuario "1" -- "0..*" SolicitudCompra : crea >
+
+' Usuario tiene Roles
+Usuario "1" -- "1..*" Rol : posee >
+
+' Solicitud pertenece a un Centro
+Centro "1" -- "0..*" SolicitudCompra : pertenece >
+
+' Relación exclusiva Material o Servicio
+SolicitudCompra "0..*" --> "1" Material : solicita >
+SolicitudCompra "0..*" --> "1" Servicio : solicita >
+
+' Almacén solo aplica cuando tipo = MATERIAL
+Almacen "1" -- "0..*" SolicitudCompra : asignado >
+
+' Nota de restricción exclusiva
+note right of SolicitudCompra
+Una solicitud debe estar asociada
+a Material o Servicio (exclusivo).
+Almacén obligatorio solo si
+tipo = MATERIAL.
+end note
+
+@enduml
