@@ -15,7 +15,7 @@
 ## 3. Reglas de negocio
 
 - **RN01:** Solo usuarios autenticados y con sesión activa pueden modificar solicitudes de compra.
-- **RN02:** Solo usuarios con rol _Solicitante pueden acceder a la modificación de solicitudes propias.
+- **RN02:** Solo usuarios con rol Solicitante pueden acceder a la modificación de solicitudes propias.
 - **RN03:** Solo pueden modificarse los siguientes campos en una solicitud: Descripción, Cantidad, Fecha Requerida, Unidad de Medida (UM).
 - **RN04:** Una vez creada la solicitud no puede modificarse: Tipo, Centro, Almacén.
 - **RN05:** La solicitud de compra a modificar debe existir en el sistema.

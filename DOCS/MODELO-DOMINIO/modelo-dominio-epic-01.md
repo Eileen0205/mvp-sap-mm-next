@@ -125,6 +125,7 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 - Solo usuarios activos y autenticados pueden crear o modificar solicitudes.
 - Solo usuarios con rol Solicitante pueden crear y modificar solicitudes propias.
 - Una solicitud solo puede modificarse mientras esté en estado Creada.
+- Solo un usuario con rol Solicitante puede enviar una solicitud de compra de estado Creada a En Revisión.
 - No se permiten solicitudes duplicadas para la misma combinación de:
   - Material o Servicio
   - Centro

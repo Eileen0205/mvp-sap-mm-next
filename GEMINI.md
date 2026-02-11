@@ -290,11 +290,11 @@ Cuando la IA proponga cambios, se espera que:
   Estructura esperada (alto nivel):
 
   - `DOCS/`
-   - `EPICAS_FINALIZADAS_MVP/`
-   - `MODELO_DOMINIO/`
    - `API/`
-   - `QA/`
+   - `EPICS/`
    - `HISTORIAS_USUARIO_REFINADAS/`
+   - `MODELO_DOMINIO/`
+   - `QA/`
   - `README.md`
   - `GEMINI.md`
 

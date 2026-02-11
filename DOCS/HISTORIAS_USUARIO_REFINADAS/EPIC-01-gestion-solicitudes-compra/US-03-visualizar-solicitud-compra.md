@@ -15,23 +15,14 @@ Esta historia debe cumplir el DoR definido para el MVP y la **EPIC-01**. No se c
 ## 3. Reglas de negocio
 
 - **RN01**: Para visualizar una solicitud el usuario requiere una sesión activa en el sistema.
-
 - **RN02**: Solo los usuarios con rol Solicitante, Aprobador o Administrador Técnico/Funcional pueden visualizar solicitudes de compra.
-
 - **RN03**: El usuario con rol Solicitante solo puede visualizar solicitudes propias.
-
 - **RN04**: El usuario con rol Aprobador puede visualizar las solicitudes que estén dentro de su ámbito de aprobación, al menos aquellas en estado En Revisión que deba gestionar.
-
 - **RN05**: El usuario con rol Administrador Técnico/Funcional puede visualizar cualquier solicitud de compra con fines de soporte, siempre en modo solo lectura.
-
-- **RN06**: El detalle de la solicitud debe mostrar, como mínimo: ID, tipo, descripción, cantidad, centro, almacén, fecha requerida, estado actual y usuario solicitante.
-
+- **RN06**: El detalle de la solicitud debe mostrar, como mínimo: ID, tipo, descripción, cantidad, centro, almacén(si aplica), fecha requerida, estado actual y usuario solicitante.
 - **RN07**: El estado mostrado debe corresponder fielmente al estado real de la solicitud en el sistema.
-
 - **RN08**: La funcionalidad de visualización es de solo lectura. No permite modificar datos ni ejecutar acciones que cambien el estado.
-
 - **RN09**: El sistema debe bloquear el acceso y mostrar un mensaje de error funcional si un usuario intenta acceder a una solicitud para la que no tiene permisos.
-
 - **RN10**: El sistema debe gestionar de forma controlada los intentos de acceso a solicitudes con identificadores inexistentes o con formato inválido, mostrando un mensaje claro (ej. "Solicitud no encontrada") sin exponer errores técnicos.
 
 ## 4. Criterios de Aceptación y Escenarios (Gherkin)
