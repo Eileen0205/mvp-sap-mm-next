@@ -21,7 +21,7 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
  - Detectar solicitudes duplicadas de forma básica, considerando:
   - Mismo material o servicio.
   - Mismo centro.
-  - Misma fecha requerida.
+  - Misma fecha de entrega.
 
 ## 4. Out of Scope (Excluye explícitamente para este MVP)
 
@@ -127,7 +127,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 - La detección de duplicados para el MVP se limita a mismo:
   - Material/servicio
   - Mismo centro
-  - Misma fecha requerida.
+  - Misma fecha de entrega.
 - Las acciones (crear, modificar, listar, visualizar) solo pueden ser realizadas por usuarios con rol y permisos correspondientes. (se conecta con EPIC-03).
 - Las restricciones por rol deben validarse tanto a nivel de interfaz como de lógica de negocio, evitando accesos no autorizados por manipulación directa.
 
@@ -147,7 +147,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 **Descripción**  
 
-- Permite registrar una nueva solicitud de material o servicio, con datos mínimos: tipo, descripción, cantidad, unidad de medida(UM), fecha requerida, centro.
+- Permite registrar una nueva solicitud de material o servicio, con datos mínimos: tipo, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
 - El campo Almacéen solo se requerirá si el Tipo es "Material".
 - Cuando se crea, EPIC-02 asigna el estado inicial `Creada`.
 
@@ -173,9 +173,9 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 - En el MVP solo se permite modificar solicitudes de compra que se encuentren en estado "Creada".
 - La modificación solo puede ser realizada por el usuario Solicitante que creó la solicitud.
 - Una vez creada la solicitud, no se permite la modificación de los siguientes campos:
+  - Tipo
   - Centro
   - Almacén
-  - Fecha requerida
 
 **Justificación**
 
