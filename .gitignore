@@ -1,2 +1,9 @@
-*.Zone.Identifier
-DOCS/MODELO-DOMINIO/Diagrama_Estados.jpg
+# Metadatos de Windows y WSL
+**/*:Zone.Identifier
+:Zone.Identifier
+$RECYCLE.BIN/
+Thumbs.db
+
+# Archivos temporales de edición
+*.tmp
+*.bak
