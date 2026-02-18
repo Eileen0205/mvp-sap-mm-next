@@ -31,7 +31,11 @@ Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan e
 - Cálculo detallado de impuestos, condiciones de precio avanzadas y escenarios contables complejos.
 - Gestión completa de proveedores (alta, evaluación, segmentación, integración con portales de proveedores, etc.).
 - Estrategias de release y despliegue avanzadas (CI/CD completo, pipelines complejos).
-- Pruebas de rendimiento, carga o seguridad a nivel profesional (en esta fase se priorizan pruebas funcionales sobre el flujo de solicitudes de compra).
+- Pruebas de rendimiento, carga o seguridad a nivel profesional (en esta fase se priorizan pruebas funcionales sobre el flujo de solicitudes de compra). 
+- Sin embargo, el MVP sí incluye:
+  - Validaciones básicas de seguridad funcional, tales como control de acceso por rol, restricción de visualización de recursos no autorizados (ej. 403/404), manejo seguro de sesión y no exposición de información técnica en mensajes de error.
+- No se contemplan pruebas de rendimiento avanzadas tales como pruebas de carga, estrés, benchmarking o análisis de capacidad.
+ - No obstante, el MVP sí establece criterios básicos de rendimiento en condiciones normales de operación (ej. tiempo máximo de carga del detalle de una solicitud de hasta 5 segundos), los cuales serán verificados mediante pruebas funcionales.
 
 Estas áreas podrán considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
 
@@ -41,7 +45,6 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - Módulo 2: Gestión del Ciclo de Vida de la Solicitud (Estados)
   - Módulo 3: Autenticación y Roles  
   - Módulo 4: Gestión de Usuarios (Simplificado) 
-
 
 # 3. Identificación de Funcionalidades (Críticas e Indispensables)
 
@@ -293,7 +296,7 @@ Cuando la IA proponga cambios, se espera que:
    - `API/`
    - `EPICS/`
    - `HISTORIAS_USUARIO_REFINADAS/`
-   - `MODELO_DOMINIO/`
+   - `MODELO-DOMINIO/`
    - `QA/`
   - `README.md`
   - `GEMINI.md`
@@ -320,9 +323,9 @@ Formato sugerido:
 
 Formato sugerido:
 
-- `feature/EPIC-01-crear-solicitud-compra`
-- `feature/EPIC-02-modificar-solicitud-compra`
-- `feature/EPIC-03-visualizar-solicitud-compra`
+- `feature/EPIC-01-refinar-historias-usuario`
+- `feature/EPIC-02-refinar-historias-usuario`
+- `feature/EPIC-03-refinar-historias-usuario`
 - etc.
 
 Cada rama se asocia a una Epica concreta (EPIC-XX) definida en las épicas y en Jira.

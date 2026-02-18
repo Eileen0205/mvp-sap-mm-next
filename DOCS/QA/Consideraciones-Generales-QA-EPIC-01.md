@@ -74,7 +74,7 @@ Estas consideraciones aplican a:
 **Lógica de Duplicidad**
 
 - Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: Material/Servicio + Centro + Fecha de Entrega
-- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha), el sistema debe procesarlo como una nueva solicitud válida.
+- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha de entrega), el sistema debe procesarlo como una nueva solicitud válida.
 
 **Comportamiento de la Interfaz (UI/UX)** 
 

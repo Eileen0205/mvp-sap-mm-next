@@ -4,14 +4,13 @@
 
 ## Objetivo del MVP: 
 
-- Demostrar mis competencias como QA funcional junior con foco en el módulo SAP MM (en formación), tomando como base mi formación en Ingeniería Informática para aplicar buenas prácticas de análisis, diseño de pruebas y gestión de la calidad.
+- Demostrar mis competencias como QA Funcional, tomando como base mi formación en Ingeniería Informática para aplicar buenas prácticas de análisis, diseño de pruebas y gestión de la calidad.
 
 - Practicar un flujo de trabajo completo de desarrollo y QA, documentado y versionado con Git, utilizando también herramientas de IA como apoyo.
 
+## Qué quiero mostrar con este proyecto:
 
-## Que quiero mostrar con este proyecto:
-
-A traves de este MVP quiero evidenciar que:
+A través de este MVP quiero evidenciar que:
 
 - Puedo entender y modelar un **flujo de negocio realista** relacionado con las Solicitudes de Compra.
 - Sé **analizar requisitos funcionales** y traducirlos en:
@@ -22,7 +21,7 @@ A traves de este MVP quiero evidenciar que:
   - Git y repositorio remoto.
   - Documentación dentro del propio repositorio.
   - Apoyo en herramientas de IA para análisis, diseño y revisión.
-- Estoy en un proceso activo de **actualización profesional**, retomando mi perfil de ingeniería informática y orientándolo hacia **QA + SAP MM**.
+- Estoy en un proceso activo de **actualización profesional**, retomando mi perfil de ingeniería informática y orientándolo hacia **QA**.
 
 ## Estructura del repositorio
 
