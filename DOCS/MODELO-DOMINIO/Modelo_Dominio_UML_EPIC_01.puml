@@ -5,11 +5,6 @@ title Modelo de Dominio - EPIC-01 Gestión de Solicitudes de Compra
 ' ENUMERACIONES
 ' =========================
 
-enum TipoSolicitud {
-  MATERIAL
-  SERVICIO
-}
-
 enum EstadoSolicitud {
   CREADA
   EN_REVISION
@@ -23,22 +18,36 @@ enum EstadoUsuario {
 }
 
 ' =========================
-' ENTIDADES PRINCIPALES
+' ENTIDADES
 ' =========================
+
+abstract class ItemComprable {
+  +id: String
+  +descripcion: String
+}
+
+class Material {
+  ' Hereda id y descripcion
+}
+
+class Servicio {
+  ' Hereda id y descripcion
+}
 
 class SolicitudCompra {
   +id: String
-  +tipo: TipoSolicitud
   +descripcion: String
   +cantidad: Decimal
   +unidadMedida: String
-  +fechaRequerida: Date
   +fechaCreacion: Date
+  +fechaEntrega: Date
   +estado: EstadoSolicitud
 }
 
 class Usuario {
   +id: String
+  +nombre: String
+  +email: String
   +estado: EstadoUsuario
 }
 
@@ -57,42 +66,46 @@ class Almacen {
   +nombre: String
 }
 
-class Material {
-  +id: String
-  +descripcion: String
-}
-
-class Servicio {
-  +id: String
-  +descripcion: String
-}
-
 ' =========================
-' RELACIONES
+' RELACIONES Y JERARQUÍA
 ' =========================
 
-' Usuario crea Solicitudes
+' Herencia para relación exclusiva Material/Servicio
+ItemComprable <|-- Material
+ItemComprable <|-- Servicio
+
+' 1. Una Solicitud se asocia a exactamente un Material o Servicio
+SolicitudCompra "0..*" o-- "1" ItemComprable : solicita >
+
+' 2. Relación Usuario - Solicitud
 Usuario "1" -- "0..*" SolicitudCompra : crea >
 
-' Usuario tiene Roles
-Usuario "1" -- "1..*" Rol : posee >
+' 3. Relación Usuario - Rol (Muchos a Muchos)
+Usuario "*" -- "1..*" Rol : posee >
 
-' Solicitud pertenece a un Centro
-Centro "1" -- "0..*" SolicitudCompra : pertenece >
+' 4. Relación Centro - Solicitud
+Centro "1" -- "0..*" SolicitudCompra : pertenece a <
 
-' Relación exclusiva Material o Servicio
-SolicitudCompra "0..*" --> "1" Material : solicita >
-SolicitudCompra "0..*" --> "1" Servicio : solicita >
+' 5. Relación Centro - Almacén
+Centro "1" *-- "0..*" Almacen : contiene >
 
-' Almacén solo aplica cuando tipo = MATERIAL
-Almacen "1" -- "0..*" SolicitudCompra : asignado >
+' 6. Relación Solicitud - Almacén (Opcional según tipo)
+Almacen "1" -- "0..*" SolicitudCompra : asignado a <
 
-' Nota de restricción exclusiva
+' 7. Ámbito de Aprobación (Aprobador - Centro)
+Usuario "*" -- "1..*" Centro : aprueba en >
+note on link: Solo para usuarios con\nRol: Aprobador
+
+' =========================
+' NOTAS DE REGLAS DE NEGOCIO
+' =========================
+
 note right of SolicitudCompra
-Una solicitud debe estar asociada
-a Material o Servicio (exclusivo).
-Almacén obligatorio solo si
-tipo = MATERIAL.
+  **Reglas Críticas:**
+  * No editable si estado != CREADA.
+  * Almacén obligatorio solo si Item es Material.
+  * Centro, Almacén e Item son inmutables tras creación.
+  * No duplicados por: Item + Centro + FechaEntrega.
 end note
 
 @enduml

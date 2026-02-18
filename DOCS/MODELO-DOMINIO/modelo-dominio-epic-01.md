@@ -1,6 +1,6 @@
 # Introducción
 
-En este documento describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Tiene como objetivo representar los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
+En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Tiene como objetivo representar los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
 
 # Objetivo
 
@@ -32,13 +32,16 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 ### Atributos principales:
 
 - Identificador de solicitud
-- Tipo de solicitud (Material / Servicio)
+- Tipo de solicitud (Material o Servicio)
 - Descripción
 - Cantidad
 - Unidad de Medida
-- Fecha requerida
+- Fecha de creación
+- Fecha de entrega
 - Estado de la solicitud
-- Fecha de creación 
+- Centro
+- Almacén
+- Nombre de Usuario Solicitante 
 
 ## Usuario
 
@@ -47,6 +50,8 @@ Representa a una persona que interactúa con el sistema.
 ### Atributos principales:
 
 - Identificador de usuario
+- Nombre
+- Email
 - Estado (Activo / Inactivo)
 
 ## Rol
@@ -110,14 +115,17 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 
 - Un Usuario puede crear una o varias Solicitudes de Compra.
 - Cada Solicitud de Compra es creada por un único Usuario.
+- Un Usuario puede tener uno o varios Roles.
+- Un Rol puede asociarse a diferentes usuarios.
+- Un Usuario con rol Aprobador puede estar asignado a uno o varios Centros (según ámbito de aprobación).
+- Un Centro puede tener asignados varios Aprobadores.
+- Un centro puede tener varias Solicitudes de Compra.
 - Una Solicitud de Compra pertenece a un único Centro.
-- Un centro puede tener varias Solicitudes de Compra
 - Una Solicitud de Compra se asocia a exactamente uno de los siguientes: Material o Servicio (relación exclusiva).
-- Un material o un servicio pueden estar asociadas a varias Solicitudes de Compra
+- Un material o un servicio pueden estar asociadas a varias Solicitudes de Compra.
 - Una Solicitud de Compra puede requerir un Almacén cuando el tipo es Material.
 - Un Almacén puede estar asociado a múltiples Solicitudes de Compra de tipo Material.
-- Un Usuario puede tener uno o varios Roles.
-- Un Rol puede asociarse a diferentes usuarios
+- Cada almacén debe pertenecer a un único centro, y un centro puede contener múltiples almacenes.
 - Una Solicitud de Compra puede transicionar entre múltiples Estados a lo largo de su ciclo de vida, manteniendo un único estado activo en cada momento.
 
 # Reglas de Negocio del Dominio
@@ -129,11 +137,11 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 - No se permiten solicitudes duplicadas para la misma combinación de:
   - Material o Servicio
   - Centro
-  - Fecha entrega
+  - Fecha de entrega
 - Solo se permite la modificación de los atributos:
     - Descripción
     - Cantidad
-    - Fecha Requerida
+    - Fecha de entrega
     - Unidad de Medida (UM)
 - El tipo de solicitud, centro y almacén no pueden modificarse una vez creada la solicitud.
 
@@ -141,7 +149,7 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 
 La Solicitud de Compra sigue un ciclo de vida controlado por su estado:
 
-- Creada → editable por el Solicitante.
+- Creada → editable solo por el Solicitante.
 - En Revisión → no editable; decisión del Aprobador.
 - Aprobada → estado final.
 - Rechazada → estado final.
