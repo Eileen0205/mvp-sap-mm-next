@@ -1,3 +1,5 @@
+# US-02 | PR-Flow | GSC | Modificar una solicitud de compra
+
 ## 1. Descripción (Cómo, Quiero, Para)
 
 - **Cómo**: Usuario Solicitante  
@@ -16,11 +18,11 @@
 
 - **RN01:** Solo usuarios autenticados y con sesión activa pueden modificar solicitudes de compra.
 - **RN02:** Solo usuarios con rol Solicitante pueden acceder a la modificación de solicitudes propias.
-- **RN03:** Solo pueden modificarse los siguientes campos en una solicitud: Descripción, Cantidad, Fecha Requerida, Unidad de Medida (UM).
+- **RN03:** Solo pueden modificarse los siguientes campos en una solicitud: Descripción, Cantidad, Fecha de Entrega, Unidad de Medida (UM).
 - **RN04:** Una vez creada la solicitud no puede modificarse: Tipo, Centro, Almacén.
 - **RN05:** La solicitud de compra a modificar debe existir en el sistema.
 - **RN06:** El usuario solicitante debe tener permisos sobre el centro asignado a la solicitud.
-- **RN07:** No se permiten fechas requeridas anteriores a la fecha del sistema. (US-01)
+- **RN07:** No se permiten fechas de entrega anteriores a la fecha del sistema. (US-01)
 - **RN08:** La cantidad debe ser un valor mayor que cero y cumplir el formato definido (US-01).
 - **RN09:**  Solo se permite la modificación de solicitudes que se encuentren en estado inicial “Creada“. Cualquier otro estado (En Revisión, Aprobada, Rechazada) el sistema debe:
   - Deshabilitar la opción “Modificar“.
@@ -62,13 +64,13 @@ And tiene autorización sobre el centro
             Given el usuario tiene asignado el rol <rol>
             When intenta acceder a la funcionalidad "Modificar Solicitud"
             Then el sistema bloquea el acceso a la funcionalidad
-            And muestra un mensasje <mensaje>
+            And muestra un mensaje <mensaje>
             And no se permite la modificación de la solicitud
            
             Examples:
             |rol                            |mensaje                                              |
             |Aprobador                      |Su rol no tiene permisos para realizar modificaciones|
-            |Administrador Técnico Funcional|Su rol no tiene permisos para realizar modificaciones|
+            |Administrador Técnico/Funcional|Su rol no tiene permisos para realizar modificaciones|
     
     
       @US-02 @negative @datos_invalidos
@@ -101,9 +103,9 @@ And tiene autorización sobre el centro
        
             Given el usuario accede al formulario de modificación
             And completa los campos permitidos con datos válidos
-            When ingresa una fecha requerida anterior a la fecha del sistema
+            When ingresa una fecha de entrega anterior a la fecha del sistema
             And intenta guardar la modificación de la solicitud
-            Then el sistema muestra un mensaje indicando que la fecha requerida no puede ser pasada                
+            Then el sistema muestra un mensaje indicando que la fecha de entrega no puede ser pasada                
             And no se guarda la modificación de la solicitud
       
        @US-02 @negative @solicitud_inexistente
@@ -143,11 +145,11 @@ And tiene autorización sobre el centro
        @US-02 @negative @duplicados
        Scenario: Intentar modificar una solicitud para que quede duplicada de otra existente
 
-            Given existe una solicitud de compra creada previamente con el mismo material o servicio, centro y fecha requerida
+            Given existe una solicitud de compra creada previamente con el mismo material o servicio, centro y fecha de entrega
             When el usuario modifica los campos permitidos de su solicitud
-            And  intenta guardar la modificación de forma que la combinación de material o servicio, centro y fecha requerida coincida con la de la otra solicitud         
+            And  intenta guardar la modificación de forma que la combinación de material o servicio, centro y fecha de entrega coincida con la de la otra solicitud         
             Then el sistema bloquea la modificación de la solicitud
-            And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha requerida
+            And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha de entrega
             And no se guarda la modificación de la solicitud
 
         @US-02 @Seguridad @Gestion_Estados
@@ -192,6 +194,7 @@ And tiene autorización sobre el centro
 ## 5. Consideraciones de QA
 
 > Nota: Aplican las Consideraciones Generales QA definidas para EPIC-01
+> Los formatos y límites específicos de cada campo se detallan en Consideraciones Generales QA EPIC-01.
 
 **Comportamiento de la Interfaz (UI/UX)**
 
@@ -210,9 +213,9 @@ And tiene autorización sobre el centro
 
 ## 7. Dependencias
 
-- **EP-01 / US-01**: Debe existir una solicitud válida creada.
-- **EP-02**: La solicitud debe estar en estado `Creada` para poder modificarse.
-- **EP-03**: Autenticación, rol **Solicitante** y permisos sobre el centro.
+- **EPIC-01 / US-01**: Debe existir una solicitud válida creada.
+- **EPIC-02**: La solicitud debe estar en estado `Creada` para poder modificarse.
+- **EPIC-03**: Autenticación, rol **Solicitante** y permisos sobre el centro.
 
 ## 8. Metadatos
 

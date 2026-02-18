@@ -22,7 +22,7 @@
   - Descripción
   - Cantidad
   - Unidad de medida (UM)
-  - Fecha
+  - Fecha de Entrega
   - Centro
 - **RN08** RN08: El campo Almacén es:
   - Obligatorio cuando el tipo de solicitud es "Material".
@@ -30,7 +30,7 @@
 - **RN09** No se permiten solicitudes duplicadas cuando coinciden simultáneamente:
   - Mismo material/servicio
   - Mismo centro
-  - Misma fecha
+  - Misma fecha de entrega
 
 ## 4. Escenarios y Criterios de Aceptación (Gherkin)
 
@@ -67,7 +67,7 @@ Background:
                 And accede al formulario de creación de solicitud de compra
                 When el usuario selecciona un tipo de solicitud "Servicio"
                 And completa los datos obligatorios
-                Then el sistema muestra el campo "Almacén" deshabilitado
+                Then el sistema no debe mostrar el campo "Almacén" en el formulario
                 And permite crear la solicitud de compra exitosamente
                 And asigna automáticamente el estado inicial "Creada"
 
@@ -119,7 +119,7 @@ Background:
                 And no se crea la solicitud de compra
 
           @US-01 @negative @fecha
-          Scenario: Intento de creación con fecha requerida en el pasado
+          Scenario: Intento de creación con fecha de entrega en el pasado
           
                 Given el usuario tiene asignado el rol “Solicitante”
                 And tiene permisos al centro y al material o servicio
@@ -171,13 +171,13 @@ Background:
           Scenario: Intento de crear una Solicitud de Compra duplicada
 
                 Given el usuario tiene asignado el rol “Solicitante”
-                And y tiene permisos al centro al cual se realizará la solicitud
+                And tiene permisos al centro al cual se realizará la solicitud
                 And tiene permisos al servicio y/o material que se solicitará 
                 And accede al formulario de solicitud de compra
-                And existe una solicitud de compra creada previamente con el mismo material o servicio, centro y fecha 
+                And existe una solicitud de compra creada previamente con el mismo material o servicio, centro y fecha de entrega 
                 When el usuario intenta crear una nueva solicitud de compra con los mismos datos
                 Then el sistema bloquea la creación de la nueva solicitud
-                And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha
+                And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha de entrega
                 And no se crea la nueva solicitud de compra
 
             @US-01 @negative @concurrencia
@@ -256,6 +256,7 @@ Scenario: Feedback visual tras creación exitosa de la solicitud
 ## 5. Consideraciones de QA
 
 > Nota: Aplican las Consideraciones Generales QA definidas para EPIC-01
+> Los formatos y límites específicos de cada campo se detallan en Consideraciones Generales QA EPIC-01.
 
 **Tener en cuenta además qué:**
 
@@ -269,12 +270,12 @@ Scenario: Feedback visual tras creación exitosa de la solicitud
 
 ## 7. Dependencias
 
-- **EP-03 – Gestión de Usuarios y Seguridad**
+- **EPIC-03 – Gestión de Usuarios y Seguridad**
   - Autenticación básica de usuarios.
   - Asignación y gestión del rol **Solicitante**.
   - Control del estado **activo/inactivo** del usuario, que condiciona la posibilidad de crear solicitudes.
 
-- **EP-02 – Gestión del Ciclo de Vida de las Solicitudes**
+- **EPIC-02 – Gestión del Ciclo de Vida de las Solicitudes**
   - Asignación automática del estado inicial `Creada` al crear la solicitud (US-05).
 
 ## 8. Metadatos
