@@ -114,7 +114,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ## Almacén
 
 - Ubicación asociada a la gestión de materiales.
-- Dato Maestro del Sistema dependiente de Centro
+- Dato Maestro del Sistema dependiente de Centro.
 
 ### Atributos principales:
 
@@ -124,8 +124,8 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ## Material
 
 - Representa un bien físico que puede ser solicitado.
-- Requiere un Almacén
-- Dato Maestro del Sistema
+- Cuando es solicitado, requiere la asignación de un Almacén en la Solicitud de Compra.
+- Dato Maestro del Sistema.
 
 ### Atributos principales:
 
@@ -135,7 +135,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ## Servicio
 
 - Representa un servicio que puede ser solicitado.
-- Dato Maestro del Sistema
+- Dato Maestro del Sistema.
 
 ### Atributos principales:
 
@@ -177,7 +177,8 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 - Una solicitud solo puede modificarse mientras esté en estado Creada.
 - Solo un usuario con rol Solicitante puede enviar una solicitud de compra de estado Creada a En Revisión.
 - Solo usuarios con rol Aprobador pueden cambiar el estado de En Revisión a Aprobada o Rechazada.
-- No se permiten solicitudes duplicadas para la misma combinación de:
+- Un usuario solo puede crear, modificar o aprobar solicitudes dentro de los Centros asignados a su perfil.
+- No se permiten solicitudes activas duplicadas para la misma combinación de:
   - Material o Servicio
   - Centro
   - Fecha de entrega
