@@ -41,7 +41,6 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 - Estado de la solicitud
 - Centro
 - Almacén
-- Nombre de Usuario Solicitante 
 
 ## Usuario
 
@@ -61,12 +60,52 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ### Tipos de rol (MVP):
 
 - Solicitante
+  - **Responsabilidades:**
+    - Origina y gestiona la solicitud de compra.
+    - Crea solicitudes de compra.
+    - Modificas solicitudes solo en estado **"Creada"**.
+    - Visualiza solicitudes propias.
+    - Lista solicitudes propias.
+    - Envia solicitud **"A Revisión"**. 
+
+  - **Restricciones:**
+    - No aprueba solicitudes
+    - No modifica solicitudes en estados finales
+    - No gestiona usuarios
+
 - Aprobador
-- Administrador Técnico / Funcional
+   - **Responsabilidades:**
+    - Decide sobre la solicitud.
+    - Visualiza únicamente las solicitudes dentro de su ámbito de aprobación. Esto incluye solicitudes en estado **"En Revisión"**,**"Aprobada"** o **"Rechazada"**.
+    - No puede visualizar solicitudes en estado **"Creada"**.
+    - Solo puede visualizar y gestionar solicitudes de los **Centros asignados** a su usuario.
+    - Cambiar el estado de la solicitud:
+        - En Revisión → Aprobada
+        - En Revisión → Rechazada
+    
+   - **Restricciones:**
+    - No crea solicitudes.
+    - No modifica datos de la solicitud.
+    - No gestiona usuarios.
+
+- Administrador Técnico / Funcional (ATF)
+  - Soporte básico al sistema, no forma parte del proceso de compra.
+  - **Responsabilidades:**
+    - Alta de usuarios.
+    - Asignación de roles.
+    - Activar / desactivar usuarios.
+
+  - **Restricciones:** No participa del flujo de solicitud
+   - No crea solicitudes .
+   - No aprueba.
+   - No modifica.
+   - No gestiona catálogo de Centros y Almacenes.
 
 ## Centro
 
-Entidad organizacional a la cual se imputa la solicitud de compra.
+- Entidad organizacional a la cual se imputa la solicitud de compra.
+- Dato Maestro del Sistema
+- Se encuentran pre-cargado (seed) al inicio del sistema
 
 ### Atributos principales:
 
@@ -75,7 +114,9 @@ Entidad organizacional a la cual se imputa la solicitud de compra.
 
 ## Almacén
 
-Ubicación asociada a la gestión de materiales.
+- Ubicación asociada a la gestión de materiales.
+- Dato Maestro del Sistema dependiente de Centro
+- Se encuentran pre-cargado (seed) al inicio del sistema
 
 ### Atributos principales:
 
@@ -114,14 +155,14 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 # Relaciones entre Entidades
 
 - Un Usuario puede crear una o varias Solicitudes de Compra.
-- Cada Solicitud de Compra es creada por un único Usuario.
+- Cada Solicitud de Compra es creada por un único usuario.
 - Un Usuario puede tener uno o varios Roles.
 - Un Rol puede asociarse a diferentes usuarios.
-- Un Usuario con rol Aprobador puede estar asignado a uno o varios Centros (según ámbito de aprobación).
-- Un Centro puede tener asignados varios Aprobadores.
+- Un Usuario puede estar asignado a uno, ninguno o varios Centros.
+- Un centro puede tener asignados varios usuarios.
 - Un centro puede tener varias Solicitudes de Compra.
 - Una Solicitud de Compra pertenece a un único Centro.
-- Una Solicitud de Compra se asocia a exactamente uno de los siguientes: Material o Servicio (relación exclusiva).
+- Una Solicitud de Compra se asocia a uno de los siguientes: Material o Servicio (relación exclusiva).
 - Un material o un servicio pueden estar asociadas a varias Solicitudes de Compra.
 - Una Solicitud de Compra puede requerir un Almacén cuando el tipo es Material.
 - Un Almacén puede estar asociado a múltiples Solicitudes de Compra de tipo Material.
@@ -134,6 +175,7 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 - Solo usuarios con rol Solicitante pueden crear y modificar solicitudes propias.
 - Una solicitud solo puede modificarse mientras esté en estado Creada.
 - Solo un usuario con rol Solicitante puede enviar una solicitud de compra de estado Creada a En Revisión.
+- Solo usuarios con rol Aprobador pueden cambiar el estado de En Revisión a Aprobada o Rechazada.
 - No se permiten solicitudes duplicadas para la misma combinación de:
   - Material o Servicio
   - Centro

@@ -6,10 +6,10 @@ title Modelo de Dominio - EPIC-01 Gestión de Solicitudes de Compra
 ' =========================
 
 enum EstadoSolicitud {
-  CREADA
-  EN_REVISION
-  APROBADA
-  RECHAZADA
+  CREADA ' Solo editable por Solicitante
+  EN_REVISION ' Bloqueada, esperando Aprobador
+  APROBADA ' Estado final positivo
+  RECHAZADA ' Estado final negativo
 }
 
 enum EstadoUsuario {
@@ -17,22 +17,15 @@ enum EstadoUsuario {
   INACTIVO
 }
 
+enum TipoRol {
+  SOLICITANTE
+  APROBADOR
+  ADMINISTRADOR_TF
+}
+
 ' =========================
 ' ENTIDADES
 ' =========================
-
-abstract class ItemComprable {
-  +id: String
-  +descripcion: String
-}
-
-class Material {
-  ' Hereda id y descripcion
-}
-
-class Servicio {
-  ' Hereda id y descripcion
-}
 
 class SolicitudCompra {
   +id: String
@@ -51,19 +44,34 @@ class Usuario {
   +estado: EstadoUsuario
 }
 
+abstract class ItemComprable {
+  +id: String
+  +descripcion: String
+}
+
+class Material {
+  ' Hereda id y descripcion
+}
+
+class Servicio {
+  ' Hereda id y descripcion
+}
+
 class Rol {
   +id: String
-  +nombre: String
+  +nombre:TipoRol
 }
 
 class Centro {
   +id: String
   +nombre: String
+   ' Dato Maestro: Seleccionable desde catálogo, obligatorio en SolicitudCompra
 }
 
 class Almacen {
   +id: String
   +nombre: String
+  ' Dato Maestro: Seleccionable desde catálogo, obligatorio solo si el Item es Material
 }
 
 ' =========================
@@ -74,27 +82,47 @@ class Almacen {
 ItemComprable <|-- Material
 ItemComprable <|-- Servicio
 
-' 1. Una Solicitud se asocia a exactamente un Material o Servicio
-SolicitudCompra "0..*" o-- "1" ItemComprable : solicita >
+' 1. Una Solicitud se asocia a un Material o Servicio
+SolicitudCompra "1" -- "1" ItemComprable : contiene >
+
+ItemComprable "1" -- "0..*" SolicitudCompra
 
 ' 2. Relación Usuario - Solicitud
 Usuario "1" -- "0..*" SolicitudCompra : crea >
 
 ' 3. Relación Usuario - Rol (Muchos a Muchos)
-Usuario "*" -- "1..*" Rol : posee >
+Usuario "1" -- "1..*" Rol : posee >
 
-' 4. Relación Centro - Solicitud
+' 4. Relación Usuario - Centro
+Usuario "*" -- "0..*" Centro : autorizado en >
+note on link
+  * La autorización por Centro aplica para:
+    - Creación (Solicitante)
+    - Aprobación (Aprobador)
+  * El Administrador no está restringido por Centro.
+  * Autorizaciones precargadas (seed).
+  * No gestionadas en esta EPIC.
+end note
+
+' 5. Relación Centro - Solicitud
 Centro "1" -- "0..*" SolicitudCompra : pertenece a <
+note left of Centro
+  * Dato maestro.
+  * Catálogo preexistente.
+  * No gestionado en esta EPIC.
+end note
 
-' 5. Relación Centro - Almacén
+' 6. Relación Centro - Almacén
 Centro "1" *-- "0..*" Almacen : contiene >
 
-' 6. Relación Solicitud - Almacén (Opcional según tipo)
+' 7. Relación Solicitud - Almacén (Opcional según tipo)
 Almacen "1" -- "0..*" SolicitudCompra : asignado a <
 
-' 7. Ámbito de Aprobación (Aprobador - Centro)
-Usuario "*" -- "1..*" Centro : aprueba en >
-note on link: Solo para usuarios con\nRol: Aprobador
+note left of Almacen
+  * Dato maestro dependiente de Centro.
+  * Catálogo preexistente.
+  * No gestionado en esta EPIC.
+end note
 
 ' =========================
 ' NOTAS DE REGLAS DE NEGOCIO
@@ -103,9 +131,16 @@ note on link: Solo para usuarios con\nRol: Aprobador
 note right of SolicitudCompra
   **Reglas Críticas:**
   * No editable si estado != CREADA.
+  * Centro y Almacén son datos maestros.
+  * Centro y Almacén seleccionables desde catálogo.
+  * Centro y Almacén no son editables tras creación.
   * Almacén obligatorio solo si Item es Material.
-  * Centro, Almacén e Item son inmutables tras creación.
   * No duplicados por: Item + Centro + FechaEntrega.
+end note
+
+note right of Usuario
+  Solo usuarios con estado ACTIVO
+  pueden crear Solicitudes.
 end note
 
 @enduml
