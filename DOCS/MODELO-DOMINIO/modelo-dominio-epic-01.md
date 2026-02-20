@@ -105,7 +105,6 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 
 - Entidad organizacional a la cual se imputa la solicitud de compra.
 - Dato Maestro del Sistema
-- Se encuentran pre-cargado (seed) al inicio del sistema
 
 ### Atributos principales:
 
@@ -116,7 +115,6 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 
 - Ubicación asociada a la gestión de materiales.
 - Dato Maestro del Sistema dependiente de Centro
-- Se encuentran pre-cargado (seed) al inicio del sistema
 
 ### Atributos principales:
 
@@ -125,7 +123,9 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 
 ## Material
 
-Representa un bien físico que puede ser solicitado.
+- Representa un bien físico que puede ser solicitado.
+- Requiere un Almacén
+- Dato Maestro del Sistema
 
 ### Atributos principales:
 
@@ -134,7 +134,8 @@ Representa un bien físico que puede ser solicitado.
 
 ## Servicio
 
-Representa un servicio que puede ser solicitado.
+- Representa un servicio que puede ser solicitado.
+- Dato Maestro del Sistema
 
 ### Atributos principales:
 
@@ -200,10 +201,20 @@ La Solicitud de Compra sigue un ciclo de vida controlado por su estado:
 
 # Suposiciones y Exclusiones del MVP
 
-- No se contemplan flujos de cancelación de solicitudes.
-- No existe reapertura de solicitudes rechazadas.
-- No se consideran múltiples aprobadores ni aprobaciones parciales.
-- El modelo no contempla versionado de solicitudes
+- **Suposiciones**
+
+  - Catálogos Preexistentes del MVP (No gestionados en esta EPIC)
+    - Centros
+    - Almacenes
+    - Materiales
+    - Servicios
+    - Asignaciones Usuario–Centro
+
+- **Exclusiones**
+  - No se contemplan flujos de cancelación de solicitudes.
+  - No existe reapertura de solicitudes rechazadas.
+  - No se consideran múltiples aprobadores ni aprobaciones parciales.
+  - El modelo no contempla versionado de solicitudes
 
 # Referencias
 
