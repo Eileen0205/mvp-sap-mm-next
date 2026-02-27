@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Definir un conjunto de criterios y lineamientos de calidad funcional y no funcional que sirvan como referencia común para todas las Historias de Usuario pertenecientes a la **EPIC-01: Gestión de Solicitudes de Compra**, con el fin de:
+Definir un conjunto de criterios y lineamientos de calidad funcional y no funcional básica que sirvan como referencia común para todas las Historias de Usuario pertenecientes a la **EPIC-01: Gestión de Solicitudes de Compra**, con el fin de:
     
 * Garantizar consistencia en la validación de reglas de negocio.
 * Reducir ambigüedades antes del desarrollo (Shift-Left).
@@ -18,6 +18,8 @@ Estas consideraciones aplican a:
    
  * US-01: Crear Solicitud de Compra
  * US-02: Modificar Solicitud de Compra
+ * US-03
+ * US-04
  * Cualquier historia futura de la EPIC-01 que:
      * Cree
      * Modifique
@@ -29,7 +31,7 @@ Estas consideraciones aplican a:
 * Validaciones funcionales comunes.
 * Comportamientos esperados del sistema ante errores.
 * Lineamientos básicos de UX y usabilidad.
-* Criterios mínimos de performance.
+* Criterios mínimos y básicos de performance.
 * Principios de integridad y consistencia de datos.
    
 ### No reemplaza:
@@ -49,8 +51,8 @@ Estas consideraciones aplican a:
 
 - Validación Atómica: Todas las reglas de negocio deben validarse en el servidor de forma prioritaria.
 - Rollback: Si cualquiera de las validaciones falla, el sistema no debe crear ningún registro parcial. La operación debe ser "todo o nada"
-- Validación Descripción: Si la longitud del campo es <10 (aplicando trim para ignorar espacios vacíos) , el sistema debe retornar el error: "La descripción es demasiado breve (mín. 10 caracteres)".
-- Validación de duplicados: El backend debe asegurar que un reintento de creación y/o modificación del usuario tras un fallo de red, no se genere una solicitud duplicada.
+- Validación Descripción: Si la longitud del campo es <10 (aplicando trim para ignorar espacios vacíos), el sistema debe retornar el error: "La descripción es demasiado breve (mín. 10 caracteres)".
+- Validación de duplicados: El backend debe asegurar que un reintento de creación y/o modificación del usuario tras un fallo de red, no genere una solicitud duplicada.
 
 **Definición de Datos y Formatos (Casos de Borde)**
 
@@ -60,21 +62,22 @@ Estas consideraciones aplican a:
   - Formato numérico decimal mediante Regex ^\d{1,10}(.\d{1,3})?$. Soporta hasta 10 enteros y 3 decimales.
   - Bloqueo total de caracteres alfabéticos o especiales.
 
-- **Fechas:**
+- **Fecha de Entrega:**
 
   - Hoy: Es un valor válido (se toma como fecha límite el cierre del día del sistema). 
   - Pasado: Cualquier fecha (ej. Ayer) debe ser rechazada. 
-  - Futuro: Máximo 90 días (3 meses) a partir de la fecha actual.
+  - Las validaciones de fecha deben realizarse siempre tomando como referencia la hora del servidor.
 
 - **Descripción:**
 
   - Longitud: El campo debe validar un rango de [10 - 40] caracteres.
+  - El campo es obligatorio y no nulo.
   - El sistema debe mostrar un contador de caracteres restante (ej: 15/40) para guiar al usuario.
 
 **Lógica de Duplicidad**
 
-- Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: Material/Servicio + Centro + Fecha de Entrega
-- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha de entrega), el sistema debe procesarlo como una nueva solicitud válida.
+- Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: Material/Servicio + Centro + Fecha de Entrega y para solicitudes activas en estados distinto de "Rechazada".
+- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha de entrega) y la solicitud no ha sido "Rechazada", el sistema debe procesarlo como una nueva solicitud válida.
 
 **Comportamiento de la Interfaz (UI/UX)** 
 
@@ -99,6 +102,8 @@ Estas consideraciones aplican a:
     - A nivel de interfaz
     - Como en la lógica de negocio.
 
+- Cualquier cambio de estado de usuario a 'Inactivo' debe invalidar inmediatamente su sesión activa y bloquear cualquier intento de persistencia en curso".
+
 **Fallos de Sistema (fallos inesperados de infraestructura o conectividad)**
 
 - Ante un error inesperado o pérdida de conexión, los datos ingresados deben persistir en los campos para permitir que el usuario reintente el guardado una vez restablecido el servicio.
@@ -106,11 +111,13 @@ Estas consideraciones aplican a:
 
 **Requerimientos No Funcionales (comportamiento esperado del sistema bajo condiciones normales Performance (Rendimiento))**
 
-- Tiempo de Respuesta: Tras pulsar "Guardar", la respuesta del sistema (ya sea éxito o error) debe producirse en un tiempo razonable. 
-- Métrica: El tiempo objetivo es menor a 2 segundos bajo condiciones normales de red y carga.
+- Tiempo de Respuesta: Tras pulsar "Guardar", "Visualizar", "Ver Detalle","Listar Solicitudes" la respuesta del sistema (ya sea éxito o error) debe producirse en un tiempo razonable. 
+- Métrica: El tiempo objetivo es menor a 5 segundos bajo condiciones normales de red y carga.
 
 **Feedback del usuario**
 
 - Los mensajes de error de validación (ej. fecha inválida) deben aparecer junto al campo que contiene el error.
 - Mientras se crea o se guarda la modificación de una solicitud, el sistema deberá mostrar un indicador de carga (ej.un spinner) para informar al usuario que la operación está en proceso.
-- Tras una guardado exitoso, se debe mostrar un mensaje de confirmación temporal. 
+- Tras una guardado exitoso, se debe mostrar un mensaje de confirmación temporal.
+- En el listado de solicitudes, se debe verificar que si una descripción es muy larga, se trunque correctamente, para no romper el diseño de la tabla, pero que sea legible al 100% en el Detalle.
+ 
