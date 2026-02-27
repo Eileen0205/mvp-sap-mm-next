@@ -86,6 +86,8 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
 - **Aprobador**  
  - Usuario de negocio encargado de aprobar o rechazar solicitudes.
  - El Aprobador solo puede visualizar y gestionar solicitudes de los **Centros asignados** a su usuario.
+ - El Aprobador solo puede visualizar solicitudes en estado "En Revisión", "Aprobada" o "Rechazada". No puede visualizar solicitudes en estado "Creada".
+ 
 
 - **Administrador Técnico/Funcional**  
   - Usuario de soporte, responsable de la gestión básica de usuarios y roles (no participa directamente en el flujo de compras).

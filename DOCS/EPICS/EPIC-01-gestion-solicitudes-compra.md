@@ -10,18 +10,25 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
 
 ## 3. Alcance funcional (In Scope)
 
- - Crear solicitudes de compra por parte del usuario con rol Solicitante.
+ - Crear solicitudes de compra por parte del usuario con rol "Solicitante".
  - Modificar solicitudes existentes, solo:
   - La solicitud que se encuentre en estado "Creada".
-  - Si la solicitud es propia del usuario.
- - Visualizar solicitudes.
- - Listar solicitudes registradas:
-  - En el MVP: solo puede visualizar sus propias solicitudes.
+  - Si la solicitud es propia del usuario con rol "Solicitante".
+ - El Solicitante solo visualiza sus propias solicitudes.
+ - El Aprobador visualiza solicitudes de los centros asignados, según reglas de autorización (EPIC-03).
+ - El Administrador Técnico/Funcional puede listar y visualizar cualquier solicitud de compra siempre en modo "Solo Lectura".
  - Validar campos obligatorios definidos para la solicitud de compra.
  - Detectar solicitudes duplicadas de forma básica, considerando:
-  - Mismo material o servicio.
+  - Mismo ItemComprable (material o servicio).
   - Mismo centro.
   - Misma fecha de entrega.
+ - Consumo de datos maestros:
+  - Centro (seleccionable)
+  - Almacén (dependiente del Centro, si Tipo es Material)
+ - Los datos maestros (Centro y Almacén) serán consumidos por la EPIC-01 como catálogos preexistentes al inicio del sistema.
+ - 
+
+> Nota: La EPIC-01 únicamente consume dichos catálogos para la creación y modificación de Solicitudes de Compra
 
 ## 4. Out of Scope (Excluye explícitamente para este MVP)
 
@@ -35,6 +42,11 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
  - Sistemas externos.
 - Gestión de adjuntos o documentación asociada a la solicitud de compra.
 - Gestión de inventarios, stock o movimientos de mercancía.
+- Gestión de los datos maestros Centro y Almacén.
+   - La creación de nuevos Centros.
+   - La edición o desactivación de Centros.
+   - La creación o mantenimiento de Almacenes.
+   - Gestión de ciclo de vida del catálogo.
 
 > Nota: Cualquier funcionalidad no mencionada explícitamente en este alcance se considera fuera del MVP.
 
@@ -81,54 +93,27 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 **Usuarios principales**
 
-> Nota: Los roles y responsabilidades descritos se implementan de forma progresiva y coordinada con EPIC-02 (Gestión del Ciclo de Vida de la Solicitud).
+> Nota: Los roles y responsabilidades descritos se implementan de forma progresiva y coordinada con EPIC-03 (Gestión de Usuarios y Seguridad). En el Modelo Dominio se detallan las responsabilidades y restricciones de cada rol.
 
-### Rol Solicitante: Usuario que origina y gestiona la solicitud de compra
+### Rol Solicitante 
+-Usuario que origina y gestiona la solicitud de compra
 
-**Responsabilidades** 
-- Modificar solicitud solo en estado “Creada”
-- Visualizar solicitudes propias
-- Listar solicitudes propias
-- Enviar solicitud a revisión (disparando el cambio de estado inicial definido en EPIC-02)
+### Rol Aprobador 
+- Usuario encargado del control y cierre del proceso. Decide sobre la solicitud (en combinación con EPIC-02)
 
-**Restricciones**
-- No aprueba
-- No modifica solicitudes en estados finales
-- No gestiona usuarios
-
-### Rol Aprobador: Usuario encargado del control y cierre del proceso. Decide sobre la solicitud (en combinación con EPIC-02)
-
-**Responsabilidades**
-- Visualizar solicitudes pendientes
-- Cambiar estado de solicitud:
-  - En revisión → Aprobada
-  - En revisión → Rechazada
-- Visualizar detalle completo
-**Restricciones**
-- No crea solicitudes
-- No modifica datos funcionales de la solicitud
-- No gestiona usuarios
-
-### Rol: Administrador Técnico/Funcional: Soporte básico al sistema, no parte directa del proceso de compra
-
-**Responsabilidades** 
-- Alta de usuarios
-- Asignación de roles
-- Activar / desactivar usuarios
-
-**Restricciones**
-- No participa del flujo de solicitud
-- No aprueba ni crea solicitudes
+### Rol: Administrador Técnico/Funcional
+- Soporte básico al sistema, no parte directa del proceso de compra
 
 **Reglas de negocio clave**
 
 - Toda solicitud de compra debe estar asociada a un usuario activo y autenticado.
-- La fecha de la solicitud no puede ser anterior a la fecha actual del sistema.
-- La detección de duplicados para el MVP se limita a mismo:
-  - Material/servicio
+- La fecha de entrega de la solicitud no puede ser anterior a la fecha actual del sistema.
+- La detección de duplicados para el MVP se limita solicitudes activas (no rechazadas) con la misma combinación:
+  - ItemComprable (Material/servicio)
   - Mismo centro
   - Misma fecha de entrega.
-- Las acciones (crear, modificar, listar, visualizar) solo pueden ser realizadas por usuarios con rol y permisos correspondientes. (se conecta con EPIC-03).
+- Las acciones sobre solicitudes (crear, modificar, visualizar, listar) solo pueden ser realizadas por usuarios con rol y permisos correspondientes. (se conecta con EPIC-03).
+- Las acciones sobre solicitudes (crear, modificar, visualizar, listar) solo podrán realizarse en Centros previamente asignados al usuario como datos seed del sistema.
 - Las restricciones por rol deben validarse tanto a nivel de interfaz como de lógica de negocio, evitando accesos no autorizados por manipulación directa.
 
 **Justificación para el MVP**
@@ -148,7 +133,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 **Descripción**  
 
 - Permite registrar una nueva solicitud de material o servicio, con datos mínimos: tipo, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
-- El campo Almacéen solo se requerirá si el Tipo es "Material".
+- El campo Almacén solo se requerirá si el Tipo es "Material".
 - Cuando se crea, EPIC-02 asigna el estado inicial `Creada`.
 
 **Justificación**
@@ -210,7 +195,7 @@ Permite la consulta detallada de una solicitud específica.
 ### 9.4. Listar Solicitudes de Compra
 
 **Descripción**  
-Muestra un listado básico de las solicitudes creadas por el usuario (en el MVP, solo las propias).
+Muestra un listado básico de las solicitudes creadas por el usuario. El listado de solicitudes se muestra según reglas de visibilidad por rol (propias, por ámbito o global).
 
 **Justificación**
 
