@@ -1,3 +1,4 @@
+
 # Introducción
 
 En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Tiene como objetivo representar los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
@@ -32,15 +33,16 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 ### Atributos principales:
 
 - Identificador de solicitud
-- Tipo de solicitud (Material o Servicio)
 - Descripción
 - Cantidad
 - Unidad de Medida
 - Fecha de creación
 - Fecha de entrega
 - Estado de la solicitud
-- Centro
-- Almacén
+- ItemComprable (Material o Servicio)
+- Centro (Entidad Centro)
+- Almacén (Entidad Almacén)
+- Usuario Solicitante
 
 ## Usuario
 
@@ -130,6 +132,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ### Atributos principales:
 
 - Identificador de material
+- Nombre
 - Descripción
 
 ## Servicio
@@ -140,6 +143,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 ### Atributos principales:
 
 - Identificador de servicio
+- Nombre
 - Descripción
 
 ## Estado de Solicitud
@@ -182,12 +186,48 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
   - Material o Servicio
   - Centro
   - Fecha de entrega
+  - En estado distinto de Rechazada (Si una solicitud fue rechazada,el usuario debería poder crear una nueva con los mismos datos sin que el sistema lo bloquee).
 - Solo se permite la modificación de los atributos:
     - Descripción
     - Cantidad
     - Fecha de entrega
     - Unidad de Medida (UM)
 - El tipo de solicitud, centro y almacén no pueden modificarse una vez creada la solicitud.
+
+# Definición de Formatos de Solicitud de Compras
+ 
+ - **Identificador de solicitud:** String, obligatorio, único
+    - Convención sugerida: prefijo identificador del tipo (ej: PR-2026-0001)
+ - **Descripción:** String, obligatorio, 10-40 caracteres
+ - **Cantidad:** Decimal, obligatorio, soporta hasta 10 enteros y 3 decimales,  mayor que 0
+ - **Unidad de Medida:** Char(3), obligatorio (ej: KG, MTR, LB, LT, HR)
+ - **Fecha de creación:** XX/XX/XXXX, obligatoria
+ - **Fecha de entrega:** XX/XX/XXXX, obligatoria
+ - **Usuario_Solicitante:** String, obligatorio, 10-40 caracateres alfabéticos
+
+# Definición de Formatos de Datos Maestros
+
+## Material
+
+  - **id:** String, obligatorio, único, máx 10 caracteres
+    - Convención sugerida: prefijo identificador del tipo (ej: MAT-####)
+  - **nombre:** String, obligatorio, máx 100
+  - **descripción:** String, opcional, máx 255
+
+## Servicio
+
+  - **id:** String, obligatorio, único, máx 10 caracteres
+    - Convención sugerida: prefijo identificador del tipo (ej: SRV-####)
+  - **nombre:** String, obligatorio, máx 100
+  - **descripción:** String, opcional, máx 255
+
+## Centro
+
+  - **id:** String, 4 caracteres numéricos, obligatorio
+
+## Almacén
+
+  - **id:** String, 3–5 caracteres alfanuméricos, obligatorio si ItemComprable es Material
 
 # Ciclo de Vida de la Solicitud de Compra
 
@@ -222,4 +262,6 @@ La Solicitud de Compra sigue un ciclo de vida controlado por su estado:
 - EPIC-01 – Gestión de Solicitudes de Compra
 - US-01 – Crear Solicitud de Compra
 - US-02 – Modificar Solicitud de Compra
+- US-03 - Visualizar Solicitud de Compra
+- US-04 - Listar Solicitudes de Compra
 - Diagrama de Estados de Solicitud de Compra

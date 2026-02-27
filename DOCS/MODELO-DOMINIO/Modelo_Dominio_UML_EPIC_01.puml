@@ -34,6 +34,7 @@ class SolicitudCompra {
   +unidadMedida: String
   +fechaCreacion: Date
   +fechaEntrega: Date
+  +usuario_solicitante
   +estado: EstadoSolicitud
 }
 
@@ -46,15 +47,18 @@ class Usuario {
 
 abstract class ItemComprable {
   +id: String
+  +nombre: String
   +descripcion: String
 }
 
 class Material {
   ' Hereda id y descripcion
+  ' Dato Maestro: Seleccionable desde catálogo
 }
 
 class Servicio {
   ' Hereda id y descripcion
+  ' Dato Maestro: Seleccionable desde catálogo
 }
 
 class Rol {
@@ -134,7 +138,10 @@ note right of SolicitudCompra
   * Centro y Almacén son datos maestros.
   * Centro y Almacén seleccionables desde catálogo.
   * Centro y Almacén no son editables tras creación.
+  * Material y Servicio son Datos Maestros.
+  * Material y Servicio seleccionables desde catálogo.
   * Almacén obligatorio solo si Item es Material.
+  * Material y Servicio no son editables tras creación. 
   * No duplicados por: Item + Centro + FechaEntrega.
 end note
 
@@ -142,5 +149,6 @@ note right of Usuario
   Solo usuarios con estado ACTIVO
   pueden crear Solicitudes.
 end note
+
 
 @enduml
