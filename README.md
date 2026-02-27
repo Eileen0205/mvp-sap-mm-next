@@ -1,18 +1,18 @@
 # MVP – Gestión de Solicitudes de Compra (SAP MM)
 
- Este repositorio contiene un MVP centrado específicamente en el subproceso de gestión de Solicitudes de Compra (Purchase Requisition), que representa el inicio del proceso de compras en SAP MM. 
+ Este repositorio contiene un MVP centrado específicamente en un subproceso de gestión de Solicitudes de Compra (Purchase Requisition), inspirado en el inicio del proceso de compras en SAP MM. 
 
 ## Objetivo del MVP: 
 
 - Demostrar mis competencias como QA Funcional, tomando como base mi formación en Ingeniería Informática para aplicar buenas prácticas de análisis, diseño de pruebas y gestión de la calidad.
 
-- Practicar un flujo de trabajo completo de desarrollo y QA, documentado y versionado con Git, utilizando también herramientas de IA como apoyo.
+- Practicar un flujo de trabajo completo de QA, documentado y versionado con Git, utilizando también herramientas de IA como apoyo para agilizar la gestión documental y reforzar la calidad.
 
 ## Qué quiero mostrar con este proyecto:
 
 A través de este MVP quiero evidenciar que:
 
-- Puedo entender y modelar un **flujo de negocio realista** relacionado con las Solicitudes de Compra.
+- Puedo entender y modelar un **flujo de negocio realista**.
 - Sé **analizar requisitos funcionales** y traducirlos en:
   - Épicas e historias de usuario.
   - Casos de prueba y criterios de aceptación estructurados (incluyendo Gherkin).
@@ -38,4 +38,4 @@ A través de este MVP quiero evidenciar que:
 - Estructura inicial del repositorio creada.
 - Definición del dominio y objetivos del MVP.
 - En progreso: documentación detallada por épica y modelo de dominio.
-- Próximo paso: diseño de pruebas y primer módulo funcional (EP-01).
+- Próximo paso: diseño de pruebas y primer módulo funcional (EPIC-01).

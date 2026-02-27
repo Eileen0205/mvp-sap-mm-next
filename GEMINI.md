@@ -3,11 +3,9 @@
 
 # Mi contexto real
 
-Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA + SAP MM, apoyada en mi experiencia y en el acompañamiento de la IA durante esta etapa de autopreparación.
+Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA Funcional, apoyada en mi experiencia y en el acompañamiento de la IA durante esta etapa de autopreparación.
 
-Como parte de este objetivo, estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra en SAP MM, donde pueda evidenciar el ciclo de desarrollo de software y mis capacidades como QA funcional.
-
-Hasta el momento tengo definido los siguientes elementos:
+Como parte de este objetivo, estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra inspirado en SAP MM, donde pueda evidenciarmis capacidades como QA Funcional.
 
 # 1. Dominio de Negocio (MVP)
 
@@ -15,6 +13,7 @@ Gestión del Proceso de Solicitudes de Compra (Purchase Requisition – SAP MM)
 
 📄 Descripción del dominio
 Sistema orientado a la gestión del proceso previo a la compra de materiales o servicios, desde la creación de la solicitud hasta su aprobación o rechazo.
+
 Inspirado directamente en transacciones SAP MM:
 •	ME51N – Crear solicitud de compra
 •	ME52N – Modificar solicitud
@@ -37,7 +36,7 @@ Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan e
 - No se contemplan pruebas de rendimiento avanzadas tales como pruebas de carga, estrés, benchmarking o análisis de capacidad.
  - No obstante, el MVP sí establece criterios básicos de rendimiento en condiciones normales de operación (ej. tiempo máximo de carga del detalle de una solicitud de hasta 5 segundos), los cuales serán verificados mediante pruebas funcionales.
 
-Estas áreas podrán considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
+Estas áreas podrían considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
 
 # 2. Módulos del Negocio (Fundamentales e Indispensables)
 
@@ -68,7 +67,6 @@ Cada funcionalidad se detalla en historias de usuario dentro de las siguientes c
 
 # 4. Generación de primeras Historias de Usuario (v1)
 
-  * Nota metodológica (como PO):
     - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
     - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
     - El lenguaje está pensado para ser testeable por QA y alineado a procesos SAP MM (PR).
@@ -231,9 +229,7 @@ Roles principales definidos:
 
 Las reglas detalladas de cada rol y sus permisos se encuentran en:
 
-- `DOCS/EPICS/EPIC-01-gestion-solicitudes-compra.md`
-- `DOCS/EPICS/EPIC-02-gestion-ciclo-vida-solicitud.md`
-- `DOCS/EPICS/EPIC-03-gestion-usuarios-seguridad.md`
+- `DOCS/MODELO-DOMINIO/modelo-dominio-epic-01.md`
 
 # 6. DoR y DoD (nivel MVP)
 
@@ -279,7 +275,7 @@ Este proyecto prioriza QA desde el inicio:
 Cuando la IA proponga cambios, se espera que:
 
 1. Verifique el impacto en reglas de negocio y estados.
-2. Sugiera escenarios de prueba (manuales o automatizados) alineados con los criterios de aceptación.
+2. Sugiera escenarios de prueba alineados con los criterios de aceptación.
 3. Señale posibles huecos de cobertura o riesgos.
 4. La IA debe evitar introducir cambios que amplíen el alcance funcional del MVP sin validarlo explícitamente conmigo.
 
