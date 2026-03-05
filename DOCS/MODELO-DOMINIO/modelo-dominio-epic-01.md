@@ -1,7 +1,7 @@
 
 # Introducción
 
-En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Tiene como objetivo representar los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
+En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Enfocado en la representación de los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
 
 # Objetivo
 
@@ -89,8 +89,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
         *   No tiene permisos de gestión de usuarios.
 
 *   **Administrador Técnico / Funcional (ATF)**
-    *   **Perfil:** Soporte básico al sistema, no participa en el proceso operativo de compra.
-    *   **Responsabilidades:**
+      *   **Responsabilidades:**
         *   Dar de alta y gestionar usuarios en el sistema.
         *   Asignar y modificar roles de usuario.
         *   Activar o desactivar usuarios según sea necesario.

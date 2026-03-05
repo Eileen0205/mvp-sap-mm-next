@@ -14,7 +14,7 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
 
  - Crear solicitudes de compra por parte del usuario con rol "Solicitante".
  - Modificar solicitudes existentes, solo:
-    * Si la solicitud que se encuentre en estado "Creada".
+    * Si la solicitud se encuentra en estado "Creada".
     * Si la solicitud es propia del usuario con rol "Solicitante".
  - El Solicitante solo visualiza sus propias solicitudes.
  - El Aprobador visualiza solicitudes de los centros asignados, según reglas de autorización (EPIC-03).
@@ -27,9 +27,12 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
  - Consumo de datos maestros:
     * Centro (seleccionable)
     * Almacén (dependiente del Centro, si Tipo es Material)
- - Los datos maestros (Centro y Almacén) serán consumidos por la EPIC-01 como catálogos preexistentes al inicio del sistema.
+    * Material
+    * Servicios
+    * Asignaciones Usuario-Centro
+ - Los datos maestros serán consumidos por la EPIC-01 como catálogos preexistentes al inicio del sistema.
 
-> Nota: La EPIC-01 únicamente consume dichos catálogos para la creación y modificación de Solicitudes de Compra
+> Nota: La EPIC-01 únicamente consume dichos catálogos para la creación y modificación de Solicitudes de Compra.
 
 ## 4. Out of Scope (Excluye explícitamente para este MVP)
 
@@ -43,10 +46,10 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
  - Sistemas externos.
 - Gestión de adjuntos o documentación asociada a la solicitud de compra.
 - Gestión de inventarios, stock o movimientos de mercancía.
-- Gestión de los datos maestros Centro y Almacén.
-   - La creación de nuevos Centros.
-   - La edición o desactivación de Centros.
-   - La creación o mantenimiento de Almacenes.
+- Gestión de los datos maestros.
+   - La creación de nuevos datos maestros.
+   - La edición o desactivación de datos maestros.
+   - La creación o mantenimiento de datos maestros.
    - Gestión de ciclo de vida del catálogo.
 
 > Nota: Cualquier funcionalidad no mencionada explícitamente en este alcance se considera fuera del MVP.
@@ -80,7 +83,7 @@ Una Historia de Usuario de esta épica se considera **Done** cuando:
 - Existen escenarios funcionales en Gherkin (mínimo: un escenario exitoso y uno negativo).
 - Se respeta el flujo funcional inspirado en SAP MM (creación, modificación y visualización de solicitudes), sin requerir el uso de transacciones reales.
 - No se introduce funcionalidad fuera del alcance del MVP.
-- La historia puede ser probada funcionalmente sin dependencias externas no resueltas.
+- Las historias pueden ser probadas funcionalmente sin dependencias externas no resueltas.
 - No existen defectos funcionales críticos abiertos.
 
 ## 8. Módulo incluido en la épica
@@ -89,7 +92,7 @@ Una Historia de Usuario de esta épica se considera **Done** cuando:
 
 **Objetivo**  
 
-Permitir la gestión controlada de Solicitudes de Compra, asegurando que cada solicitud sea creada, modificada y visualizada bajo reglas de negocio claras y estados válidos.
+Permitir la gestión controlada de Solicitudes de Compra, asegurando que cada solicitud sea creada, modificada, visualizada y listada bajo reglas de negocio claras y estados válidos.
 
 **Principal problema que resuelve**  
 
@@ -131,7 +134,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
   - Historias de Usuario claras.
   - Criterios de aceptación sólidos.
   - Escenarios de testing funcional y negativo.
-- Refleja procesos reales de SAP MM (ME51N – Purchase Requisition).
+- Refleja una simulación del proceso reale de SAP MM (ME51N – Purchase Requisition).
 
 ## 9. Funcionalidades seleccionadas (Features)
 
@@ -139,7 +142,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 **Descripción**  
 
-- Permite registrar una nueva solicitud de material o servicio, con datos mínimos: tipo, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
+- Permite registrar una nueva solicitud de material o servicio, con datos mínimos: itemComprable, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
 - El campo Almacén solo se requerirá si el Tipo es "Material".
 - Cuando se crea, EPIC-02 asigna el estado inicial `Creada`.
 
@@ -163,7 +166,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 - En el MVP solo se permite modificar solicitudes de compra que se encuentren en estado "Creada".
 - La modificación solo puede ser realizada por el usuario Solicitante que creó la solicitud.
 - Una vez creada la solicitud, no se permite la modificación de los siguientes campos:
-  - Tipo
+  - ItemComprable
   - Centro
   - Almacén
 
@@ -213,16 +216,19 @@ Muestra un listado básico de las solicitudes creadas por el usuario. El listado
 ### US-01 | PR-Flow | GSC | Crear una solicitud de compra
 
 **Descripción (Cómo, Quiero, Para)**  
-Cómo: Usuario Solicitante  
-Quiero: Crear una solicitud de compra  
-Para: Registrar una necesidad de material o servicio.
+- Cómo: Usuario Solicitante  
+- Quiero: Crear una solicitud de compra  
+- Para: Registrar una necesidad de material o servicio.
 
 **Criterio de aceptación (escenario principal V1)**  
+
+```gherkin
 Given el usuario está autenticado  
 And accede al formulario de creación  
 When completa los campos obligatorios con datos válidos  
 Then la solicitud se registra correctamente  
 And se asigna el estado inicial `Creada`.
+```
 
 **Metadatos**  
 - Prioridad: Alta  
@@ -231,15 +237,17 @@ And se asigna el estado inicial `Creada`.
 ### US-02 | PR-Flow | GSC | Modificar una solicitud de compra
 
 **Descripción (Cómo, Quiero, Para)**  
-Cómo: Usuario Solicitante 
-Quiero: Modificar una solicitud de compra 
-Para: Actualizar la información registrada
+- Cómo: Usuario Solicitante 
+- Quiero: Modificar una solicitud de compra 
+- Para: Actualizar la información registrada
 
 **Criterio de aceptación (escenario principal V1)**
+```gherkin
 Given Existe una solicitud en estado "Creada" 
 And El usuario tiene permisos 
 When Modifica los datos permitidos 
 Then Los cambios se guardan correctamente
+```
 
 **Metadatos**  
 - Prioridad: Alta  
@@ -248,14 +256,17 @@ Then Los cambios se guardan correctamente
 ### US-03 | PR-Flow | GSC | Visualizar una solicitud de compra
 
 **Descripción (Cómo, Quiero, Para)** 
-Cómo: Usuario 
-Quiero: Visualizar una solicitud de compra 
-Para: Consultar su información y estado
+- Cómo: Usuario 
+- Quiero: Visualizar una solicitud de compra 
+- Para: Consultar su información y estado
 
 **Criterio de aceptación (escenario principal V1)**
+
+```gherkin
 Given Existe una solicitud registrada 
 When El usuario accede al detalle 
 Then El sistema muestra toda la información asociada
+```
 
 **Metadatos**
 - Prioridad: Alta    
@@ -264,14 +275,18 @@ Then El sistema muestra toda la información asociada
 ### US-04 | PR-Flow | GSC | Listar solicitudes propias de compra
 
 **Descripción (Cómo, Quiero, Para)** 
-Cómo: Usuario
-Quiero: Listar solicitudes propias de compra 
-Para: Tener una visión general de las solicitudes registradas
+
+- Cómo: Usuario
+- Quiero: Listar solicitudes propias de compra 
+- Para: Tener una visión general de las solicitudes registradas
 
 **Criterio de aceptación (escenario principal V1)**
+
+```gherkin
 Given El usuario está autenticado 
 When Accede al listado de solicitudes 
 Then El sistema muestra las solicitudes propias disponibles
+```
 
 **Metadatos** 
 - Prioridad: Alta    

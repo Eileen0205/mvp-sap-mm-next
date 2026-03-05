@@ -176,7 +176,6 @@ Además específicamente para la US:
 - La funcionalidad permite la visualización respetando las reglas de visibilidad por rol, ámbito y centro.
 - Confirmación de que el estado mostrado corresponde con el registrado en la BD.
 - Confirmación de que desde la pantalla de visualización no se podrán editar campos y que el acceso a las distintas acciones sobre la solicitud (Modificar, Enviar a Revisión, Aprobar y Rechazar) serán visibles respetando roles y estado de la solicitud.
-- 
 
 ## 7. Dependencias
 

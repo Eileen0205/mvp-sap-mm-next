@@ -124,28 +124,34 @@ No se contemplan pruebas en ambientes productivos ni en entornos con múltiples 
 
 ### 7.1. Usuarios (Combinaciones de Roles y Estados y permisos sobre Centro)
 
-| Rol        | Estado            | Centro             |
-| Solicitante| Activo / Inactivo | Con y Sin permisos |
-| Aprobador  | Activo / Inactivo | Con y Sin permisos |
-| Admin TF   | Activo / Inactivo | Global             |
-| Invitado   | -                 | Sin acceso         |
+| Rol         | Estado            | Centro             |
+| :---        | :---              | :---               |
+| Solicitante | Activo / Inactivo | Con y Sin permisos |
+| Aprobador   | Activo / Inactivo | Con y Sin permisos |
+| Admin TF    | Activo / Inactivo | Global             |
+| Invitado    | -                 | Sin acceso         |
 
-> Rol "Invitado": Usuario no autenticado para validar bloqueo de acceso.
+> **Nota:** El rol "Invitado" se utiliza para validar el bloqueo de acceso a usuarios no autenticados.
 
 ### 7.2. Solicitudes, Maestros y Duplicados
 
 *   **Estados:** Creada, En Revisión, Rechazada, Aprobada.
-*   **Maestros:** Centros válidos/inválidos, Almacenes asociados/no asociados.
-*   **Duplicados:** Variaciones para validar duplicidad (ItemComprable, Centro y Fecha en diferentes estados disntintos de Rechazada)
+*   **Maestros:** Centros válidos/inválidos, Almacenes asociados/no asociados, visibilidad dinámica según tipo.
+*   **Duplicados:** Variaciones para validar duplicidad (Mismo Item, Centro y Fecha en estados distintos de Rechazada).
 
-### 7.3. Campos
+### 7.3. Estrategia de Datos por Campo
 
-*   **Fechas:** Válidas, Pasadas, Límites.
-*   **Cantidad:** Válidos, límites, inválidos.
-*   **Descripción:** Válidos, límites, inválidos.
-*   **Identificador de solicitud:** Válidos,  inválidos
-*   **UM:** Válidos,  inválidos
-*   **Usuario Solicitante:** Válidos,  inválidos
+Se utilizarán los siguientes criterios para la preparación de datos de prueba:
+
+| Campo                  | Pruebas de Valor (Equivalencia/Límites)                                                                         |
+| :---                   | :---                                                                                                            |
+| **Identificador (ID)** | Formato válido (PR-2026-0001), Inexistente, Formato inválido (ABC-123).                                         |
+| **Descripción**        | Mínimo (10 char), Máximo (40 char), Fuera de rango (<10 o >40), Solo espacios, DAtos basura (ej: "aaaghterplt") |
+| **Cantidad**           | Enteros (10), Decimales válidos (10.123), Exceso decimales (10.1234), Negativos, Cero                           |
+| **Fecha de Entrega**   | Hoy (Límite inferior), Futuro, Pasado (Ayer), Formato erróneo (32/13/2025).                                     |
+| **Unidad de Medida**   | Válidas (KG, HR, HR), Inválidas (AAAA), Vacío.                                                                  |
+| **Item Comprable**     | Material (requiere Almacén), Servicio (oculta Almacén).                                                         |
+
 
 ### 7.4. Datos para pruebas no funcionales básicas
 *	Conjunto mínimo de solicitudes.
