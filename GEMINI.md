@@ -34,7 +34,7 @@ Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan e
 - Sin embargo, el MVP sí incluye:
   - Validaciones básicas de seguridad funcional, tales como control de acceso por rol, restricción de visualización de recursos no autorizados (ej. 403/404), manejo seguro de sesión y no exposición de información técnica en mensajes de error.
 - No se contemplan pruebas de rendimiento avanzadas tales como pruebas de carga, estrés, benchmarking o análisis de capacidad.
- - No obstante, el MVP sí establece criterios básicos de rendimiento en condiciones normales de operación (ej. tiempo máximo de carga del detalle de una solicitud de hasta 5 segundos), los cuales serán verificados mediante pruebas funcionales.
+ - No obstante, el MVP sí establece criterios básicos de rendimiento en condiciones normales de operación (ej. tiempo máximo de carga del detalle de una solicitud de hasta 2 segundos), los cuales serán verificados mediante pruebas funcionales.
 
 Estas áreas podrían considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
 
