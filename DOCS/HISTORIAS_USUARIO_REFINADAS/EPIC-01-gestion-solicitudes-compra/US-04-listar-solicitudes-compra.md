@@ -2,9 +2,9 @@
 
 ## 1. Descripción (Cómo, Quiero, Para)
  
- **Cómo**: Usuario
- **Quiero**: Listar solicitudes de compras
- **Para**: Tener una visión general de las solicitudes registradas
+ - **Cómo**: Usuario
+ - **Quiero**: Listar solicitudes de compras
+ - **Para**: Tener una visión general de las solicitudes registradas
     
 ## 2. DoR (Definition of Ready)
 

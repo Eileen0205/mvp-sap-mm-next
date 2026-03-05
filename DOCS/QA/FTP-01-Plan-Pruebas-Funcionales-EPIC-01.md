@@ -42,8 +42,6 @@ Se aplicará un enfoque de **pruebas de caja negra**, priorizando los flujos cr�
 *	Validación de tiempos de respuesta básicos para operaciones críticas (guardado y listado).
 *	Verificación manual en entorno controlado, comparando el comportamiento observado con los tiempos aceptables definidos para el MVP.
 
-#### 4.3.1
-
 ## 5. Ciclo de Vida de Pruebas
 
 El proceso de pruebas se ejecutará en ciclos iterativos siguiendo el siguiente orden:
