@@ -30,7 +30,7 @@
   - No Aplica cuando el item es "Servicio".
   - Seleccionable desde catálogo.
 - **RN09:** El almacén seleccionado debe pertenecer al centro seleccionado.
-- **RN10:** No se permiten solicitudes activas duplicadas para la misma combinación de:
+- **RN10:** No se permite que, como resultado de una creación dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
   - Mismo ItemComprable (Material/Servicio)
   - Mismo centro
   - Misma fecha de entrega
@@ -110,14 +110,16 @@ Background:
                 And no se crea la solicitud de compra
 
                   Examples:
-                  |campos        | formato_inválido| mensaje_error                        |
-                  |Descripción   | MTTO            | Debe tener entre 10 y 40 caracteres  | 
-                  |Descripción   | Serv..[+40]     | Debe tener entre 10 y 40 caracteres  | 
-                  |Cantidad      | -5              | Cantidad debe ser mayor que 0        |   
-                  |Cantidad      | 0               | Cantidad debe ser mayor que 0        |
-                  |Cantidad      | "abc1"          | No se permiten valores alfanuméricos |
-                  |Fecha Entrega | 32/13/2025      | Fecha Inexistente                    |
-                  |Fecha Entrega | "abbc"          | Formato Inválido                     |
+                  | campos        | valor           | mensaje_error                        |
+                  | :---          | :---            | :---                                 |
+                  | Descripción   | MTTO            | Debe tener entre 10 y 40 caracteres  | 
+                  | Descripción   | Serv..[+40]     | Debe tener entre 10 y 40 caracteres  | 
+                  | Cantidad      | -5              | Cantidad debe ser mayor que 0        |   
+                  | Cantidad      | 0               | Cantidad debe ser mayor que 0        |
+                  | Cantidad      | 10.1234         | Máximo 3 decimales permitidos        |
+                  | Cantidad      | "abc1"          | No se permiten valores alfanuméricos |
+                  | Fecha Entrega | 32/13/2025      | Fecha Inexistente                    |
+                  | Fecha Entrega | "abbc"          | Formato Inválido                     |
 
           @US-01 @negative @fecha
           Scenario: Intento de creación con fecha de entrega en el pasado
@@ -227,8 +229,17 @@ Background:
 
 ## 6. DoD (Definition of Done)
 
-- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01).
-- Los criterios de Usabilidad (UX) definidos están implementados (Feedback y Confirmación)
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01)
+
+Además especificamente en la US:
+- La solicitud creada es visible en el listado/bandeja del solicitante (flujo completo).
+- Se verificó que los tipos de datos guardados en BD coincidan con lo definido en el dominio.
+- Se verificó que los campos de texto no permitan inyección de scripts básicos (XSS) o caracteres que rompan la BD.
+- Verificación de la no duplicidad luego de una creación según reglas definidas.
+- Confirmación que tras un fallo en la creación no queden registros basuras (datos parciales) en la BD. 
+- Los errores de servidor no rompen la interfaz y muestran un mensaje amigable al usuario.
+- Código revisado enfocado en la atomaticidad de la transacción.
+- Los criterios de Usabilidad (UX) definidos están implementados (Feedback y Confirmación).
 
 ## 7. Dependencias
 

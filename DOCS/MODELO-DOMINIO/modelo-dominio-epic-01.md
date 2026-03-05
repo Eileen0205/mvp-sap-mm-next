@@ -15,7 +15,8 @@ En este documento se describe el **Modelo de Dominio** del módulo Gestión de S
 - Este modelo cubre:
 
   - Creación y modificación de solicitudes de compra.
-  - Roles funcionales involucrados (Solicitante, Aprobador).
+  - Visualización y listado de solicitudes.
+  - Roles funcionales involucrados (Solicitante, Aprobador, Administradror Técnico/Funcional).
   - Estados y transiciones de la solicitud.
 
 - Quedan fuera del alcance:
@@ -61,47 +62,43 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 
 ### Tipos de rol (MVP):
 
-- Solicitante
-  - **Responsabilidades:**
-    - Origina y gestiona la solicitud de compra.
-    - Crea solicitudes de compra.
-    - Modificas solicitudes solo en estado **"Creada"**.
-    - Visualiza solicitudes propias.
-    - Lista solicitudes propias.
-    - Envia solicitud **"A Revisión"**. 
+*   **Solicitante**
+    *   **Responsabilidades:**
+        *   Originar y gestionar la solicitud de compra propia.
+        *   Crear solicitudes de compra.
+        *   Modificar solicitudes propias únicamente en estado **"Creada"**.
+        *   Visualizar y listar solicitudes propias.
+        *   Enviar solicitud a estado **"En Revisión"**.
+    *   **Restricciones:**
+        *   No puede aprobar solicitudes.
+        *   No puede modificar solicitudes en estados finales ("Aprobada", "Rechazada").
+        *   No tiene permisos de gestión de usuarios.
 
-  - **Restricciones:**
-    - No aprueba solicitudes
-    - No modifica solicitudes en estados finales
-    - No gestiona usuarios
+*   **Aprobador**
+    *   **Responsabilidades:**
+        *   Decidir sobre la aprobación o rechazo de solicitudes.
+        *   Visualizar únicamente solicitudes dentro de su ámbito de aprobación (estados **"En Revisión"**, **"Aprobada"** o **"Rechazada"**).
+        *   Gestionar y visualizar solicitudes exclusivamente de los **Centros asignados** a su perfil.
+        *   Ejecutar las transiciones permitidas:
+            *   "En Revisión" → "Aprobada"
+            *   "En Revisión" → "Rechazada"
+    *   **Restricciones:**
+        *   No puede crear solicitudes de compra.
+        *   No puede visualizar solicitudes en estado **"Creada"**.
+        *   No puede modificar los datos maestros de la solicitud (Cantidad, Descripción, etc.).
+        *   No tiene permisos de gestión de usuarios.
 
-- Aprobador
-   - **Responsabilidades:**
-    - Decide sobre la solicitud.
-    - Visualiza únicamente las solicitudes dentro de su ámbito de aprobación. Esto incluye solicitudes en estado **"En Revisión"**,**"Aprobada"** o **"Rechazada"**.
-    - No puede visualizar solicitudes en estado **"Creada"**.
-    - Solo puede visualizar y gestionar solicitudes de los **Centros asignados** a su usuario.
-    - Cambiar el estado de la solicitud:
-        - En Revisión → Aprobada
-        - En Revisión → Rechazada
-    
-   - **Restricciones:**
-    - No crea solicitudes.
-    - No modifica datos de la solicitud.
-    - No gestiona usuarios.
-
-- Administrador Técnico / Funcional (ATF)
-  - Soporte básico al sistema, no forma parte del proceso de compra.
-  - **Responsabilidades:**
-    - Alta de usuarios.
-    - Asignación de roles.
-    - Activar / desactivar usuarios.
-
-  - **Restricciones:** No participa del flujo de solicitud
-   - No crea solicitudes .
-   - No aprueba.
-   - No modifica.
-   - No gestiona catálogo de Centros y Almacenes.
+*   **Administrador Técnico / Funcional (ATF)**
+    *   **Perfil:** Soporte básico al sistema, no participa en el proceso operativo de compra.
+    *   **Responsabilidades:**
+        *   Dar de alta y gestionar usuarios en el sistema.
+        *   Asignar y modificar roles de usuario.
+        *   Activar o desactivar usuarios según sea necesario.
+        *   Visualizar cualquier solicitud con fines de soporte (modo solo lectura).
+    *   **Restricciones:**
+        *   No participa en el flujo de creación de solicitudes.
+        *   No tiene permisos para aprobar o rechazar solicitudes.
+        *   No gestiona el catálogo de Centros y Almacenes.
 
 ## Centro
 

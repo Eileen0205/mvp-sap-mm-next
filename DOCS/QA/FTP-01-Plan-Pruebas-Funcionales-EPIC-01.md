@@ -1,8 +1,6 @@
 # Plan de Pruebas Funcionales (FTP) - EPIC-01
 ## Módulo: Gestión de Solicitudes de Compra (SAP MM MVP)
 
----
-
 ## 1. Introducción
 
 El presente documento describe el Plan de Pruebas para el MVP Gestión de Compras, específicamente del **Módulo Gestión de Solicitudes de Compras**.
@@ -14,8 +12,6 @@ Definir la estrategia, alcance, tipos y técnicas de pruebas que permitan verifi
 *   Los requisitos funcionales definidos.
 *   Las reglas de negocio establecidas.
 *   Las restricciones de seguridad y control de acceso al sistema.
-
----
 
 ## 3. Alcance de las Pruebas (Scope)
 
@@ -32,8 +28,6 @@ Definir la estrategia, alcance, tipos y técnicas de pruebas que permitan verifi
 *   Integraciones con sistemas externos reales.
 *   Migraciones de datos o pruebas unitarias (fuera del rol QA Funcional).
 
----
-
 ## 4. Estrategias de Prueba
 
 ### 4.1. Enfoque General
@@ -49,7 +43,6 @@ Se aplicará un enfoque de **pruebas de caja negra**, priorizando los flujos cr�
 *	Verificación manual en entorno controlado, comparando el comportamiento observado con los tiempos aceptables definidos para el MVP.
 
 #### 4.3.1
----
 
 ## 5. Ciclo de Vida de Pruebas
 
@@ -70,7 +63,6 @@ Solo si estas pruebas son satisfactorias se continuará con la ejecución comple
 Las pruebas funcionales se ejecutarán priorizando por riesgo e impacto en el negocio, siguiendo el siguiente orden:
 *	Flujos principales (Happy Path).
 *	Validación de reglas críticas de negocio.
-*	Validación de visibilidad dinámica (Almacén oculto para servicios en Detalle; guion en Listado).
 *	Escenarios alternativos.
 *	Escenarios negativos.
 *	Validaciones de límites y valores extremos.
@@ -90,17 +82,17 @@ En caso de detectarse defectos críticos bloqueantes, se suspenderá la ejecuci�
 
 **Severidad**
 
-**S1/Crítica:** El sistema no cumple su función principal y no existe un workaruond para continuar (ej: No se crea la solicitud cuando presionas Guardar)
-**S2/Mayor:** Fallo en una funcionalidad crítica del sistema y aún asi continúa estable (ej: Fallo en regla de negocio de duplicidad y aún asi crea la solicitud).
-**S3/Menor:** Errores visuales, pero en el backend persiste todo correctamente (ej: variación de colores, alineación incorrecta, fuentes inconsistentes). 
-**S4/Trivial:** El sistema funciona correctamente y existen aquellos detalles casi "Nulos" que podrían pasar desapercibidos, pues no generan incomodidad al usuario.
+- **S1/Crítica:** El sistema no cumple su función principal y no existe un workaruond para continuar (ej: No se crea la solicitud cuando presionas Guardar)
+- **S2/Mayor:** Fallo en una funcionalidad crítica del sistema y aún asi continúa estable (ej: Fallo en regla de negocio de duplicidad y aún asi crea la solicitud).
+- **S3/Menor:** Errores visuales, pero en el backend persiste todo correctamente (ej:variación de colores, aliniación desalineada, fuentes incosistentes). 
+- **S4/Trivial:** El sistema funciona correctamente y existen aquellos detalles casi "Nulos" que podrían pasar desapercibidos, pues no generan incomodidad al usuario.
 
 **Prioridad**
 
-**P1-Inmediata:** Si el defecto compromete la entrega o bloquea la ejecución de las pruebas, debe solucionarse de inmediato.
-**P2-Alta** El defecto se encuentra en una funcionalidad crítica, debe solucionarse antes de terminar el Sprint.
-**P3-Media** El defecto no afecta funcionalidades o reglas de negocio críticas, no bloquea pruebas ni compromete la entrega, puede planificarse para el próximo sprint.
-**P4-Baja** El defecto entonces puede transferirse pues funcionalmente no compromete nada en el Sprint, puede solucionarse más adelante.
+- **P1-Inmediata:** Si el defecto compromete la entrega o bloquea la ejecución de las pruebas, debe solucionarse de inmediato.
+- **P2-Alta** El defecto se encuentra en una funcionalidad crítica, debe solucionarse antes de terminar el Sprint.
+- **P3-Media** El defecto no afecta funcionalidades o reglas de negocio críticas, no bloquea pruebas ni compromete la entrega, puede planificarse para el próximo sprint.
+- **P4-Baja** El defecto entonces puede transferirse pues funcionalmente no compromete nada en el Sprint, puede solucionarse más adelante.
 
 ### 5.5.	Pruebas de Regresión
 •	Se ejecutará regresión parcial al finalizar cada sprint o iteración.
@@ -108,15 +100,15 @@ En caso de detectarse defectos críticos bloqueantes, se suspenderá la ejecuci�
 
 ### 5.6 Criterios de Suspensión
 La ejecución de pruebas se suspenderá si se cumple alguna de las siguientes condiciones:
-*   Fallo crítico en el **Smoke Test** (ej. no se puede iniciar sesión).
-*   Detección de un defecto **Bloqueante** en el flujo principal (ej. no se puede guardar ninguna solicitud).
-*   Inestabilidad del ambiente de pruebas que impida la navegación fluida.
+
+* Fallo crítico en el **Smoke Test** (ej. no se puede iniciar sesión).
+* Detección de un defecto **Bloqueante** en el flujo principal (ej. no se puede guardar ninguna solicitud).
+* Inestabilidad del ambiente de pruebas que impida la navegación fluida.
 
 ### 5.7 Criterios de Reanudación
 Las pruebas se retomarán una vez que:
-*   El equipo de desarrollo confirme la corrección del defecto bloqueante o crítico.
-*   Se verifique la estabilidad del ambiente mediante un nuevo **Smoke Test** exitoso.
----
+* El equipo de desarrollo confirme la corrección del defecto bloqueante o crítico.
+* Se verifique la estabilidad del ambiente mediante un nuevo **Smoke Test** exitoso.
 
 ## 6. Ambiente de Pruebas
 Las pruebas del **módulo Gestión de Solicitudes de Compra** se ejecutarán en un entorno de desarrollo o simulación controlado.
@@ -130,8 +122,6 @@ Dado que el MVP no contempla despliegues en múltiples ambientes, las validacion
 
 No se contemplan pruebas en ambientes productivos ni en entornos con múltiples usuarios concurrentes.
 
----
-
 ## 7. Datos de Prueba
 
 ### 7.1. Usuarios (Combinaciones de Roles y Estados y permisos sobre Centro)
@@ -140,12 +130,14 @@ No se contemplan pruebas en ambientes productivos ni en entornos con múltiples 
 | Solicitante| Activo / Inactivo | Con y Sin permisos |
 | Aprobador  | Activo / Inactivo | Con y Sin permisos |
 | Admin TF   | Activo / Inactivo | Global             |
-| Invitado   | -                 | Sin acceso (Validación bloqueo no autenticado) |
+| Invitado   | -                 | Sin acceso         |
+
+> Rol "Invitado": Usuario no autenticado para validar bloqueo de acceso.
 
 ### 7.2. Solicitudes, Maestros y Duplicados
 
 *   **Estados:** Creada, En Revisión, Rechazada, Aprobada.
-*   **Maestros:** Centros válidos/inválidos, Almacenes asociados/no asociados, visibilidad dinámica según tipo.
+*   **Maestros:** Centros válidos/inválidos, Almacenes asociados/no asociados.
 *   **Duplicados:** Variaciones para validar duplicidad (ItemComprable, Centro y Fecha en diferentes estados disntintos de Rechazada)
 
 ### 7.3. Campos
@@ -160,8 +152,6 @@ No se contemplan pruebas en ambientes productivos ni en entornos con múltiples 
 ### 7.4. Datos para pruebas no funcionales básicas
 *	Conjunto mínimo de solicitudes.
 *	Conjunto moderado de solicitudes (para evaluar tiempos de carga del listado).
-
----
 
 ## 8. Criterios de Entrada
 
@@ -180,8 +170,6 @@ No se contemplan pruebas en ambientes productivos ni en entornos con múltiples 
 *	Se hayan ejecutado pruebas de confirmación y regresión asociadas a los defectos corregidos.
 *   Informe final de pruebas generado y aprobado.
 
----
-
 ## 10. Riesgos
 
 ### 10.1 Riesgos de Requerimientos
@@ -193,8 +181,6 @@ Cambios en reglas de negocio o funcionalidades sin actualización del plan de pr
 - Validación y congelamiento del alcance antes de iniciar pruebas.
 - Actualización del Test Plan ante cambios aprobados.
 
----
-
 #### Ambigüedad en requisitos
 Interpretación incorrecta de criterios de aceptación o reglas de negocio, especialmente en desarrollos generados por IA.
 
@@ -202,8 +188,6 @@ Interpretación incorrecta de criterios de aceptación o reglas de negocio, espe
 - Revisión previa de historias y criterios antes del desarrollo.
 - Refinamiento continuo y validación temprana mediante pruebas exploratorias.
 - Validación de inconsistencias documentales.
-
----
 
 ### 10.2 Riesgos Técnicos
 
@@ -214,8 +198,6 @@ El sistema puede presentar degradación en tiempos de respuesta al aumentar el v
 - Validación temprana de tiempos de respuesta básicos.
 - Pruebas con volúmenes moderados de datos simulados.
 
----
-
 #### Calidad del código generado por IA
 Código difícil de mantener o propenso a errores no detectados.
 
@@ -223,16 +205,12 @@ Código difícil de mantener o propenso a errores no detectados.
 - Pruebas funcionales exhaustivas.
 - Regresión frecuente tras modificaciones.
 
----
-
 #### Incompatibilidad futura con integraciones externas
 Posible dificultad al integrar el módulo con APIs o sistemas externos.
 
 **Mitigación:**
 - Documentación clara de reglas y estructuras actuales.
 - Validación de consistencia de datos.
-
----
 
 ### 10.3 Riesgos de Seguridad
 
@@ -243,8 +221,6 @@ Usuarios podrían acceder a funcionalidades no autorizadas.
 - Pruebas exhaustivas por rol y estado.
 - Validación cruzada de restricciones backend y frontend.
 
----
-
 #### Transiciones de estado no autorizadas
 Modificación indebida del estado inicial o transición incorrecta entre estados.
 
@@ -252,15 +228,12 @@ Modificación indebida del estado inicial o transición incorrecta entre estados
 - Testing basado en estados.
 - Validación negativa de transiciones inválidas.
 
----
-
 #### Exposición de datos sensibles
 Visualización indebida de solicitudes de otros usuarios.
 
 **Mitigación:**
 - Pruebas de acceso cruzado entre roles.
 - Validación de filtros por centro y propietario.
----
 
 ## 11. Roles y Responsabilidades
 
@@ -270,15 +243,11 @@ Visualización indebida de solicitudes de otros usuarios.
 - Gestionar riesgos de calidad.
 - Aprobar el cierre del ciclo de pruebas.
 
----
-
 ### QA
 - Diseñar los casos de prueba.
 - Ejecutar pruebas funcionales y no funcionales básicas.
 - Reportar y dar seguimiento a defectos.
 - Ejecutar pruebas de confirmación y regresión.
-
----
 
 ### Desarrollo (Dev)
 - Implementar las funcionalidades.
@@ -286,21 +255,16 @@ Visualización indebida de solicitudes de otros usuarios.
 - Corregir defectos reportados.
 - Entregar nuevas versiones para validación.
 
----
-
 ### Product Owner (PO)
 - Validar requisitos y criterios de aceptación.
 - Ejecutar o coordinar pruebas UAT.
 - Aprobar la liberación del módulo.
-
----
 
 ### Scrum Master
 - Facilitar la coordinación entre equipos.
 - Asegurar que el proceso de pruebas pueda ejecutarse sin impedimentos.
 
 > Es importante destacar que el MVP se realizó por una misma persona acompañada de la IA, para agilizar, apoyar y revisar consistencia en el proceso de documentación y para la implementación de la UX. Pero se decidió reflejar los roles involucrados para ofrecer un matiz más orientado a proyectos reales.
----
 
 ## 12. Entregables
 

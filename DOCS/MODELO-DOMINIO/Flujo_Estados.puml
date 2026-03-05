@@ -1,12 +1,17 @@
-
 @startuml
-title Definición de transiciones de estados - EPIC-01 Gestión de Solicitudes de Compra
-[*] --> CREADA
-CREADA : Solicitante crea solicitud
-CREADA --> EN_REVISIÓN : Solicitante envía la solicitud a Revisión
-EN_REVISIÓN : EN REVISIÓN
-EN_REVISIÓN --> APROBADA : Aprobador aprueba solicitud
-EN_REVISIÓN --> RECHAZADA : Aprobador rechaza solicitud
-APROBADA --> [*] : Estado final
-RECHAZADA --> [*] : Estado final
+skinparam state {
+  BackgroundColor<<Initial>> SkyBlue
+  BackgroundColor<<Process>> Wheat
+  BackgroundColor<<Final>> LightGreen
+  BackgroundColor<<Rejected>> LightCoral
+}
+
+[*] --> Creada
+Creada : Solicitante crea solicitud
+Creada --> En_Revisión : Solicitante envía la solicitud a Revisión
+En_Revisión : En Revisión
+En_Revisión --> Aprobada : Aprobador aprueba solicitud
+En_Revisión --> Rechazada : Aprobador rechaza solicitud
+Aprobada --> [*] : Estado final
+Rechazada --> [*] : Estado final
 @enduml

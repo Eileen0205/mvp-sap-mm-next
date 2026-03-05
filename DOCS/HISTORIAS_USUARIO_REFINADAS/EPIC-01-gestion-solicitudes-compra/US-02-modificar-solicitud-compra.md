@@ -9,7 +9,7 @@
 ## 2. DoR (Definition of Ready)
 
 - Esta historia debe cumplir el DoR definido para el MVP (ver EPIC-01).
-- Para la **EPIC-01 | Gestión de Solicitud de Compra**, en particular:
+- Para la **US-02 | Modificar una solicitud de compra**, en particular:
   - Están definidas y acordadas las reglas de creación (US-01) sobre las que se apoya la modificación.
   - Están definidos los estados de la solicitud y cuáles permiten o no modificación.
   - Están identificados los campos modificables y los campos clave no modificables.
@@ -26,7 +26,7 @@
 - **RN08:** La cantidad debe ser un valor numérico, mayor que cero y cumplir el formato definido (US-01).
 - **RN09:**  Solo se permite la modificación de solicitudes que se encuentren en estado inicial "Creada". Cualquier otro estado (En Revisión, Aprobada, Rechazada) el sistema debe:
   - Deshabilitar la opción "Modificar".
-- **RN10:** No se permite que, como resultado de una modificación, dos solicitudes de compra en un estado distinto de "Rechazada" queden con la misma combinación de:
+- **RN10:** No se permite que, como resultado de una modificación, dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
   - ÍtemComprable (Material o servicio)
   - Centro
   - Fecha de entrega.
@@ -69,9 +69,10 @@ Background:
             And no se permite la modificación de la solicitud
            
             Examples:
-            |rol                            |mensaje                                              |
-            |Aprobador                      |Su rol no tiene permisos para realizar modificaciones|
-            |Administrador Técnico Funcional|Su rol no tiene permisos para realizar modificaciones|
+            | rol                             | mensaje                                               |
+            | :---                            | :---                                                  |
+            | Aprobador                       | Su rol no tiene permisos para realizar modificaciones |
+            | Administrador Técnico Funcional | Su rol no tiene permisos para realizar modificaciones |
 
        @US-02 @negative @datos_inválidos 
        Scenario Outline: Intentar modificar solicitud de compra con datos inválidos en campos permitidos
@@ -83,10 +84,12 @@ Background:
             And no se guarda la modificación de la solicitud
 
               Examples:
-              |campos        | valor        | mensaje_error                        |
-              |Descripción   | MTTO         | Debe tener entre 10 y 40 caracteres  | 
-              |Cantidad      | -5           | Cantidad debe ser mayor que 0        |   
-              |Fecha Entrega | 32/05/2014   | Fecha Inexistente                    |
+              | campos        | valor      | mensaje_error                       |
+              | :---          | :---       | :---                                |
+              | Descripción   | MTTO       | Debe tener entre 10 y 40 caracteres | 
+              | Cantidad      | -5         | Cantidad debe ser mayor que 0       |   
+              | Fecha Entrega | 32/05/2014 | Fecha Inexistente                   |
+
              
       
       @US-02 @negative @fecha
@@ -161,10 +164,11 @@ Background:
               Then el botón de Modificar está deshabilitado
               
                 Examples:
-                |estado     |
-                |En Revisión|
-                |Aprobada   |
-                |Rechazada  |
+                | estado      |
+                | :---        |
+                | En Revisión |
+                | Aprobada    |
+                | Rechazada   |
                 
         @US-02 @seguridad @gestion_estados   
         Scenario Outline: El sistema bloquea el acceso directo a la modificación de solicitudes en estados inválidos
@@ -175,10 +179,12 @@ Background:
               And no se presenta el formulario de modificación
    
              Examples:
-                | ID_Solicitud| estado      | mensaje_error
-                | 123         | En Revisión | No puede modificarse en el estado actual| 
-                | 452         | Aprobada    | No puede modificarse en el estado actual|
-                | 789         | Rechazada   | No puede modificarse en el estado actual|
+                | ID           | estado      | mensaje_error                            |
+                | :---         | :---        | :---                                     |
+                | PR-2026-0001 | En Revisión | No puede modificarse en el estado actual |
+                | PR-2026-0002 | Aprobada    | No puede modificarse en el estado actual |
+                | PR-2026-0003 | Rechazada   | No puede modificarse en el estado actual |
+
 
        @US-02 @disponibilidad
        Scenario: Manejo de interrupción durante el guardado
@@ -204,9 +210,14 @@ Background:
 
 ## 6. DoD (Definition of Done)
 
-- La historia cumple el DoD global del MVP y el DoD específico de la EPIC-01.
-- Todos los escenarios de aceptación (felices y negativos) han sido ejecutados sin defectos críticos abiertos.
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación).
+
+Además específicamente para la US:
 - Los cambios se reflejan correctamente en la visualización de la solicitud y en el listado de solicitudes.
+- Verificación que la modificación es realizada por rol autorizado según reglas definidas.
+- Confirmación que tras un fallo en la modificación no queden registros basuras (datos parciales) en la BD.
+- Verificación de que los campos no modificables permanezcan en modo "Solo Lectura".
+- Verificación de la no duplicidad luego de una modificación según reglas definidas.
 
 ## 7. Dependencias
 

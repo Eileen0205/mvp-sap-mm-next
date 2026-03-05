@@ -73,32 +73,25 @@ And está marcado como "Activo"
           | Administrador Técnico/Funcional | sin restricción de ámbito| Rechazada  | Ninguna |
                     
       @US-03 @happy @visualizacion_campos_minimos
-      Scenario Outline: Visualizar detalle de solicitud con campos mínimos
+      Scenario Outline: Visualizar detalle de solicitud con campos mínimos y visibilidad dinámica para el campo Almacén
       
-            Given que existe una solicitud de compra con ID "<ID>" en el sistema
+            Given que existe una solicitud de compra con ID "<ID>" de tipo "<ItemComprable>" en el sistema
             And el usuario tiene rol "<rol>" con permisos para ver solicitudes
             When accede al detalle de la solicitud "<ID>"
-            Then el sistema muestra el campo "ID" con valor "<ID>"
-            And el sistema muestra el campo "ItemComprable" con valor "<ÍtemComprable>"
-            And el sistema muestra el campo "Descripción" con valor "<Descripción>"
-            And el sistema muestra el campo "Cantidad" con valor "<Cantidad>"
-            And el sistema muestra el campo "Centro" con valor "<Centro>"
-            And el sistema muestra el campo "Almacén" con valor "<Almacén>"
-            And el sistema muestra el campo "Fecha Entrega" con valor "<Fecha_Entrega>"
-            And el sistema muestra el campo "Estado Actual" con valor "<Estado_Actual>"
-            And el sistema muestra el campo "Usuario Solicitante" con valor "<Usuario_Solicitante>"
+            Then el sistema muestra los campos comunes: ID, Descripción, Cantidad, Centro, Fecha Entrega, Estado Actual y Usuario Solicitante
+            And según el tipo de item se aplica la visibilidad <Visibilidad_Almacen> en el campo "Almacén" con valor "<Valor_Almacen>"
 
             @Material
             Examples:
-            | rol          | ID   | ÍtemComprable       | Descripción                      | Cantidad | Centro | Almacén | Fecha_Entrega | Estado_Actual | Usuario_Solicitante |
-            | Solicitante  | 4587 | Material            | Paquete Papel A4 80g (500 hojas) | 250      | 1011   | 210A    | 05/02/2026      | En Revisión   | jperez              |
-            | Aprobador    | 4587 | Material            | Paquete Papel A4 80g (500 hojas) | 250      | 1011   | 210A    | 05/02/2026      | En Revisión   | jperez              |
+            | rol          | ID           | ItemComprable       | Visibilidad_Almacen | Valor_Almacen |
+            | Solicitante  | PR-2026-0001 | Material            | muestra             | 210A          |
+            | Aprobador    | PR-2026-0001 | Material            | muestra             | 210A          |
 
             @Servicio
             Examples:
-            | rol          | ID   | ÍtemComprable       | Descripción              | Cantidad | Centro |Almacén| Fecha_Entrega | Estado_Actual | Usuario_Solicitante |
-            | Solicitante  | 4587 | Servicio            | Mantenimiento Industrial | 1        | 1011   | N/A   | 05/02/2026      | En Revisión   | jperez              |
-            | Aprobador    | 4587 | Servicio            | Mantenimiento Industrial | 1        | 1011   | N/A   | 05/02/2026      | Aprobada      | jperez              |
+            | rol          | ID           | ItemComprable       | Visibilidad_Almacen | Valor_Almacen |
+            | Solicitante  | PR-2026-0002 | Servicio            | oculta              | -             |
+            | Aprobador    | PR-2026-0002 | Servicio            | oculta              | -             |
      
       @US-03 @seguridad @usuario_inactivo
       Scenario: Intento de visualización de un usuario "Inactivo"
@@ -129,11 +122,13 @@ And está marcado como "Activo"
             And no se permite acceso directo a la URL de modificación
          
             Examples:
-            |ID  |rol                            | estado_final |
-            |4587|Solicitante                    | Aprobada     |
-            |4588|Aprobador                      | Rechazada    |
-            |4589|Administrador Técnico/Funcional| Aprobada     |
-            |4590|Administrador Técnico/Funcional| Rechazada    |
+            | ID           | rol                             | estado_final |
+            | :---         | :---                            | :---         |
+            | PR-2026-0001 | Solicitante                     | Aprobada     |
+            | PR-2026-0002 | Aprobador                       | Rechazada    |
+            | PR-2026-0003 | Administrador Técnico/Funcional | Aprobada     |
+            | PR-2026-0004 | Administrador Técnico/Funcional | Rechazada    |
+
 
       @US-03 @edge_case @usuario_solicitante_inexistente
       Scenario: Visualización de solicitud con datos de usuario inconsistentes
@@ -159,9 +154,10 @@ And está marcado como "Activo"
             And no expone detalles técnicos del sistema
             
             Examples:
-            | rol         | ID   |
-            | Solicitante | 7800 |
-            | Aprobador   | 4585 |
+            | rol         | ID           |
+            | :---        | :---         |
+            | Solicitante | PR-2026-9999 |
+            | Aprobador   | PR-2026-0005 |
 
 ```
 ## 5. Consideraciones de QA
@@ -174,8 +170,13 @@ Además de las Consideraciones Generales QA definidas para EPIC-01, se deberá t
 
 ## 6. DoD (Definition of Done)
 
-- La historia cumple el DoD global del MVP y el DoD específico de la EPIC-01.
-- Todos los escenarios de aceptación (felices y negativos) han sido ejecutados sin defectos críticos abiertos.
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación)..
+
+Además específicamente para la US:
+- La funcionalidad permite la visualización respetando las reglas de visibilidad por rol, ámbito y centro.
+- Confirmación de que el estado mostrado corresponde con el registrado en la BD.
+- Confirmación de que desde la pantalla de visualización no se podrán editar campos y que el acceso a las distintas acciones sobre la solicitud (Modificar, Enviar a Revisión, Aprobar y Rechazar) serán visibles respetando roles y estado de la solicitud.
+- 
 
 ## 7. Dependencias
 

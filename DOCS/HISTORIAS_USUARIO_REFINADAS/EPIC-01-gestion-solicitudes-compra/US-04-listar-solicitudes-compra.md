@@ -18,7 +18,9 @@
 - **RN03**: El usuario con rol Solicitante solo puede ver en el listado las solicitudes que haya creado él mismo.
 - **RN04**: El usuario con rol Aprobador debe ver las solicitudes que se encuentren dentro de su ámbito según se define en EPIC-03.
 - **RN05**: El usuario con rol Administrador Técnico/Funcional puede listar todas las solicitudes de compra con fines supervisión y soporte, siempre en modo solo lectura desde esta historia.
-- **RN06**: Cada fila del listado debe mostrar al menos: identificador de la solicitud, descripción,fecha de creación, estado actual, centro y usuario solicitante.
+- **RN06**: Cada fila del listado debe mostrar al menos: identificador de la solicitud, descripción, fecha de creación, estado actual, centro, almacén y usuario solicitante. 
+  - Para ítems de tipo "Material": Se muestra el ID del almacén.
+  - Para ítems de tipo "Servicio": La celda de almacén se muestra vacía o con un guion ("-").
 - **RN07**: El listado de solicitudes debe ordenarse por defecto por fecha de creación en orden descendente (las solicitudes más recientes primero).
 - **RN08**: Desde el listado el usuario debe poder acceder al detalle de una solicitud específica mediante una acción (por ejemplo, clic sobre la fila o un enlace), aplicándose las reglas de visibilidad definidas en la US-03.
 - **RN09**: Si no existen solicitudes que cumplan los criterios para el usuario (por ejemplo, un Solicitante sin solicitudes propias), el sistema debe mostrar un listado vacío acompañado de un mensaje que indique que no hay solicitudes disponibles.
@@ -91,7 +93,7 @@ And está "Activo" en el sistema
             | Inactivo           | Usuario inactivo         |
             | Sesión expirada    | Sesión expirada          |
       
-       @US-04 @negative @usuario_sin_autorización 
+       @US-04 @negative @usuario_sin_autorizacion 
        Scenario: Intento de listar solicitudes por usuario con rol sin permisos
 
           Given el usuario tiene rol "Invitado"
@@ -109,10 +111,12 @@ And está "Activo" en el sistema
 
 ## DoD (Definition of Done)
 
-- La historia cumple el DoD global del MVP y el DoD específico de la EPIC-01.
-- Todos los escenarios de aceptación (felices y negativos) han sido ejecutados sin defectos críticos abiertos.
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación)..
+
+Además específicamente para la US:
 - El ordenamiento por defecto (fecha descendente) está implementado.
 - La funcionalidad permite listar solicitudes según las reglas de visibilidad por rol.
+- Confirmación de que el estado mostrado corresponde fielmente al estado en la BD.
 
 ## Dependencias
 
@@ -128,3 +132,7 @@ And está "Activo" en el sistema
   - Inicio de Sesión.
   - Control de Acceso por Rol.
   - (Integración) Visualizar Solicitud de Compra (para el enlace al detalle).
+
+## 8. Metadatos
+- **Prioridad**: Alta
+- **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `ListarSolicitudDeCompra`

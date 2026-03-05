@@ -82,6 +82,17 @@ Estas consideraciones aplican a:
 **Comportamiento de la Interfaz (UI/UX)** 
 
 - Las validaciones de obligatoriedad y formato deben ejecutarse preferiblemente on-blur (al salir del campo) para guiar al usuario antes de presionar "Guardar".
+- Los estados definidos en el MVP deben mostrarse con un estilo visual (tag/badge) consistente en toda la aplicación.
+  - Creada (GRIS/AZUL)
+  - En Revisión (NARANJA/AMARILLO)
+  - Aprobada (VERDE)
+  - Rechazada (ROJO)
+    * Forma y Fuente: Todos los estados deben tener el mismo redondeo de esquinas, el mismo tamaño de letra y el mismo espacio interno (padding).
+    * Iconografía: Si se usa un icono para estados, debe ser el mismo en todo el sistema.
+- Visibilidad Dinámica del Almacén (Dependencia de Tipo)**
+    * El campo "Almacén" solo tiene sentido funcional para ítems de tipo **Material**.
+    * Formularios (Creación/Modificación/Detalle): Si el ítem es un "Servicio", el campo Almacén debe ocultarse por completo de la interfaz para evitar ruido visual.
+    * Listados (Tablas):La columna Almacén debe ser estática por estructura de datos, pero para servicios el valor debe mostrarse **vacío o con un guion ("-")**.
 
 **Gestión de Errores**
 
@@ -112,7 +123,8 @@ Estas consideraciones aplican a:
 **Requerimientos No Funcionales (comportamiento esperado del sistema bajo condiciones normales Performance (Rendimiento))**
 
 - Tiempo de Respuesta: Tras pulsar "Guardar", "Visualizar", "Ver Detalle","Listar Solicitudes" la respuesta del sistema (ya sea éxito o error) debe producirse en un tiempo razonable. 
-- Métrica: El tiempo objetivo es menor a 5 segundos bajo condiciones normales de red y carga.
+- La asignación del estado y la respuesta del sistema deben ocurrir en un tiempo razonable.
+- Métrica: El tiempo objetivo es menor a 2 segundos bajo condiciones normales de red y carga.
 
 **Feedback del usuario**
 

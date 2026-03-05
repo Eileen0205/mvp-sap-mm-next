@@ -1,10 +1,12 @@
 # EPIC-01 | Gestión de Solicitud de Compra (Core Funcional)
 
 ## 1. Descripción
+
 Esta épica cubre el proceso central del MVP, permitiendo a los usuarios Crear, Modificar, Listar y Visualizar Solicitudes de Compra de materiales o servicios de forma controlada y trazable.
 
 ## 2. Objetivo
-Representar el inicio del proceso de compras, alineado con el concepto de Purchase Requisition en SAP MM, garantizando que toda solicitud cuente con información mínima válida y esté correctamente registrada en el sistema.
+
+Representar el inicio del proceso de compras, inspirado en el concepto de Purchase Requisition en SAP MM, garantizando que toda solicitud cuente con información mínima válida y esté correctamente registrada en el sistema.
 
 Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan los flujos de estado (EPIC-02) y las reglas de autorización (EPIC-03).
 
@@ -12,21 +14,20 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
 
  - Crear solicitudes de compra por parte del usuario con rol "Solicitante".
  - Modificar solicitudes existentes, solo:
-  - La solicitud que se encuentre en estado "Creada".
-  - Si la solicitud es propia del usuario con rol "Solicitante".
+    * Si la solicitud que se encuentre en estado "Creada".
+    * Si la solicitud es propia del usuario con rol "Solicitante".
  - El Solicitante solo visualiza sus propias solicitudes.
  - El Aprobador visualiza solicitudes de los centros asignados, según reglas de autorización (EPIC-03).
  - El Administrador Técnico/Funcional puede listar y visualizar cualquier solicitud de compra siempre en modo "Solo Lectura".
  - Validar campos obligatorios definidos para la solicitud de compra.
- - Detectar solicitudes duplicadas de forma básica, considerando:
-  - Mismo ItemComprable (material o servicio).
-  - Mismo centro.
-  - Misma fecha de entrega.
+ - Detectar solicitudes duplicadas de forma básica, considerando solicitudes en estados distintos de ¨Rechazada¨ y con la siguiente triada:
+    * Mismo ItemComprable (material o servicio).
+    * Mismo centro.
+    * Misma fecha de entrega.
  - Consumo de datos maestros:
-  - Centro (seleccionable)
-  - Almacén (dependiente del Centro, si Tipo es Material)
+    * Centro (seleccionable)
+    * Almacén (dependiente del Centro, si Tipo es Material)
  - Los datos maestros (Centro y Almacén) serán consumidos por la EPIC-01 como catálogos preexistentes al inicio del sistema.
- - 
 
 > Nota: La EPIC-01 únicamente consume dichos catálogos para la creación y modificación de Solicitudes de Compra
 
@@ -51,6 +52,7 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
 > Nota: Cualquier funcionalidad no mencionada explícitamente en este alcance se considera fuera del MVP.
 
 ## 5. Relación con otras épicas
+
 - Depende de:
   - **EPIC-03 | Gestión de Usuarios y Seguridad** (autenticación, roles y sesión).
 - Es soportada por:
@@ -86,9 +88,11 @@ Una Historia de Usuario de esta épica se considera **Done** cuando:
 ### 8.1. Gestión de Solicitudes de Compra (Core del MVP)
 
 **Objetivo**  
+
 Permitir la gestión controlada de Solicitudes de Compra, asegurando que cada solicitud sea creada, modificada y visualizada bajo reglas de negocio claras y estados válidos.
 
 **Principal problema que resuelve**  
+
 Centraliza y estandariza las solicitudes de compra, evitando errores de duplicidad, solapamiento de pedidos o solicitudes fuera de tiempo.
 
 **Usuarios principales**
@@ -96,13 +100,16 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 > Nota: Los roles y responsabilidades descritos se implementan de forma progresiva y coordinada con EPIC-03 (Gestión de Usuarios y Seguridad). En el Modelo Dominio se detallan las responsabilidades y restricciones de cada rol.
 
 ### Rol Solicitante 
+
 -Usuario que origina y gestiona la solicitud de compra
 
 ### Rol Aprobador 
+
 - Usuario encargado del control y cierre del proceso. Decide sobre la solicitud (en combinación con EPIC-02)
 
 ### Rol: Administrador Técnico/Funcional
-- Soporte básico al sistema, no parte directa del proceso de compra
+
+- Soporte básico al sistema, no forma parte directa del proceso de compra
 
 **Reglas de negocio clave**
 
@@ -149,8 +156,6 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 - Usuarios (simplificado) (EPIC-03).
 - Gestión de Estados (estado inicial `Creada`, EPIC-02).
 
----
-
 ### 9.2. Modificar Solicitud de Compra
 
 **Descripción**  
@@ -173,8 +178,6 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 - Gestión de Estados (EPIC-02).
 - Autenticación y Roles (EPIC-03).
 
----
-
 ### 9.3. Visualizar Solicitud de Compra
 
 **Descripción**  
@@ -189,8 +192,6 @@ Permite la consulta detallada de una solicitud específica.
 **Dependencias**
 
 - Autenticación y Roles (EPIC-03).
-
----
 
 ### 9.4. Listar Solicitudes de Compra
 
@@ -227,8 +228,6 @@ And se asigna el estado inicial `Creada`.
 - Prioridad: Alta  
 - Labels: `PRFlow`, `GestionDeSolicitudesDeCompra`, `CrearSolicitudDeCompra`
 
----
-
 ### US-02 | PR-Flow | GSC | Modificar una solicitud de compra
 
 **Descripción (Cómo, Quiero, Para)**  
@@ -246,8 +245,6 @@ Then Los cambios se guardan correctamente
 - Prioridad: Alta  
 - Labels: `PRFlow`, `GestionDeSolicitudesDeCompra`, `ModificarSolicitudDeCompra`
 
----
-
 ### US-03 | PR-Flow | GSC | Visualizar una solicitud de compra
 
 **Descripción (Cómo, Quiero, Para)** 
@@ -263,8 +260,6 @@ Then El sistema muestra toda la información asociada
 **Metadatos**
 - Prioridad: Alta    
 - Labels: `PRFlow`, `GestionDeSolicitudesDeCompra`, `VisualizarSolicitudDeCompra`
-
----
 
 ### US-04 | PR-Flow | GSC | Listar solicitudes propias de compra
 
