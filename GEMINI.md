@@ -3,25 +3,27 @@
 
 # Mi contexto real
 
-Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA Funcional, apoyada en mi experiencia y en el acompañamiento de la IA durante esta etapa de autopreparación.
+Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA Funcional, apoyada en mi experiencia y con la aplicación de la IA durante esta etapa de autopreparación como copiloto.
 
-Como parte de este objetivo, estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra inspirado en SAP MM, donde pueda evidenciarmis capacidades como QA Funcional.
+Para alcanzar mi objetivo , estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra inspirado en SAP MM, donde pueda evidenciar mis capacidades como QA Funcional.
 
 # 1. Dominio de Negocio (MVP)
 
 Gestión del Proceso de Solicitudes de Compra (Purchase Requisition – SAP MM)
 
 📄 Descripción del dominio
+
 Sistema orientado a la gestión del proceso previo a la compra de materiales o servicios, desde la creación de la solicitud hasta su aprobación o rechazo.
 
-Inspirado directamente en transacciones SAP MM:
-•	ME51N – Crear solicitud de compra
-•	ME52N – Modificar solicitud
-•	ME53N – Visualizar solicitud
+Inspirado en transacciones de SAP MM:
+
+*	ME51N – Crear solicitud de compra
+*	ME52N – Modificar solicitud
+*	ME53N – Visualizar solicitud
 
 ## Fuera de alcance del MVP
 
-Este MVP se centra exclusivamente en el **proceso de gestión de solicitudes de compra en SAP MM** (creación, modificación, visualización, listado y ciclo de vida básico de estados).
+Este MVP se centra exclusivamente en el **proceso de gestión de solicitudes de compra** (creación, modificación, visualización, listado y ciclo de vida básico de estados).
 
 Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan explícitamente **fuera de alcance**:
 
@@ -58,7 +60,7 @@ Estas áreas podrían considerarse en fases posteriores del portafolio, pero no 
 - Control de Acceso por Rol
 - Restricción de Acceso a Funcionalidades
 
-Cada funcionalidad se detalla en historias de usuario dentro de las siguientes categorías:
+Cada funcionalidad se detalla en historias de usuario dentro de los siguientes módulos:
 
    - PR-Flow | GSC: Gestión de Solicitudes de Compra.
    - PR-Flow | GE: Gestión de Estados.
@@ -67,9 +69,9 @@ Cada funcionalidad se detalla en historias de usuario dentro de las siguientes c
 
 # 4. Generación de primeras Historias de Usuario (v1)
 
-    - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
-    - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
-    - El lenguaje está pensado para ser testeable por QA y alineado a procesos SAP MM (PR).
+  - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
+  - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
+  - El lenguaje está pensado para ser testeable por QA.
 
 ## Resumen de Historias de Usuario del Flujo de Solicitudes de Compra (PR-Flow)
 
@@ -261,13 +263,13 @@ Los matices específicos por épica están en cada archivo de `DOCS/EPICS`.
 
 # 7. Enfoque de QA y Shift-Left Testing
 
-Este proyecto prioriza QA desde el inicio:
+Este proyecto prioriza QA desde el inicio, utilizando para ello un enfoque Shift-Left para garantizar un producto de calidad desde el inicio y permite reducir costos y tiempo en desarrollo al corregir fallos desde el inicio de la planificación:
 
 - Cada US incluye:
   - Reglas de negocio.
   - Criterios de aceptación en Gherkin (Given–When–Then).
   - Consideraciones QA (casos negativos, bordes, coherencia de datos).
-- La implementación debe:
+- La implementación a cargo de la IA DEV debe:
   - Respetar estas reglas y criterios.
   - Incluir validaciones de negocio antes del guardado.
   - Evitar estados o datos inconsistentes (especialmente en estados y seguridad).
@@ -313,7 +315,6 @@ Formato sugerido:
 - `docs: agregar EPICs finalizadas del MVP SAP-MM`
 - `chore: inicializar documentación base del proyecto`
 - `refactor: mejorar redacción y consistencia de US y EPICs`
-- etc.
 
 ## Ramas por EPICAS
 

@@ -170,7 +170,7 @@ Además de las Consideraciones Generales QA definidas para EPIC-01, se deberá t
 
 ## 6. DoD (Definition of Done)
 
-- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación)..
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación).
 
 Además específicamente para la US:
 - La funcionalidad permite la visualización respetando las reglas de visibilidad por rol, ámbito y centro.

@@ -1,9 +1,11 @@
-# Metadatos de Windows y WSL
-**/*:Zone.Identifier
-:Zone.Identifier
-$RECYCLE.BIN/
-Thumbs.db
+# v0 runtime files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
 
-# Archivos temporales de edición
-*.tmp
-*.bak
+# Common ignores
+node_modules/
+.next/
+.env*.local
+.DS_Store
+.vercel

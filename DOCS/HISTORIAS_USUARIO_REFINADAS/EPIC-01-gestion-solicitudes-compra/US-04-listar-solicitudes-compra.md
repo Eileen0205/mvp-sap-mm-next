@@ -111,7 +111,7 @@ And está "Activo" en el sistema
 
 ## DoD (Definition of Done)
 
-- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación)..
+- Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación).
 
 Además específicamente para la US:
 - El ordenamiento por defecto (fecha descendente) está implementado.
