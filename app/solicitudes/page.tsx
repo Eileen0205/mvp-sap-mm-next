@@ -165,6 +165,7 @@ export default function SolicitudesPage() {
               solicitudes={solicitudes}
               isLoading={loadingSolicitudes}
               onEdit={handleEditRequest}
+              onRefresh={fetchSolicitudes}
             />
           </TabsContent>
         </Tabs>
