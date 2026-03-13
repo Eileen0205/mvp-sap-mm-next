@@ -1,42 +1,35 @@
-# MVP – Gestión de Solicitudes de Compra (SAP MM)
+# v0-MVP PR-Flow
 
- Este repositorio contiene un MVP centrado específicamente en el subproceso de gestión de Solicitudes de Compra (Purchase Requisition), que representa el inicio del proceso de compras en SAP MM. 
+This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
 
-## Objetivo del MVP: 
+## Built with v0
 
-- Demostrar mis competencias como QA funcional junior con foco en el módulo SAP MM (en formación), tomando como base mi formación en Ingeniería Informática para aplicar buenas prácticas de análisis, diseño de pruebas y gestión de la calidad.
+This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
 
-- Practicar un flujo de trabajo completo de desarrollo y QA, documentado y versionado con Git, utilizando también herramientas de IA como apoyo.
+[Continue working on v0 →](https://v0.app/chat/projects/prj_boW7309Wkk8UdCH0bTcFGi6ciOzQ)
 
+## Getting Started
 
-## Que quiero mostrar con este proyecto:
+First, run the development server:
 
-A traves de este MVP quiero evidenciar que:
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
 
-- Puedo entender y modelar un **flujo de negocio realista** relacionado con las Solicitudes de Compra.
-- Sé **analizar requisitos funcionales** y traducirlos en:
-  - Épicas e historias de usuario.
-  - Casos de prueba y criterios de aceptación estructurados (incluyendo Gherkin).
-- Soy capaz de **diseñar y ejecutar una estrategia de pruebas funcionales**, documentando resultados y defectos de forma clara.
-- Trabajo con herramientas y prácticas habituales en entornos profesionales:
-  - Git y repositorio remoto.
-  - Documentación dentro del propio repositorio.
-  - Apoyo en herramientas de IA para análisis, diseño y revisión.
-- Estoy en un proceso activo de **actualización profesional**, retomando mi perfil de ingeniería informática y orientándolo hacia **QA + SAP MM**.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Estructura del repositorio
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-- `DOCS/` – Documentación funcional y de QA:
-  - `EPICS/` – Épicas e historias de usuario del MVP.
-  - `QA/` – Planes de prueba funcional (FTP) y estrategia de pruebas.
-  - `MODELO-DOMINIO/` – Entidades, estados, roles y reglas de negocio.
-  - `API/` – Diseño previsto de endpoints y contratos.
-- `app/` – Aquí se desarrollará la aplicación (UI + API) del MVP.
-- `GEMINI.md` – Guía para IA y colaboradores sobre cómo trabajar en este repo
+## Learn More
 
-## Estado actual
+To learn more, take a look at the following resources:
 
-- Estructura inicial del repositorio creada.
-- Definición del dominio y objetivos del MVP.
-- En progreso: documentación detallada por épica y modelo de dominio.
-- Próximo paso: diseño de pruebas y primer módulo funcional (EP-01).
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
+
+<a href="https://v0.app/chat/api/kiro/clone/Eileen0205/v0-crear-solicitud-de-compra" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>

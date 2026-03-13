@@ -3,26 +3,27 @@
 
 # Mi contexto real
 
-Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA + SAP MM, apoyada en mi experiencia y en el acompañamiento de la IA durante esta etapa de autopreparación.
+Soy una profesional con formación en Ingeniería Informática que, tras varios años fuera de la industria, está enfocada en reinsertarse en el mundo IT, específicamente en un perfil de QA Funcional, apoyada en mi experiencia y con la aplicación de la IA durante esta etapa de autopreparación como copiloto.
 
-Como parte de este objetivo, estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra en SAP MM, donde pueda evidenciar el ciclo de desarrollo de software y mis capacidades como QA funcional.
-
-Hasta el momento tengo definido los siguientes elementos:
+Para alcanzar mi objetivo , estoy construyendo un portafolio profesional cuyo primer hito es un MVP centrado en la gestión de solicitudes de compra inspirado en SAP MM, donde pueda evidenciar mis capacidades como QA Funcional.
 
 # 1. Dominio de Negocio (MVP)
 
 Gestión del Proceso de Solicitudes de Compra (Purchase Requisition – SAP MM)
 
 📄 Descripción del dominio
+
 Sistema orientado a la gestión del proceso previo a la compra de materiales o servicios, desde la creación de la solicitud hasta su aprobación o rechazo.
-Inspirado directamente en transacciones SAP MM:
-•	ME51N – Crear solicitud de compra
-•	ME52N – Modificar solicitud
-•	ME53N – Visualizar solicitud
+
+Inspirado en transacciones de SAP MM:
+
+*	ME51N – Crear solicitud de compra
+*	ME52N – Modificar solicitud
+*	ME53N – Visualizar solicitud
 
 ## Fuera de alcance del MVP
 
-Este MVP se centra exclusivamente en el **proceso de gestión de solicitudes de compra en SAP MM** (creación, modificación, visualización, listado y ciclo de vida básico de estados).
+Este MVP se centra exclusivamente en el **proceso de gestión de solicitudes de compra** (creación, modificación, visualización, listado y ciclo de vida básico de estados).
 
 Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan explícitamente **fuera de alcance**:
 
@@ -31,9 +32,13 @@ Para mantener el foco y evitar ampliar el alcance de forma innecesaria, quedan e
 - Cálculo detallado de impuestos, condiciones de precio avanzadas y escenarios contables complejos.
 - Gestión completa de proveedores (alta, evaluación, segmentación, integración con portales de proveedores, etc.).
 - Estrategias de release y despliegue avanzadas (CI/CD completo, pipelines complejos).
-- Pruebas de rendimiento, carga o seguridad a nivel profesional (en esta fase se priorizan pruebas funcionales sobre el flujo de solicitudes de compra).
+- Pruebas de rendimiento, carga o seguridad a nivel profesional (en esta fase se priorizan pruebas funcionales sobre el flujo de solicitudes de compra). 
+- Sin embargo, el MVP sí incluye:
+  - Validaciones básicas de seguridad funcional, tales como control de acceso por rol, restricción de visualización de recursos no autorizados (ej. 403/404), manejo seguro de sesión y no exposición de información técnica en mensajes de error.
+- No se contemplan pruebas de rendimiento avanzadas tales como pruebas de carga, estrés, benchmarking o análisis de capacidad.
+ - No obstante, el MVP sí establece criterios básicos de rendimiento en condiciones normales de operación (ej. tiempo máximo de carga del detalle de una solicitud de hasta 2 segundos), los cuales serán verificados mediante pruebas funcionales.
 
-Estas áreas podrán considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
+Estas áreas podrían considerarse en fases posteriores del portafolio, pero no forman parte del alcance del MVP actual.  
 
 # 2. Módulos del Negocio (Fundamentales e Indispensables)
 
@@ -41,7 +46,6 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
   - Módulo 2: Gestión del Ciclo de Vida de la Solicitud (Estados)
   - Módulo 3: Autenticación y Roles  
   - Módulo 4: Gestión de Usuarios (Simplificado) 
-
 
 # 3. Identificación de Funcionalidades (Críticas e Indispensables)
 
@@ -56,7 +60,7 @@ Estas áreas podrán considerarse en fases posteriores del portafolio, pero no f
 - Control de Acceso por Rol
 - Restricción de Acceso a Funcionalidades
 
-Cada funcionalidad se detalla en historias de usuario dentro de las siguientes categorías:
+Cada funcionalidad se detalla en historias de usuario dentro de los siguientes módulos:
 
    - PR-Flow | GSC: Gestión de Solicitudes de Compra.
    - PR-Flow | GE: Gestión de Estados.
@@ -65,10 +69,9 @@ Cada funcionalidad se detalla en historias de usuario dentro de las siguientes c
 
 # 4. Generación de primeras Historias de Usuario (v1)
 
-  * Nota metodológica (como PO):
-    - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
-    - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
-    - El lenguaje está pensado para ser testeable por QA y alineado a procesos SAP MM (PR).
+  - Todas las historias tienen prioridad Alta por ser núcleo del MVP.
+  - Los criterios de aceptación incluyen reglas básicas, dejando espacio para refinamiento posterior.
+  - El lenguaje está pensado para ser testeable por QA.
 
 ## Resumen de Historias de Usuario del Flujo de Solicitudes de Compra (PR-Flow)
 
@@ -228,9 +231,7 @@ Roles principales definidos:
 
 Las reglas detalladas de cada rol y sus permisos se encuentran en:
 
-- `DOCS/EPICS/EPIC-01-gestion-solicitudes-compra.md`
-- `DOCS/EPICS/EPIC-02-gestion-ciclo-vida-solicitud.md`
-- `DOCS/EPICS/EPIC-03-gestion-usuarios-seguridad.md`
+- `DOCS/MODELO-DOMINIO/modelo-dominio-epic-01.md`
 
 # 6. DoR y DoD (nivel MVP)
 
@@ -262,13 +263,13 @@ Los matices específicos por épica están en cada archivo de `DOCS/EPICS`.
 
 # 7. Enfoque de QA y Shift-Left Testing
 
-Este proyecto prioriza QA desde el inicio:
+Este proyecto prioriza QA desde el inicio, utilizando para ello un enfoque Shift-Left para garantizar un producto de calidad desde el inicio y permite reducir costos y tiempo en desarrollo al corregir fallos desde el inicio de la planificación:
 
 - Cada US incluye:
   - Reglas de negocio.
   - Criterios de aceptación en Gherkin (Given–When–Then).
   - Consideraciones QA (casos negativos, bordes, coherencia de datos).
-- La implementación debe:
+- La implementación a cargo de la IA DEV debe:
   - Respetar estas reglas y criterios.
   - Incluir validaciones de negocio antes del guardado.
   - Evitar estados o datos inconsistentes (especialmente en estados y seguridad).
@@ -276,7 +277,7 @@ Este proyecto prioriza QA desde el inicio:
 Cuando la IA proponga cambios, se espera que:
 
 1. Verifique el impacto en reglas de negocio y estados.
-2. Sugiera escenarios de prueba (manuales o automatizados) alineados con los criterios de aceptación.
+2. Sugiera escenarios de prueba alineados con los criterios de aceptación.
 3. Señale posibles huecos de cobertura o riesgos.
 4. La IA debe evitar introducir cambios que amplíen el alcance funcional del MVP sin validarlo explícitamente conmigo.
 
@@ -290,11 +291,11 @@ Cuando la IA proponga cambios, se espera que:
   Estructura esperada (alto nivel):
 
   - `DOCS/`
-   - `EPICAS_FINALIZADAS_MVP/`
-   - `MODELO_DOMINIO/`
    - `API/`
-   - `QA/`
+   - `EPICS/`
    - `HISTORIAS_USUARIO_REFINADAS/`
+   - `MODELO-DOMINIO/`
+   - `QA/`
   - `README.md`
   - `GEMINI.md`
 
@@ -314,15 +315,14 @@ Formato sugerido:
 - `docs: agregar EPICs finalizadas del MVP SAP-MM`
 - `chore: inicializar documentación base del proyecto`
 - `refactor: mejorar redacción y consistencia de US y EPICs`
-- etc.
 
 ## Ramas por EPICAS
 
 Formato sugerido:
 
-- `feature/EPIC-01-crear-solicitud-compra`
-- `feature/EPIC-02-modificar-solicitud-compra`
-- `feature/EPIC-03-visualizar-solicitud-compra`
+- `feature/EPIC-01-refinar-historias-usuario`
+- `feature/EPIC-02-refinar-historias-usuario`
+- `feature/EPIC-03-refinar-historias-usuario`
 - etc.
 
 Cada rama se asocia a una Epica concreta (EPIC-XX) definida en las épicas y en Jira.

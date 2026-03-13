@@ -80,17 +80,21 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
 **Roles definidos en el MVP**
 
 - **Solicitante**  
-  Usuario de negocio responsable de crear y gestionar solicitudes de compra.
+  - Usuario de negocio responsable de crear y gestionar solicitudes de compra.
+  - El Solicitante solo puede gestionar solicitudes propias.
 
 - **Aprobador**  
-  Usuario de negocio encargado de aprobar o rechazar solicitudes.
+ - Usuario de negocio encargado de aprobar o rechazar solicitudes.
+ - El Aprobador solo puede visualizar y gestionar solicitudes de los **Centros asignados** a su usuario.
+ - El Aprobador solo puede visualizar solicitudes en estado "En Revisión", "Aprobada" o "Rechazada". No puede visualizar solicitudes en estado "Creada".
+ 
 
 - **Administrador Técnico/Funcional**  
-  Usuario de soporte responsable de la gestión básica de usuarios y roles (no participa directamente en el flujo de compras).
+  - Usuario de soporte, responsable de la gestión básica de usuarios y roles (no participa directamente en el flujo de compras).
 
 **Usuarios principales del módulo**
 
-- Este módulo es gestionado exclusivamente por el rol **Administrador Técnico–Funcional**.
+- Este módulo es gestionado exclusivamente por el rol **Administrador Técnico/Funcional**.
 - Los roles **Solicitante** y **Aprobador** no interactúan con las funcionalidades de gestión de usuarios, en línea con buenas prácticas de segregación de funciones.
 
 **Reglas de negocio clave**

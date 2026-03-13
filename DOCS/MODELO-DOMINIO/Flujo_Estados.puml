@@ -1,0 +1,17 @@
+@startuml
+skinparam state {
+  BackgroundColor<<Initial>> SkyBlue
+  BackgroundColor<<Process>> Wheat
+  BackgroundColor<<Final>> LightGreen
+  BackgroundColor<<Rejected>> LightCoral
+}
+
+[*] --> Creada
+Creada : Solicitante crea solicitud
+Creada --> En_Revisión : Solicitante envía la solicitud a Revisión
+En_Revisión : En Revisión
+En_Revisión --> Aprobada : Aprobador aprueba solicitud
+En_Revisión --> Rechazada : Aprobador rechaza solicitud
+Aprobada --> [*] : Estado final
+Rechazada --> [*] : Estado final
+@enduml

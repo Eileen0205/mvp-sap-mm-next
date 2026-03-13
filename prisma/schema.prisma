@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Solicitud {
+  id                  String   @id // Ejemplo: PR-2026-0001
+  tipo                String   // MATERIAL | SERVICIO
+  itemComprableId     String
+  itemComprableNombre String
+  descripcion         String
+  cantidad            Float
+  unidadMedida        String
+  fechaEntrega        String   // DD/MM/AAAA
+  fechaCreacion       String   // DD/MM/AAAA
+  estado              String   @default("CREADA")
+  centro              String
+  almacen             String?  // Opcional para servicios
+}
