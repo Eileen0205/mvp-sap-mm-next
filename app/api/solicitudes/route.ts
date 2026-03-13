@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { materiales, servicios } from "@/lib/data"
 
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const data = await prisma.solicitud.findMany({
