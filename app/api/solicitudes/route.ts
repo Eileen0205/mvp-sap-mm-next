@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { materiales, servicios } from "@/lib/data"
+import { materiales, servicios, centros, almacenes } from "@/lib/data"
 
 // Forzar que la API consulte siempre la base de datos real (Postgres)
 export const dynamic = 'force-dynamic';
@@ -36,7 +36,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Faltan campos obligatorios para procesar la solicitud." }, { status: 400 });
     }
 
-    // 2. Validar Descripción (10-40 caracteres) (RN07)
+    // 2. VALIDACIÓN DE DATOS MAESTROS (SEGURIDAD DE CATÁLOGOS)
+    // Validar Centro
+    const centroExiste = centros.find(c => c.id === centro);
+    if (!centroExiste) {
+      return NextResponse.json({ success: false, error: "El Centro seleccionado no es válido o no existe en el sistema." }, { status: 400 });
+    }
+
+    // Validar Item Comprable (Material o Servicio)
+    const materialEncontrado = materiales.find(m => m.id === itemComprableId);
+    const servicioEncontrado = servicios.find(s => s.id === itemComprableId);
+
+    if (tipo === "MATERIAL" && !materialEncontrado) {
+      return NextResponse.json({ success: false, error: "El ID de Material no existe en el catálogo oficial." }, { status: 400 });
+    }
+    if (tipo === "SERVICIO" && !servicioEncontrado) {
+      return NextResponse.json({ success: false, error: "El ID de Servicio no existe en el catálogo oficial." }, { status: 400 });
+    }
+
+    // Validar Almacén (Solo para MATERIAL)
+    if (tipo === "MATERIAL") {
+      if (!almacen) {
+        return NextResponse.json({ success: false, error: "El Almacén es obligatorio para solicitudes de material." }, { status: 400 });
+      }
+      const almacenExiste = almacenes.find(a => a.id === almacen && a.centroId === centro);
+      if (!almacenExiste) {
+        return NextResponse.json({ success: false, error: "El Almacén seleccionado no existe o no pertenece al Centro indicado." }, { status: 400 });
+      }
+    }
+
+    // 3. Validar Descripción (10-40 caracteres) (RN07)
     const descTrim = descripcion.trim();
     if (descTrim.length < 10 || descTrim.length > 40) {
       return NextResponse.json({ 
@@ -45,7 +74,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 3. Validar Cantidad (> 0 y formato decimal de 3 dígitos) (RN04)
+    // 4. Validar Cantidad (> 0 y formato decimal de 3 dígitos) (RN04)
     const numCantidad = parseFloat(cantidad);
     if (isNaN(numCantidad) || numCantidad <= 0) {
       return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
@@ -54,7 +83,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
     }
 
-    // 4. Validar Fecha de Entrega (No permitir fechas pasadas) (RN03)
+    // 5. Validar Fecha de Entrega (No permitir fechas pasadas) (RN03)
     const [dia, mes, anio] = fechaEntrega.split('/').map(Number);
     const fechaEntregaObj = new Date(anio, mes - 1, dia);
     const hoy = new Date();
@@ -63,12 +92,6 @@ export async function POST(request: Request) {
     if (fechaEntregaObj < hoy) {
       return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a la fecha actual." }, { status: 400 });
     }
-
-    // 5. Lógica de Almacén (Obligatorio solo para MATERIAL) (RN08)
-    if (tipo === "MATERIAL" && !almacen) {
-      return NextResponse.json({ success: false, error: "El almacén es obligatorio para solicitudes de material." }, { status: 400 });
-    }
-    const almacenFinal = tipo === "MATERIAL" ? almacen : null;
 
     // 6. Validar Duplicidad Real en Postgres (RN10)
     const duplicado = await prisma.solicitud.findFirst({
@@ -87,10 +110,9 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 7. Obtener Nombre del Ítem para integridad de datos
-    const itemNombre = (tipo === "MATERIAL" 
-      ? materiales.find(m => m.id === itemComprableId)?.nombre 
-      : servicios.find(s => s.id === itemComprableId)?.nombre) || "Item Desconocido";
+    // 7. Preparar datos finales para persistencia
+    const itemNombre = tipo === "MATERIAL" ? materialEncontrado!.nombre : servicioEncontrado!.nombre;
+    const almacenFinal = tipo === "MATERIAL" ? almacen : null;
 
     // 8. Generar ID Secuencial y Guardar en PostgreSQL
     const count = await prisma.solicitud.count();
