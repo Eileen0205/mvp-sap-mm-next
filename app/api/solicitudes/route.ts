@@ -23,9 +23,9 @@ export async function POST(request: Request) {
     try {
       body = await request.json();
     } catch (e) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "El cuerpo de la petición está vacío o no es un JSON válido." 
+      return NextResponse.json({
+        success: false,
+        error: "El cuerpo de la petición está vacío o no es un JSON válido."
       }, { status: 400 });
     }
 
@@ -68,9 +68,9 @@ export async function POST(request: Request) {
     // 3. Validar Descripción (10-40 caracteres) (RN07)
     const descTrim = descripcion.trim();
     if (descTrim.length < 10 || descTrim.length > 40) {
-      return NextResponse.json({ 
-        success: false, 
-        error: `La descripción debe tener entre 10 y 40 caracteres (Actual: ${descTrim.length}).` 
+      return NextResponse.json({
+        success: false,
+        error: `La descripción debe tener entre 10 y 40 caracteres (Actual: ${descTrim.length}).`
       }, { status: 400 });
     }
 
@@ -80,7 +80,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
     }
     if (!/^\d+(\.\d{1,3})?$/.test(cantidad.toString())) {
-        return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
     }
 
     // 5. Validar Fecha de Entrega (No permitir fechas pasadas) (RN03)
@@ -104,9 +104,9 @@ export async function POST(request: Request) {
     });
 
     if (duplicado) {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Ya existe una solicitud activa para el mismo ítem, centro y fecha de entrega." 
+      return NextResponse.json({
+        success: false,
+        error: "Ya existe una solicitud activa para el mismo ítem, centro y fecha de entrega."
       }, { status: 400 });
     }
 
@@ -140,9 +140,9 @@ export async function POST(request: Request) {
 
   } catch (err) {
     console.error("CRITICAL ERROR POST /api/solicitudes:", err);
-    return NextResponse.json({ 
-      success: false, 
-      error: "Error técnico inesperado al persistir en la base de datos." 
+    return NextResponse.json({
+      success: false,
+      error: "Error técnico inesperado al persistir en la base de datos."
     }, { status: 500 });
   }
 }
