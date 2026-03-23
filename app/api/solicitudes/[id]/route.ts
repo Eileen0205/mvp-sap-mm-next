@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { ESTADO_INICIAL } from "@/lib/types"
 
 // GET /api/solicitudes/[id] - Visualizar detalle real
 export async function GET(
@@ -39,8 +40,8 @@ export async function PUT(
       return NextResponse.json({ success: false, error: "Solicitud no encontrada." }, { status: 404 })
     }
 
-    if (existente.estado !== "CREADA") {
-      return NextResponse.json({ success: false, error: "Solo se pueden modificar solicitudes en estado CREADA." }, { status: 400 })
+    if (existente.estado !== ESTADO_INICIAL) {
+      return NextResponse.json({ success: false, error: `Solo se pueden modificar solicitudes en estado ${ESTADO_INICIAL}.` }, { status: 400 })
     }
 
     // 2. Actualizar en Postgres
