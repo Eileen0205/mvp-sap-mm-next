@@ -8,11 +8,21 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    // Asegurar conexión activa antes de la consulta
+    await prisma.$connect()
+    
     const data = await prisma.solicitud.findMany({
       orderBy: { id: 'desc' }
     })
     return NextResponse.json({ success: true, data, error: null })
   } catch (err) {
+    console.error("ERROR GET /api/solicitudes:", err)
+    // Intentar reconectar en caso de conexión perdida
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // Ignorar errores de desconexión
+    }
     return NextResponse.json({ success: false, data: null, error: "Error al obtener solicitudes de la base de datos." }, { status: 500 })
   }
 }
@@ -167,6 +177,12 @@ export async function POST(request: Request) {
 
   } catch (err) {
     console.error("CRITICAL ERROR POST /api/solicitudes:", err);
+    // Intentar limpiar conexión en caso de error
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // Ignorar errores de desconexión
+    }
     return NextResponse.json({
       success: false,
       error: "Error técnico inesperado al persistir en la base de datos."

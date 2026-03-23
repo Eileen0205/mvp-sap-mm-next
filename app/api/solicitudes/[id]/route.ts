@@ -8,6 +8,8 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    await prisma.$connect()
+    
     const solicitud = await prisma.solicitud.findUnique({
       where: { id: params.id }
     })
@@ -18,6 +20,12 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: solicitud, error: null })
   } catch (err) {
+    console.error("ERROR GET /api/solicitudes/[id]:", err)
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // Ignorar errores de desconexión
+    }
     return NextResponse.json({ success: false, error: "Error al consultar la solicitud." }, { status: 500 })
   }
 }
@@ -28,6 +36,8 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
+    await prisma.$connect()
+    
     const body = await request.json()
     const { descripcion, cantidad, unidadMedida, fechaEntrega } = body
 
@@ -58,6 +68,11 @@ export async function PUT(
     return NextResponse.json({ success: true, data: actualizada, error: null })
   } catch (err) {
     console.error("Error en PUT /api/solicitudes/[id]:", err)
+    try {
+      await prisma.$disconnect()
+    } catch {
+      // Ignorar errores de desconexión
+    }
     return NextResponse.json({ success: false, error: "Error técnico al actualizar en la DB." }, { status: 500 })
   }
 }
