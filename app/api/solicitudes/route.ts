@@ -48,20 +48,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Faltan campos obligatorios para procesar la solicitud." }, { status: 400 });
     }
 
-    // 2. Validar Cantidad - Tipo Numérico (TC-08)
-    if (isNaN(Number(cantidad))) {
-      return NextResponse.json({ success: false, error: "La cantidad debe ser un valor numérico." }, { status: 400 });
+    // 2. Validar Cantidad - Formato estricto: hasta 10 enteros y 3 decimales (RN04)
+    // Bloquea caracteres alfabéticos, especiales, y formatos inválidos
+    const cantidadStr = cantidad.toString();
+    if (!/^\d{1,10}(\.\d{1,3})?$/.test(cantidadStr)) {
+      // Determinar si es error de tipo o de formato
+      if (isNaN(Number(cantidad))) {
+        return NextResponse.json({ success: false, error: "La cantidad debe ser un valor numérico." }, { status: 400 });
+      }
+      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
     }
 
     // 3. Validar Cantidad - Rango (> 0) (RN04)
-    const numCantidad = parseFloat(cantidad);
+    const numCantidad = parseFloat(cantidadStr);
     if (numCantidad <= 0) {
       return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
     }
 
-    // 4. Validar Cantidad - Formato decimal (máximo 3 decimales) (RN04)
-    if (!/^\d+(\.\d{1,3})?$/.test(cantidad.toString())) {
-      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
+    // 4. Validar Cantidad - Límite máximo (TC-10)
+    if (numCantidad > 999999) {
+      return NextResponse.json({ success: false, error: "La cantidad excede el límite permitido." }, { status: 400 });
     }
 
     // 5. Validar Fecha de Entrega - Formato Estricto DD/MM/YYYY (TC-12)
