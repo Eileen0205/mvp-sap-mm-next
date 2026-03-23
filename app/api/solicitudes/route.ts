@@ -33,11 +33,56 @@ export async function POST(request: Request) {
     const { tipo, itemComprableId, descripcion, cantidad, unidadMedida, fechaEntrega, centro, almacen } = body;
 
     // 1. Validar Campos Obligatorios Básicos (RN07)
-    if (!tipo || !itemComprableId || !descripcion || !cantidad || !unidadMedida || !fechaEntrega || !centro) {
+    // Nota: cantidad usa verificación explícita para permitir el valor 0 (que luego se valida como rango)
+    if (!tipo || !itemComprableId || !descripcion || cantidad === undefined || cantidad === null || cantidad === '' || !unidadMedida || !fechaEntrega || !centro) {
       return NextResponse.json({ success: false, error: "Faltan campos obligatorios para procesar la solicitud." }, { status: 400 });
     }
 
-    // 2. VALIDACIÓN DE DATOS MAESTROS (SEGURIDAD DE CATÁLOGOS)
+    // 2. Validar Cantidad - Tipo Numérico (TC-08)
+    if (isNaN(Number(cantidad))) {
+      return NextResponse.json({ success: false, error: "La cantidad debe ser un valor numérico." }, { status: 400 });
+    }
+
+    // 3. Validar Cantidad - Rango (> 0) (RN04)
+    const numCantidad = parseFloat(cantidad);
+    if (numCantidad <= 0) {
+      return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
+    }
+
+    // 4. Validar Cantidad - Formato decimal (máximo 3 decimales) (RN04)
+    if (!/^\d+(\.\d{1,3})?$/.test(cantidad.toString())) {
+      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
+    }
+
+    // 5. Validar Fecha de Entrega - Formato Estricto DD/MM/YYYY (TC-12)
+    const formatoFechaRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const matchFecha = fechaEntrega.match(formatoFechaRegex);
+    if (!matchFecha) {
+      return NextResponse.json({ success: false, error: "Formato de fecha inválido. Use DD/MM/YYYY." }, { status: 400 });
+    }
+    const [, diaStr, mesStr, anioStr] = matchFecha;
+    const dia = parseInt(diaStr, 10);
+    const mes = parseInt(mesStr, 10);
+    const anio = parseInt(anioStr, 10);
+    
+    // Validar que sea una fecha de calendario real
+    const fechaEntregaObj = new Date(anio, mes - 1, dia);
+    if (
+      fechaEntregaObj.getFullYear() !== anio ||
+      fechaEntregaObj.getMonth() !== mes - 1 ||
+      fechaEntregaObj.getDate() !== dia
+    ) {
+      return NextResponse.json({ success: false, error: "Formato de fecha inválido. Use DD/MM/YYYY." }, { status: 400 });
+    }
+
+    // 6. Validar Fecha de Entrega - No permitir fechas pasadas (RN03)
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    if (fechaEntregaObj < hoy) {
+      return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a la fecha actual." }, { status: 400 });
+    }
+
+    // 7. VALIDACIÓN DE DATOS MAESTROS (SEGURIDAD DE CATÁLOGOS)
     // Validar Centro
     const centroExiste = centros.find(c => c.id === centro);
     if (!centroExiste) {
@@ -66,7 +111,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Validar Descripción (10-40 caracteres) (RN07)
+    // 8. Validar Descripción (10-40 caracteres) (RN07)
     const descTrim = descripcion.trim();
     if (descTrim.length < 10 || descTrim.length > 40) {
       return NextResponse.json({
@@ -75,26 +120,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 4. Validar Cantidad (> 0 y formato decimal de 3 dígitos) (RN04)
-    const numCantidad = parseFloat(cantidad);
-    if (isNaN(numCantidad) || numCantidad <= 0) {
-      return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
-    }
-    if (!/^\d+(\.\d{1,3})?$/.test(cantidad.toString())) {
-      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
-    }
-
-    // 5. Validar Fecha de Entrega (No permitir fechas pasadas) (RN03)
-    const [dia, mes, anio] = fechaEntrega.split('/').map(Number);
-    const fechaEntregaObj = new Date(anio, mes - 1, dia);
-    const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0);
-
-    if (fechaEntregaObj < hoy) {
-      return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a la fecha actual." }, { status: 400 });
-    }
-
-    // 6. Validar Duplicidad Real en Postgres (RN10)
+    // 9. Validar Duplicidad Real en Postgres (RN10)
     const duplicado = await prisma.solicitud.findFirst({
       where: {
         itemComprableId,
