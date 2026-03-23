@@ -48,29 +48,30 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Faltan campos obligatorios para procesar la solicitud." }, { status: 400 });
     }
 
-    // 2. Validar Cantidad - Formato estricto: hasta 10 enteros y 3 decimales (RN04)
-    // Bloquea caracteres alfabéticos, especiales, y formatos inválidos
+    // 2. Validar Cantidad - Valores alfanuméricos (bloqueo total)
     const cantidadStr = cantidad.toString();
-    if (!/^\d{1,10}(\.\d{1,3})?$/.test(cantidadStr)) {
-      // Determinar si es error de tipo o de formato
-      if (isNaN(Number(cantidad))) {
-        return NextResponse.json({ success: false, error: "La cantidad debe ser un valor numérico." }, { status: 400 });
-      }
-      return NextResponse.json({ success: false, error: "La cantidad permite un máximo de 3 decimales." }, { status: 400 });
+    if (isNaN(Number(cantidad)) || /[a-zA-Z$%&@!#*]/.test(cantidadStr)) {
+      return NextResponse.json({ success: false, error: "La cantidad no permite valores alfanuméricos." }, { status: 400 });
     }
 
     // 3. Validar Cantidad - Rango (> 0) (RN04)
     const numCantidad = parseFloat(cantidadStr);
     if (numCantidad <= 0) {
-      return NextResponse.json({ success: false, error: "La cantidad debe ser un número mayor a 0." }, { status: 400 });
+      return NextResponse.json({ success: false, error: "La cantidad debe ser un valor mayor que 0." }, { status: 400 });
     }
 
-    // 4. Validar Cantidad - Límite máximo (TC-10)
-    if (numCantidad > 999999) {
-      return NextResponse.json({ success: false, error: "La cantidad excede el límite permitido." }, { status: 400 });
+    // 4. Validar Cantidad - Máximo 3 decimales
+    if (/\.\d{4,}/.test(cantidadStr)) {
+      return NextResponse.json({ success: false, error: "La cantidad solo permite hasta 3 decimales." }, { status: 400 });
     }
 
-    // 5. Validar Fecha de Entrega - Formato Estricto DD/MM/YYYY (TC-12)
+    // 5. Validar Cantidad - Máximo 10 enteros
+    const parteEntera = cantidadStr.split('.')[0];
+    if (parteEntera.length > 10) {
+      return NextResponse.json({ success: false, error: "Error de validación por longitud, solo se permiten hasta 10 enteros." }, { status: 400 });
+    }
+
+    // 6. Validar Fecha de Entrega - Formato Estricto DD/MM/YYYY (TC-12)
     const formatoFechaRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
     const matchFecha = fechaEntrega.match(formatoFechaRegex);
     if (!matchFecha) {
@@ -91,14 +92,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "Formato de fecha inválido. Use DD/MM/YYYY." }, { status: 400 });
     }
 
-    // 6. Validar Fecha de Entrega - No permitir fechas pasadas (RN03)
+    // 7. Validar Fecha de Entrega - No permitir fechas pasadas (RN03)
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
     if (fechaEntregaObj < hoy) {
       return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a la fecha actual." }, { status: 400 });
     }
 
-    // 7. VALIDACIÓN DE DATOS MAESTROS (SEGURIDAD DE CATÁLOGOS)
+    // 8. VALIDACIÓN DE DATOS MAESTROS (SEGURIDAD DE CATÁLOGOS)
     // Validar Centro
     const centroExiste = centros.find(c => c.id === centro);
     if (!centroExiste) {
@@ -127,7 +128,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 8. Validar Descripción (10-40 caracteres) (RN07)
+    // 9. Validar Descripción (10-40 caracteres) (RN07)
     const descTrim = descripcion.trim();
     if (descTrim.length < 10 || descTrim.length > 40) {
       return NextResponse.json({
@@ -136,7 +137,7 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 9. Validar Duplicidad Real en Postgres (RN10)
+    // 10. Validar Duplicidad Real en Postgres (RN10)
     const duplicado = await prisma.solicitud.findFirst({
       where: {
         itemComprableId,
@@ -153,11 +154,11 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // 7. Preparar datos finales para persistencia
+    // 11. Preparar datos finales para persistencia
     const itemNombre = tipo === "MATERIAL" ? materialEncontrado!.nombre : servicioEncontrado!.nombre;
     const almacenFinal = tipo === "MATERIAL" ? almacen : null;
 
-    // 8. Generar ID Secuencial y Guardar en PostgreSQL
+    // 12. Generar ID Secuencial y Guardar en PostgreSQL
     const count = await prisma.solicitud.count();
     const currentYear = new Date().getFullYear();
     const nextId = `PR-${currentYear}-${String(count + 1).padStart(4, '0')}`;
