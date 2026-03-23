@@ -10,7 +10,16 @@ export const USER_ROLES: { id: UserRole; label: string }[] = [
 
 // ========== Domain Entities ==========
 
-export type EstadoSolicitud = "CREADA" | "EN_REVISION" | "APROBADA" | "RECHAZADA"
+// Constantes de Estado (PascalCase - Estándar del Proyecto)
+export const ESTADO_INICIAL = "Creada" as const
+export const ESTADOS_SOLICITUD = {
+  CREADA: "Creada",
+  EN_REVISION: "EnRevision",
+  APROBADA: "Aprobada",
+  RECHAZADA: "Rechazada",
+} as const
+
+export type EstadoSolicitud = "Creada" | "EnRevision" | "Aprobada" | "Rechazada"
 
 export interface SolicitudCompra {
   id: string

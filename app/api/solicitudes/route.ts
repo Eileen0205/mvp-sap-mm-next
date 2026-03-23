@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { materiales, servicios, centros, almacenes } from "@/lib/data"
+import { ESTADO_INICIAL, ESTADOS_SOLICITUD } from "@/lib/types"
 
 // Forzar que la API consulte siempre la base de datos real (Postgres)
 export const dynamic = 'force-dynamic';
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
         itemComprableId,
         centro,
         fechaEntrega,
-        estado: { not: "RECHAZADA" }
+        estado: { not: ESTADOS_SOLICITUD.RECHAZADA }
       }
     });
 
@@ -132,7 +133,7 @@ export async function POST(request: Request) {
         fechaCreacion: new Date().toLocaleDateString("es-ES"),
         centro,
         almacen: almacenFinal,
-        estado: "CREADA"
+        estado: ESTADO_INICIAL
       }
     });
 
