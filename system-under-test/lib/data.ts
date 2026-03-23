@@ -26,7 +26,7 @@ export function addSolicitud(solicitud: Omit<SolicitudCompra, "id" | "estado" | 
   const nueva: SolicitudCompra = {
     ...solicitud,
     id,
-    estado: "CREADA",
+    estado: "Creada",
     fechaCreacion: new Date().toLocaleDateString("es-ES", {
       day: "2-digit",
       month: "2-digit",
@@ -68,7 +68,7 @@ export function existsDuplicate(
       s.itemComprableId === itemComprableId &&
       s.centro === centro &&
       s.fechaEntrega === fechaEntrega &&
-      s.estado !== "RECHAZADA" &&
+      s.estado !== "Rechazada" &&
       (excludeId ? s.id !== excludeId : true)
   )
 }
