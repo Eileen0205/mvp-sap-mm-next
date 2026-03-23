@@ -18,7 +18,7 @@
 - **RN05:** Al crear la solicitud, el sistema asigna automáticamente el estado inicial `Creada`.
 - **RN06:** El usuario debe estar autorizado al Centro seleccionado según catálogo precargado.
 - **RN07:** Los campos mínimos obligatorios de la solicitud son:
-  - ItemComprable (Material o Servicio) seleccionado desde catálogo
+  - ItemComprableId (Material o Servicio) seleccionado desde catálogo
   - Descripción
   - Cantidad
   - Unidad de medida (UM)
@@ -26,12 +26,12 @@
   - Fecha de entrega
   - Centro (Seleccionado de catálogo preexistente [seed] autorizado)
 - **RN08:** El campo Almacén es:
-  - Obligatorio cuando el item es "Material".
-  - No Aplica cuando el item es "Servicio".
+  - Obligatorio cuando el Ítem es "Material".
+  - No Aplica cuando el Ítem es "Servicio".
   - Seleccionable desde catálogo.
 - **RN09:** El almacén seleccionado debe pertenecer al centro seleccionado.
-- **RN10:** No se permite que, como resultado de una creación dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
-  - Mismo ItemComprable (Material/Servicio)
+- **RN10:** No se permite que, como resultado de una creación, dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
+  - Mismo ItemComprableId (Material/Servicio)
   - Mismo centro
   - Misma fecha de entrega
 
@@ -54,19 +54,20 @@ Background:
           Scenario 1: Crear Solicitud de Compra con datos válidos
 
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When completa los campos obligatorios y selecciona los items Centro y Almacén(si corresponde) del catálogo
-                And ingresa una fecha válida (hoy o futura)
+                When selecciona el ItemComprableId "Material"  
+                And completa los campos obligatorios
+                And selecciona el Centro y el Almacén (si corresponde) del catálogo
                 And guarda la solicitud
                 Then el sistema crea la solicitud de compra exitosamente
                 And asigna automáticamente el estado inicial "Creada"
 
-          @US-01 @happy @almacén @servicio 
+          @US-01 @happy @almacen @servicio 
           Scenario: Creación de una solicitud de servicio
             
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el item del catálogo "Servicio"
-                And completa los datos obligatorios
-                Then el sistema no mostrará el catálogo para seleccionar almacén
+                When selecciona el ItemComprableId "Servicio"
+                And completa los datos obligatorios y selecciona el Centro
+                Then el sistema no muestra el catálogo de almacenes
                 And permite crear la solicitud de compra exitosamente
                 And asigna automáticamente el estado inicial "Creada"
 
@@ -74,9 +75,9 @@ Background:
           Scenario: Crear solicitud de material con almacén informado
 
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el item "Material" del catálogo
+                When selecciona el ItemComprableId "Material" del catálogo
                 And completa todos los campos obligatorios 
-                And selecciona el item "Almacén" del catálogo 
+                And selecciona el Ítem "Almacén" del catálogo 
                 And guarda la solicitud
                 Then el sistema crea la solicitud de compra exitosamente
                 And asigna automáticamente el estado inicial "Creada"
@@ -85,10 +86,10 @@ Background:
           Scenario: Intento de creación de una solicitud de material sin almacén informado
           
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el item "Material" del catálogo
-                And completa los datos obligatorios sin seleccionar el item "Almacén" del catálogo
+                When selecciona el ItemComprableId "Material" del catálogo
+                And completa los datos obligatorios sin seleccionar el Ítem "Almacén" del catálogo
                 And intenta guardar la solicitud
-                Then el sistema muestra un mensaje indicando que el item "Almacén" es obligatorio para solicitudes de material
+                Then el sistema muestra un mensaje indicando que el Ítem "Almacén" es obligatorio para solicitudes de material
                 And no se crea la solicitud
 	
          @US-01 @negative @campos_obligatorio
@@ -100,13 +101,13 @@ Background:
                 Then el sistema muestra un mensaje de validación de campos obligatorios
                 And no se crea la solicitud de compra
                   
-         @US-01 @negative @formato_inválido
+         @US-01 @negative @formato_invalido
          Scenario Outline: Intento de creación de solicitud con formato inválido en los campos
 		  
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When el usuario ingresa un valor con formato inválido "<formato_inválido>" en los campos "<campos>" de la solicitud 
+                When el usuario ingresa un valor "<valor>" con formato inválido en los campos "<campos>" de la solicitud 
                 And intenta guardar la solicitud de compra
-                Then el sistema muestra un mensaje de validación de formato de campo
+                Then el sistema muestra un mensaje de validación de formato de campo "<mensaje_error>"
                 And no se crea la solicitud de compra
 
                   Examples:
@@ -225,7 +226,7 @@ Background:
 **Tener en cuenta además qué:**
 
 - Usuarios sin el rol Solicitante o en estado Inactivo no deben visualizar el botón "Crear Solicitud". Si intentan acceder por URL directa, el sistema debe redirigir a la página de error 403 (Acceso Denegado).
-- Si el usuario selecciona item "Servicio" el catálogo de almacenes no deberá mostrarse en el formulario.
+- Si el usuario selecciona el ItemComprableId "Servicio" el catálogo de almacenes no deberá mostrarse en el formulario.
 
 ## 6. DoD (Definition of Done)
 

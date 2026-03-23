@@ -3,7 +3,7 @@
 ## 1. Descripción (Cómo, Quiero, Para)
  
  - **Cómo**: Usuario
- - **Quiero**: Listar solicitudes de compras
+ - **Quiero**: Listar solicitudes de compra
  - **Para**: Tener una visión general de las solicitudes registradas
     
 ## 2. DoR (Definition of Ready)
@@ -14,20 +14,20 @@
 
 ## 3. Reglas de negocio
 - **RN01**: El acceso al listado de solicitudes de compra requiere que el usuario se encuentre autenticado y activo en el sistema.
-- **RN02**: Solo los usuarios con rol Solicitante, Aprobador o Administrador Técnico/Funcional pueden acceder al lista de solicitudes.
+- **RN02**: Solo los usuarios con rol Solicitante, Aprobador o Administrador Técnico/Funcional pueden acceder al listado de solicitudes.
 - **RN03**: El usuario con rol Solicitante solo puede ver en el listado las solicitudes que haya creado él mismo.
 - **RN04**: El usuario con rol Aprobador debe ver las solicitudes que se encuentren dentro de su ámbito según se define en EPIC-03.
-- **RN05**: El usuario con rol Administrador Técnico/Funcional puede listar todas las solicitudes de compra con fines supervisión y soporte, siempre en modo solo lectura desde esta historia.
-- **RN06**: Cada fila del listado debe mostrar al menos: identificador de la solicitud, descripción, fecha de creación, estado actual, centro, almacén y usuario solicitante. 
-  - Para ítems de tipo "Material": Se muestra el ID del almacén.
-  - Para ítems de tipo "Servicio": La celda de almacén se muestra vacía o con un guion ("-").
+- **RN05**: El usuario con rol Administrador Técnico/Funcional puede listar todas las solicitudes de compra con fines de supervisión y soporte, siempre en modo solo lectura desde esta historia.
+- **RN06**: Cada fila del listado debe mostrar al menos: ID de la solicitud, descripción, fecha de creación, estado actual, centro, almacén y usuario solicitante. 
+  - Para Ítems de tipo "Material": Se muestra el ID del almacén.
+  - Para Ítems de tipo "Servicio": La celda de almacén se muestra vacía o con un guion ("-").
 - **RN07**: El listado de solicitudes debe ordenarse por defecto por fecha de creación en orden descendente (las solicitudes más recientes primero).
 - **RN08**: Desde el listado el usuario debe poder acceder al detalle de una solicitud específica mediante una acción (por ejemplo, clic sobre la fila o un enlace), aplicándose las reglas de visibilidad definidas en la US-03.
 - **RN09**: Si no existen solicitudes que cumplan los criterios para el usuario (por ejemplo, un Solicitante sin solicitudes propias), el sistema debe mostrar un listado vacío acompañado de un mensaje que indique que no hay solicitudes disponibles.
 -  **RN10**: Si un usuario autenticado intenta acceder al listado y su rol no tiene permisos para esta funcionalidad, el sistema debe bloquear el acceso y mostrar un mensaje de falta de autorización.
 - **RN11**: El estado mostrado en cada fila del listado debe corresponder exactamente al estado actual de la solicitud según el modelo de estados definido en la épica de ciclo de vida.
 
-## 3. Escenarios y Criterios de Aceptación
+## 4. Escenarios y Criterios de Aceptación (Gherkin)
 
 ```gherkin
 
@@ -44,8 +44,8 @@ And está "Activo" en el sistema
             And existen varias solicitudes propias del usuario 
             And existen solicitudes creadas por otros usuarios  
             When accede al listado de solicitudes  
-            Then el sistema muestra únicamente las solicitudes creadas por ese usuario ordenadas descendientemente 
-            And para cada solicitud muestra al menos identificador, descripción, estado, fecha de creación, centro y usuario solicitante
+            Then el sistema muestra únicamente las solicitudes creadas por ese usuario en orden descendente 
+            And para cada solicitud muestra al menos ID, descripción, estado, fecha de creación, centro y usuario solicitante
             And permite el acceso al detalle de las mismas
             
       @US-04 @happy @aprobador 
@@ -54,8 +54,8 @@ And está "Activo" en el sistema
             Given el usuario tiene el rol de "Aprobador"
             And existen solicitudes en diferentes centros asignados a él y en estados bajo su ámbito de aprobación 
             When accede al listado de solicitudes  
-            Then el sistema muestra las solicitudes que solamente corresponden a su ámbito ordenadas descendientemente  
-            And para cada solicitud muestra al menos identificador, descripción, estado, fecha de creación, centro y usuario solicitante
+            Then el sistema muestra las solicitudes que solamente corresponden a su ámbito en orden descendente  
+            And para cada solicitud muestra al menos ID, descripción, estado, fecha de creación, centro y usuario solicitante
             And permite el acceso al detalle de las mismas
 
       @US-04 @happy @administrador_tecnico_funcional 
@@ -64,11 +64,11 @@ And está "Activo" en el sistema
             Given el usuario tiene el rol "Administrador Técnico/Funcional"
             And existen solicitudes en distintos estados, centros, almacenes y de distintos usuarios solicitantes
             When el usuario accede al listado de solicitudes
-            Then el sistema muestra todas las solicitudes que existen en el sistema ordenadas descendientemente
-            And para cada solicitud muestra al menos identificador, descripción, estado, fecha de creación, centro y usuario solicitante 
+            Then el sistema muestra todas las solicitudes que existen en el sistema en orden descendente
+            And para cada solicitud muestra al menos ID, descripción, estado, fecha de creación, centro y usuario solicitante 
             And permite el acceso al detalle de las solicitudes en modo solo lectura
      
-      @US-04 @happy @listado_vacío  
+      @US-04 @happy @listado_vacio  
       Scenario: Listado vacío para usuario sin solicitudes  
             
             Given el usuario tiene rol "Solicitante"

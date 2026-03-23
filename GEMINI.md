@@ -231,7 +231,7 @@ Roles principales definidos:
 
 Las reglas detalladas de cada rol y sus permisos se encuentran en:
 
-- `DOCS/MODELO-DOMINIO/modelo-dominio-epic-01.md`
+- `qa-portfolio/MODELO-DOMINIO/modelo-dominio-epic-01.md`
 
 # 6. DoR y DoD (nivel MVP)
 
@@ -241,7 +241,7 @@ Una Historia de Usuario se considera **Ready** cuando:
 
 - Las reglas de negocio asociadas están claramente definidas.
 - Los criterios de aceptación están completos y son verificables.
-- Se han identificado escenarios negativos y casos de validación básicos.
+- Se han identificado escenarios negativos y casi de validación básicos.
 - Las dependencias funcionales con otros módulos/historias están indicadas.
 - El alcance está alineado con el MVP (no incluye funcionalidades futuras/avanzadas).
 
@@ -259,7 +259,7 @@ Una Historia de Usuario se considera **Done** cuando:
 - No hay defectos funcionales críticos abiertos.
 - No se introduce funcionalidad fuera del alcance del MVP.
 
-Los matices específicos por épica están en cada archivo de `DOCS/EPICS`.
+Los matices específicos por épica están en cada archivo de `qa-portfolio/EPICS`.
 
 # 7. Enfoque de QA y Shift-Left Testing
 
@@ -290,12 +290,13 @@ Cuando la IA proponga cambios, se espera que:
 
   Estructura esperada (alto nivel):
 
-  - `DOCS/`
+  - `qa-portfolio/`
    - `API/`
    - `EPICS/`
-   - `HISTORIAS_USUARIO_REFINADAS/`
+   - `HISTORIAS_USUARIO/`
    - `MODELO-DOMINIO/`
    - `QA/`
+  - `system-under-test/`
   - `README.md`
   - `GEMINI.md`
 
@@ -389,7 +390,7 @@ Cuando se pida ayuda a la IA, se espera que:
      - Las reglas de negocio definidas en las épicas.
      - El modelo de estados de la solicitud.
      - Las reglas de seguridad y roles del MVP.
-     - Siempre que use reglas de negocio o de estados, la IA debe indicar de qué épica o documento (`DOCS/EPICS/...`) las está tomando.
+     - Siempre que use reglas de negocio o de estados, la IA debe indicar de qué épica o documento (`qa-portfolio/EPICS/...`) las está tomando.
    - Sugiera:
      - Refactors que mejoren claridad sin cambiar reglas funcionales.
      - Validaciones y controles adicionales si detecta huecos.

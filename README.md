@@ -1,35 +1,53 @@
-# v0-MVP PR-Flow
+# MVP Gestión de Solicitudes de Compra (SAP MM) - QA Portfolio
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [v0](https://v0.app).
+Este repositorio representa un hito clave en mi portafolio profesional como **QA Funcional**. Se trata de un MVP (Producto Mínimo Viable) inspirado en el flujo de Solicitudes de Compra de SAP MM (`ME51N`), diseñado para demostrar capacidades en análisis funcional, diseño de pruebas bajo enfoque *Shift-Left* y validación de reglas de negocio complejas.
 
-## Built with v0
+## 📂 Estructura del Proyecto
 
-This repository is linked to a [v0](https://v0.app) project. You can continue developing by visiting the link below -- start new chats to make changes, and v0 will push commits directly to this repo. Every merge to `main` will automatically deploy.
+El proyecto está organizado bajo una arquitectura que separa la estrategia de calidad del producto desarrollado:
 
-[Continue working on v0 →](https://v0.app/chat/projects/prj_boW7309Wkk8UdCH0bTcFGi6ciOzQ)
+### 1. [qa-portfolio/](./qa-portfolio/)
+Contiene toda la documentación técnica y estratégica desde la perspectiva de QA:
+*   **[MODELO-DOMINIO/](./qa-portfolio/MODELO-DOMINIO/)**: Definición de entidades, reglas de negocio y ciclo de vida de los estados.
+*   **[EPICS/](./qa-portfolio/EPICS/)**: Definición del alcance funcional del MVP.
+*   **[HISTORIAS_USUARIO/](./qa-portfolio/HISTORIAS_USUARIO/)**: Historias de usuario refinadas con criterios de aceptación en formato Gherkin.
+*   **[QA/](./qa-portfolio/QA/)**: Plan de Pruebas Funcionales (FTP), consideraciones generales de calidad y matrices de prueba.
 
-## Getting Started
+### 2. [system-under-test/](./system-under-test/)
+Contiene la implementación técnica de la aplicación (SUT - System Under Test):
+*   **Frontend**: Next.js + Tailwind CSS (inspirado en la estética industrial de SAP).
+*   **Backend**: API Routes de Next.js.
+*   **Persistencia**: PostgreSQL con Prisma ORM.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## 🚀 Cómo ejecutar el Sistema Bajo Prueba (SUT)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Si deseas levantar la aplicación localmente para ejecutar pruebas manuales o exploratorias:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1.  Navega a la carpeta del sistema:
+    ```bash
+    cd system-under-test
+    ```
+2.  Instala las dependencias:
+    ```bash
+    npm install
+    ```
+3.  Configura las variables de entorno (`.env`) para la base de datos PostgreSQL.
+4.  Inicia el servidor de desarrollo:
+    ```bash
+    npm run dev
+    ```
+5.  Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 
-## Learn More
+---
 
-To learn more, take a look at the following resources:
+## 🎯 Objetivo del Portafolio
+Evidenciar el dominio de:
+*   **Análisis de Requerimientos**: Transformación de procesos de negocio (SAP) en documentación técnica testeable.
+*   **Diseño de Pruebas**: Aplicación de técnicas de caja negra, valores límite y partición de equivalencias.
+*   **QA Shift-Left**: Colaboración temprana en la definición de reglas de negocio para prevenir defectos.
+*   **API Testing**: Validación de contratos y lógica de negocio en la capa de servicios.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [v0 Documentation](https://v0.app/docs) - learn about v0 and how to use it.
-
-<a href="https://v0.app/chat/api/kiro/clone/Eileen0205/v0-crear-solicitud-de-compra" alt="Open in Kiro"><img src="https://pdgvvgmkdvyeydso.public.blob.vercel-storage.com/open%20in%20kiro.svg?sanitize=true" /></a>
+---
+**Contacto**: Eileen - Profesional en Ingeniería Informática enfocada en QA Funcional.

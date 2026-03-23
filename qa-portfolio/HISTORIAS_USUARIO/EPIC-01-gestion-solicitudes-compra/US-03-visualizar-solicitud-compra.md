@@ -21,11 +21,11 @@ Esta historia debe cumplir el DoR definido para el MVP y la **EPIC-01**. No se c
 - **RN03**: El usuario con rol Solicitante solo puede visualizar solicitudes propias.
 - **RN04**: El usuario con rol Aprobador puede visualizar únicamente las solicitudes dentro de su ámbito de aprobación (ver definición en EPIC-03) y únicamente cuando la solicitud pertenezca a un Centro asignado a él.
 - **RN05**: El usuario con rol Administrador Técnico/Funcional puede visualizar cualquier solicitud de compra con fines de soporte, siempre en modo solo lectura.
-- **RN06**: El detalle de la solicitud debe mostrar, como mínimo: ID, ItemComprable(Material o Servicio), descripción, cantidad, centro, almacén(si aplica), fecha de entrega, estado actual y usuario solicitante.
+- **RN06**: El detalle de la solicitud debe mostrar, como mínimo: ID de solicitud, ItemComprableId, descripción, cantidad, centro, almacén (si aplica), fecha de entrega, estado actual y usuario solicitante.
 - **RN07**: El estado mostrado debe corresponder fielmente al estado real de la solicitud en el sistema.
 - **RN08**: La funcionalidad de visualización es de solo lectura respecto a los atributos de la solicitud. Desde esta pantalla no se permite la edición directa de campos.
-- **RN09**: Desde la pantalla de visualización el acceso a la funcionalidad de "Modificar", asi como a las acciones disponibles (Enviar a Revisión, Aprobar, Rechazar) dependerán del rol del usuario y del estado actual de la solicitud. 
-- **RN10**: Una solicitud recién creada y que se mantenga en el estado inicial, debe permitir al usuario con rol "Solicitante" acceder desde esta pantalla a la función Modificar Solicitud y editar campos según reglas de US-02. 
+- **RN09**: Desde la pantalla de visualización el acceso a la funcionalidad de "Modificar Solicitud", asi como a las acciones disponibles (Enviar a Revisión, Aprobar, Rechazar) dependerán del rol del usuario y del estado actual de la solicitud. 
+- **RN10**: Una solicitud recién creada y que se mantenga en el estado inicial, debe permitir al usuario con rol "Solicitante" acceder desde esta pantalla a la función "Modificar Solicitud" y editar campos según reglas de US-02. 
 - **RN11**: El sistema debe bloquear el acceso y mostrar un mensaje de error funcional si un usuario intenta acceder a una solicitud para la que no tiene permisos.
 - **RN12**: El sistema debe gestionar de forma controlada los intentos de acceso a solicitudes con identificadores inexistentes o con formato inválido, mostrando un mensaje claro (ej. "Solicitud no encontrada") sin exponer errores técnicos.
 
@@ -39,7 +39,7 @@ Background:
 Given el usuario está autenticado en el sistema
 And está marcado como "Activo"
           
-      @US-03 @happy @caminos_críticos
+      @US-03 @happy @caminos_criticos
       Scenario Outline: Visualizar solicitud con acciones habilitadas según rol y estado
       
           Given el usuario tiene rol "<rol>"
@@ -51,22 +51,22 @@ And está marcado como "Activo"
 
           @Solicitante_solicitud_propia 
           Examples:
-          | rol         |tipo_acceso  | estado      | acciones           |
+          | rol         | tipo_acceso | estado      | acciones           |
           | Solicitante | Propia      | Creada      | Enviar a Revisión  |
           | Solicitante | Propia      | En Revisión | Ninguna            |
           | Solicitante | Propia      | Aprobada    | Ninguna            |
           | Solicitante | Propia      | Rechazada   | Ninguna            |
         
-          @Aprobador_solicitud_su_ámbito
+          @Aprobador_solicitud_su_ambito
           Examples:
-          | rol       |tipo_acceso  | estado      | acciones           |
+          | rol       | tipo_acceso | estado      | acciones           |
           | Aprobador | En su ámbito| En Revisión | Aprobar, Rechazar  |
           | Aprobador | En su ámbito| Aprobada    | Ninguna            |
           | Aprobador | En su ámbito| Rechazada   | Ninguna            |
         
-          @Administrador_Técnico/Funcional_solo_lectura_estados
+          @Administrador_Tecnico/Funcional_solo_lectura_estados
           Examples:
-          | rol                             |tipo_acceso               | estado     | acciones|
+          | rol                             | tipo_acceso              | estado     | acciones|
           | Administrador Técnico/Funcional | sin restricción de ámbito| Creada     | Ninguna |
           | Administrador Técnico/Funcional | sin restricción de ámbito| En Revisión| Ninguna |
           | Administrador Técnico/Funcional | sin restricción de ámbito| Aprobada   | Ninguna |
@@ -75,21 +75,21 @@ And está marcado como "Activo"
       @US-03 @happy @visualizacion_campos_minimos
       Scenario Outline: Visualizar detalle de solicitud con campos mínimos y visibilidad dinámica para el campo Almacén
       
-            Given que existe una solicitud de compra con ID "<ID>" de tipo "<ItemComprable>" en el sistema
+            Given que existe una solicitud de compra con ID "<ID>" de tipo "<ItemComprableId>" en el sistema
             And el usuario tiene rol "<rol>" con permisos para ver solicitudes
             When accede al detalle de la solicitud "<ID>"
             Then el sistema muestra los campos comunes: ID, Descripción, Cantidad, Centro, Fecha Entrega, Estado Actual y Usuario Solicitante
-            And según el tipo de item se aplica la visibilidad <Visibilidad_Almacen> en el campo "Almacén" con valor "<Valor_Almacen>"
+            And según el tipo de Ítem se aplica la visibilidad <visibilidad_almacen> en el campo "Almacén" con valor "<valor_almacen>"
 
             @Material
             Examples:
-            | rol          | ID           | ItemComprable       | Visibilidad_Almacen | Valor_Almacen |
+            | rol          | ID           | ItemComprableId     | visibilidad_almacen | valor_almacen |
             | Solicitante  | PR-2026-0001 | Material            | muestra             | 210A          |
             | Aprobador    | PR-2026-0001 | Material            | muestra             | 210A          |
 
             @Servicio
             Examples:
-            | rol          | ID           | ItemComprable       | Visibilidad_Almacen | Valor_Almacen |
+            | rol          | ID           | ItemComprableId     | visibilidad_almacen | valor_almacen |
             | Solicitante  | PR-2026-0002 | Servicio            | oculta              | -             |
             | Aprobador    | PR-2026-0002 | Servicio            | oculta              | -             |
      
@@ -97,7 +97,7 @@ And está marcado como "Activo"
       Scenario: Intento de visualización de un usuario "Inactivo"
 
            Given el usuario está autenticado en el sistema
-           and está marcado como "Inactivo"
+           And está marcado como "Inactivo"
            When intenta acceder al detalle de la solicitud
            Then el sistema muestra un mensaje indicando que el usuario no está activo
            And no se muestran detalles de la solicitud
@@ -118,7 +118,7 @@ And está marcado como "Activo"
             When accede al detalle de esa solicitud
             Then el sistema muestra la información completa de la solicitud
             And el estado mostrado es "<estado_final>" de forma clara
-            And no hay acceso a la función "Modificar"
+            And no hay acceso a la función "Modificar Solicitud"
             And no se permite acceso directo a la URL de modificación
          
             Examples:
@@ -134,7 +134,7 @@ And está marcado como "Activo"
       Scenario: Visualización de solicitud con datos de usuario inconsistentes
       
             Given existe una solicitud creada en el sistema
-            And el usuario que creo la solicitud ya no existe en el sistema
+            And el usuario que creó la solicitud ya no existe en el sistema
             And el usuario actual tiene permisos para visualizar solicitudes
             When accede al detalle de la solicitud
             Then el sistema muestra la información de la solicitud sin errores
@@ -175,7 +175,7 @@ Además de las Consideraciones Generales QA definidas para EPIC-01, se deberá t
 Además específicamente para la US:
 - La funcionalidad permite la visualización respetando las reglas de visibilidad por rol, ámbito y centro.
 - Confirmación de que el estado mostrado corresponde con el registrado en la BD.
-- Confirmación de que desde la pantalla de visualización no se podrán editar campos y que el acceso a las distintas acciones sobre la solicitud (Modificar, Enviar a Revisión, Aprobar y Rechazar) serán visibles respetando roles y estado de la solicitud.
+- Confirmación de que desde la pantalla de visualización no se podrán editar campos y que el acceso a las distintas acciones sobre la solicitud (Modificar Solicitud, Enviar a Revisión, Aprobar y Rechazar) serán visibles respetando roles y estado de la solicitud.
 
 ## 7. Dependencias
 

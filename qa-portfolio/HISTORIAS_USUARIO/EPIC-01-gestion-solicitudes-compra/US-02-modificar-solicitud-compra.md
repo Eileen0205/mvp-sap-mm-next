@@ -19,15 +19,15 @@
 - **RN01:** Solo usuarios autenticados y con sesión activa pueden modificar solicitudes de compra.
 - **RN02:** Solo usuarios con rol Solicitante pueden acceder a la modificación de solicitudes propias.
 - **RN03:** Solo pueden modificarse los siguientes campos en una solicitud: Descripción, Cantidad, Fecha de Entrega, Unidad de Medida (UM).
-- **RN04:** Una vez creada la solicitud no puede modificarse: ÍtemComprable (Material o servicio) , Centro, Almacén.
+- **RN04:** Una vez creada la solicitud no puede modificarse: ItemComprableId, Centro, Almacén.
 - **RN05:** La solicitud de compra a modificar debe existir en el sistema.
 - **RN06:** El usuario solicitante debe estar asignado al Centro asociado a la solicitud.
 - **RN07:** No se permiten fechas de entrega anteriores a la fecha del sistema. (US-01)
 - **RN08:** La cantidad debe ser un valor numérico, mayor que cero y cumplir el formato definido (US-01).
-- **RN09:**  Solo se permite la modificación de solicitudes que se encuentren en estado inicial "Creada". Cualquier otro estado (En Revisión, Aprobada, Rechazada) el sistema debe:
+- **RN09:** Solo se permite la modificación de solicitudes que se encuentren en estado inicial "Creada". Cualquier otro estado (En Revisión, Aprobada, Rechazada) el sistema debe:
   - Deshabilitar la opción "Modificar".
 - **RN10:** No se permite que, como resultado de una modificación, dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
-  - ÍtemComprable (Material o servicio)
+  - ItemComprableId
   - Centro
   - Fecha de entrega.
 - **RN11:** Los cambios deben guardarse de forma consistente y reflejarse correctamente en:
@@ -50,7 +50,7 @@ Background:
   And existe una solicitud propia en estado inicial "Creada"
   And tiene autorización sobre el centro
 
-      @US-02 @happy @crítico
+      @US-02 @happy @critico
       Scenario: Modificar solicitud de compra con datos válidos (Happy Path)
 
             Given el usuario accede al formulario de modificación 
@@ -62,10 +62,10 @@ Background:
       @US-02 @negative @rol_no_autorizado
       Scenario Outline: Intentar modificar una solicitud con un rol no autorizado
            
-            Given el usuario tiene asignado el rol <rol>
+            Given el usuario tiene asignado el rol "<rol>"
             When intenta acceder a la funcionalidad "Modificar Solicitud"
             Then el sistema bloquea el acceso a la funcionalidad
-            And muestra un mensasje <mensaje>
+            And muestra un mensaje "<mensaje>"
             And no se permite la modificación de la solicitud
            
             Examples:
@@ -74,7 +74,7 @@ Background:
             | Aprobador                       | Su rol no tiene permisos para realizar modificaciones |
             | Administrador Técnico Funcional | Su rol no tiene permisos para realizar modificaciones |
 
-       @US-02 @negative @datos_inválidos 
+       @US-02 @negative @datos_invalidos 
        Scenario Outline: Intentar modificar solicitud de compra con datos inválidos en campos permitidos
                                 
             Given el usuario accede al formulario de modificación
@@ -103,10 +103,10 @@ Background:
             And no se guarda la modificación de la solicitud
       
       @US-02 @negative @campos_claves
-      Scenario: Intentar modificar campos clave (ItemComprable/Centro/Almacén) de una solicitud de compra
+      Scenario: Intentar modificar campos clave (ItemComprableId/Centro/Almacén) de una solicitud de compra
 
             Given el usuario accede al formulario de modificación 
-            When el usuario intenta modificar un campo clave 
+            When el usuario intenta modificar el ItemComprableId
             Then el sistema muestra dichos campos en modo "solo lectura"
             And no permite hacer modificaciones
       
@@ -173,9 +173,9 @@ Background:
         @US-02 @seguridad @gestion_estados   
         Scenario Outline: El sistema bloquea el acceso directo a la modificación de solicitudes en estados inválidos
                      
-              Given existe una solicitud propia con ID <ID_Solicitud> en estado <Estado>
-              When el usuario intenta navegar directamente a la URL de modificación para la solicitud <ID_Solicitud>
-              Then el sistema muestra una página o mensaje de error indicando <mensaje_error>
+              Given existe una solicitud propia con ID "<ID>" en estado <estado>
+              When el usuario intenta navegar directamente a la URL de modificación para la solicitud "<ID>"
+              Then el sistema muestra una página o mensaje de error indicando "<mensaje_error>"
               And no se presenta el formulario de modificación
    
              Examples:
@@ -201,7 +201,7 @@ Background:
 
 **Comportamiento de la Interfaz (UI/UX)**
 
-- Los campos claves (Centro/Material-Servicio/Almacén) en el momento de la modificación deben permanecer en Modo Lectura.
+- Los campos claves (Centro/ItemComprableId/Almacén) en el momento de la modificación deben permanecer en Modo Lectura.
 - Cuando una solicitud se encuentre en estado En Revisión, Aprobada, Rechazada el sistema debe mostrar el botón “Modificar Solicitud” deshabilitado.
 
 **Seguridad y Acceso**
