@@ -42,19 +42,19 @@ const estadoConfig: Record<
   string,
   { label: string; className: string }
 > = {
-  CREADA: {
+  Creada: {
     label: "Creada",
     className: "bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-100",
   },
-  EN_REVISION: {
+  EnRevision: {
     label: "En Revision",
     className: "bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100",
   },
-  APROBADA: {
+  Aprobada: {
     label: "Aprobada",
     className: "bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100",
   },
-  RECHAZADA: {
+  Rechazada: {
     label: "Rechazada",
     className: "bg-red-100 text-red-800 border-red-200 hover:bg-red-100",
   },
@@ -89,7 +89,7 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
       const res = await fetch(`/api/solicitudes/${selectedSolicitud.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ estado: "EN_REVISION" }),
+        body: JSON.stringify({ estado: "EnRevision" }),
       })
 
       const json = await res.json()
@@ -181,8 +181,8 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                 </TableHeader>
                 <TableBody>
                   {solicitudes.map((s) => {
-                    const canEdit = s.estado === "CREADA"
-                    const config = estadoConfig[s.estado] || estadoConfig.CREADA
+                    const canEdit = s.estado === "Creada"
+                    const config = estadoConfig[s.estado] || estadoConfig.Creada
 
                     return (
                       <TableRow key={s.id}>
@@ -402,7 +402,7 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                 >
                   Cerrar
                 </Button>
-                {selectedSolicitud.estado === "CREADA" && (
+                {selectedSolicitud.estado === "Creada" && (
                   <Button
                     onClick={handleEnviarRevision}
                     disabled={isSending}

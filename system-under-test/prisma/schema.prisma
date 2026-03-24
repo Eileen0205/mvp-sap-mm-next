@@ -17,7 +17,7 @@ model Solicitud {
   unidadMedida        String
   fechaEntrega        String   // DD/MM/AAAA
   fechaCreacion       String   // DD/MM/AAAA
-  estado              String   @default("CREADA")
+  estado              String   @default("Creada")
   centro              String
   almacen             String?  // Opcional para servicios
 }
