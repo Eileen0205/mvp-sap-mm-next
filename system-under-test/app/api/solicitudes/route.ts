@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma"
 import { materiales, servicios, centros, almacenes } from "@/lib/data"
 import { ESTADO_INICIAL, ESTADOS_SOLICITUD } from "@/lib/types"
 
+// Mapeo de estados UPPERCASE a PascalCase
+const ESTADO_MIGRATION_MAP: Record<string, string> = {
+  'CREADA': 'Creada',
+  'EN_REVISION': 'EnRevision', 
+  'APROBADA': 'Aprobada',
+  'RECHAZADA': 'Rechazada'
+}
+
 // Forzar que la API consulte siempre la base de datos real (Postgres)
 export const dynamic = 'force-dynamic';
 
@@ -194,5 +202,55 @@ export async function POST(request: Request) {
       success: false,
       error: "Error técnico inesperado al persistir en la base de datos."
     }, { status: 500 });
+  }
+}
+
+// PATCH: Migrar estados de formato UPPERCASE a PascalCase
+export async function PATCH() {
+  try {
+    await prisma.$connect()
+    
+    // Obtener todas las solicitudes con estados en formato antiguo
+    const solicitudes = await prisma.solicitud.findMany({
+      where: {
+        estado: {
+          in: ['CREADA', 'EN_REVISION', 'APROBADA', 'RECHAZADA']
+        }
+      }
+    })
+
+    if (solicitudes.length === 0) {
+      return NextResponse.json({ 
+        success: true, 
+        message: "No hay solicitudes con estados en formato antiguo para migrar.",
+        migrated: 0 
+      })
+    }
+
+    // Actualizar cada solicitud al nuevo formato
+    let migratedCount = 0
+    for (const solicitud of solicitudes) {
+      const nuevoEstado = ESTADO_MIGRATION_MAP[solicitud.estado]
+      if (nuevoEstado) {
+        await prisma.solicitud.update({
+          where: { id: solicitud.id },
+          data: { estado: nuevoEstado }
+        })
+        migratedCount++
+      }
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: `Migración completada. ${migratedCount} solicitudes actualizadas.`,
+      migrated: migratedCount 
+    })
+
+  } catch (err) {
+    console.error("ERROR PATCH /api/solicitudes (migration):", err)
+    return NextResponse.json({ 
+      success: false, 
+      error: "Error al migrar estados de solicitudes." 
+    }, { status: 500 })
   }
 }
