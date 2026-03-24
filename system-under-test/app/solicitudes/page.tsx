@@ -53,8 +53,17 @@ export default function SolicitudesPage() {
       }
     }
 
+    // Migrar estados antiguos (UPPERCASE) a nuevo formato (PascalCase) si existen
+    async function migrateEstados() {
+      try {
+        await fetch("/api/solicitudes", { method: "PATCH" })
+      } catch {
+        // Silently handle - migration is optional
+      }
+    }
+
     loadCatalogs()
-    fetchSolicitudes()
+    migrateEstados().then(() => fetchSolicitudes())
   }, [fetchSolicitudes])
 
   const handleCreateSuccess = () => {
