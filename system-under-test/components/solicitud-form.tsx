@@ -52,9 +52,6 @@ interface Props {
 
 const CANTIDAD_REGEX = /^\d{1,10}(\.\d{1,3})?$/
 
-// URL base de la API - usa variable de entorno o ruta relativa por defecto
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
-
 function formatDateForInput(dateStr: string): string {
   const parts = dateStr.split("/")
   if (parts.length === 3) {
@@ -304,7 +301,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
           fechaEntrega: formatDateForApi(formData.fechaEntrega),
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/solicitudes/${editingSolicitud.id}`, {
+        const res = await fetch(`/api/solicitudes/${editingSolicitud.id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
@@ -341,7 +338,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
           almacen: formData.tipo === "MATERIAL" ? formData.almacen : undefined,
         }
 
-        const res = await fetch(`${API_BASE_URL}/api/solicitudes`, {
+        const res = await fetch(`/api/solicitudes`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
