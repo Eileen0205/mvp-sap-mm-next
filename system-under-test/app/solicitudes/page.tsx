@@ -18,6 +18,35 @@ interface Catalogs {
   unidadesMedida: { id: string; nombre: string }[]
 }
 
+// Datos de fallback para cuando la API no está disponible
+const FALLBACK_CATALOGS: Catalogs = {
+  centros: [
+    { id: "C001", codigo: "C001", nombre: "Centro Principal", sociedad: "S001" },
+    { id: "C002", codigo: "C002", nombre: "Centro Secundario", sociedad: "S001" },
+  ],
+  almacenes: [
+    { id: "A001", codigo: "A001", nombre: "Almacen General", centroId: "C001" },
+    { id: "A002", codigo: "A002", nombre: "Almacen Materias Primas", centroId: "C001" },
+    { id: "A003", codigo: "A003", nombre: "Almacen Secundario", centroId: "C002" },
+  ],
+  materiales: [
+    { id: "M001", codigo: "M001", descripcion: "Tornillos Hexagonales 1/4", grupoArticulos: "Ferreteria", unidadMedida: "UN" },
+    { id: "M002", codigo: "M002", descripcion: "Cable Electrico 12 AWG", grupoArticulos: "Electricos", unidadMedida: "MT" },
+    { id: "M003", codigo: "M003", descripcion: "Aceite Lubricante Industrial", grupoArticulos: "Lubricantes", unidadMedida: "LT" },
+  ],
+  servicios: [
+    { id: "S001", codigo: "S001", descripcion: "Servicio de Mantenimiento Preventivo", categoriaValoracion: "Mantenimiento" },
+    { id: "S002", codigo: "S002", descripcion: "Servicio de Consultoria Tecnica", categoriaValoracion: "Consultoria" },
+  ],
+  unidadesMedida: [
+    { id: "UN", nombre: "Unidad" },
+    { id: "KG", nombre: "Kilogramo" },
+    { id: "LT", nombre: "Litro" },
+    { id: "MT", nombre: "Metro" },
+    { id: "HR", nombre: "Hora" },
+  ],
+}
+
 export default function SolicitudesPage() {
   const [catalogs, setCatalogs] = useState<Catalogs | null>(null)
   const [solicitudes, setSolicitudes] = useState<SolicitudCompra[]>([])
@@ -48,9 +77,13 @@ export default function SolicitudesPage() {
         const json = await res.json()
         if (json.success) {
           setCatalogs(json.data)
+        } else {
+          // Si la API responde pero sin exito, usar fallback
+          setCatalogs(FALLBACK_CATALOGS)
         }
       } catch {
-        // Handle error
+        // Si la API falla completamente, usar fallback
+        setCatalogs(FALLBACK_CATALOGS)
       } finally {
         setLoadingCatalogs(false)
       }
