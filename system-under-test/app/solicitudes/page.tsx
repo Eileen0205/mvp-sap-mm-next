@@ -7,6 +7,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClipboardPlus, List } from "lucide-react"
 import type { SolicitudCompra, Centro, Almacen, Material, Servicio } from "@/lib/types"
 
+// URL base de la API - usa variable de entorno o ruta relativa por defecto
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
+
 interface Catalogs {
   centros: Centro[]
   almacenes: Almacen[]
@@ -26,7 +29,7 @@ export default function SolicitudesPage() {
   const fetchSolicitudes = useCallback(async () => {
     setLoadingSolicitudes(true)
     try {
-      const res = await fetch("/api/solicitudes")
+      const res = await fetch(`${API_BASE_URL}/api/solicitudes`)
       const json = await res.json()
       if (json.success) {
         setSolicitudes(json.data)
@@ -41,7 +44,7 @@ export default function SolicitudesPage() {
   useEffect(() => {
     async function loadCatalogs() {
       try {
-        const res = await fetch("/api/catalogos")
+        const res = await fetch(`${API_BASE_URL}/api/catalogos`)
         const json = await res.json()
         if (json.success) {
           setCatalogs(json.data)
@@ -56,7 +59,7 @@ export default function SolicitudesPage() {
     // Migrar estados antiguos (UPPERCASE) a nuevo formato (PascalCase) si existen
     async function migrateEstados() {
       try {
-        await fetch("/api/solicitudes", { method: "PATCH" })
+        await fetch(`${API_BASE_URL}/api/solicitudes`, { method: "PATCH" })
       } catch {
         // Silently handle - migration is optional
       }

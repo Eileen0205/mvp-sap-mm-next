@@ -31,6 +31,9 @@ import { FileText, Package, Wrench, Pencil, Eye, Send, Loader2 } from "lucide-re
 import { toast } from "sonner"
 import type { SolicitudCompra } from "@/lib/types"
 
+// URL base de la API - usa variable de entorno o ruta relativa por defecto
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
+
 interface Props {
   solicitudes: SolicitudCompra[]
   isLoading: boolean
@@ -86,7 +89,7 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
 
     setIsSending(true)
     try {
-      const res = await fetch(`/api/solicitudes/${selectedSolicitud.id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/solicitudes/${selectedSolicitud.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado: "EnRevision" }),
