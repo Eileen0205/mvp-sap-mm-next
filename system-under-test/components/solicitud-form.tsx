@@ -14,12 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Package, Wrench, CheckCircle2, AlertCircle, Lock } from "lucide-react"
+import { Loader2, Package, Wrench, CheckCircle2, AlertCircle, Lock, UserCircle2, Info } from "lucide-react"
 import type {
   Centro,
   Almacen,
   Material,
   Servicio,
+  Usuario,
   SolicitudFormData,
   SolicitudCompra,
 } from "@/lib/types"
@@ -29,6 +30,7 @@ interface Catalogs {
   almacenes: Almacen[]
   materiales: Material[]
   servicios: Servicio[]
+  usuarios: Usuario[]
   unidadesMedida: { id: string; nombre: string }[]
 }
 
@@ -50,12 +52,10 @@ interface Props {
   onCancelEdit?: () => void
 }
 
-const CANTIDAD_REGEX = /^\d{1,10}(\.\d{1,3})?$/
-
-// URL base de la API - usa variable de entorno o ruta relativa por defecto
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
 
 function formatDateForInput(dateStr: string): string {
+  if (!dateStr) return ""
   const parts = dateStr.split("/")
   if (parts.length === 3) {
     return `${parts[2]}-${parts[1]}-${parts[0]}`
@@ -64,6 +64,7 @@ function formatDateForInput(dateStr: string): string {
 }
 
 function formatDateForApi(dateStr: string): string {
+  if (!dateStr) return ""
   const parts = dateStr.split("-")
   if (parts.length === 3) {
     return `${parts[2]}/${parts[1]}/${parts[0]}`
@@ -81,6 +82,17 @@ function getTodayString(): string {
 
 export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelEdit }: Props) {
   const isEditMode = !!editingSolicitud
+
+  // --- SIMULADOR DE SESION (MODO LABORATORIO QA) ---
+  const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
+
+  // Inicializar sesion con el primer solicitante del seed
+  useEffect(() => {
+    if (catalogs.usuarios.length > 0 && !currentUser) {
+      const solicitante = catalogs.usuarios.find(u => u.roles?.some(r => r.id === 'SOLICITANTE')) || catalogs.usuarios[0]
+      setCurrentUser(solicitante)
+    }
+  }, [catalogs.usuarios, currentUser])
 
   const getInitialFormData = useCallback((): SolicitudFormData => {
     if (editingSolicitud) {
@@ -118,7 +130,6 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
 
   const isSubmittingRef = useRef(false)
 
-  // Reset form when editingSolicitud changes
   useEffect(() => {
     setFormData(getInitialFormData())
     setErrors({})
@@ -126,14 +137,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     setSubmitStatus(null)
   }, [editingSolicitud, getInitialFormData])
 
-  // Get filtered catalogs
-  const items =
-    formData.tipo === "MATERIAL" ? catalogs.materiales : catalogs.servicios
+  const items = formData.tipo === "MATERIAL" ? catalogs.materiales : catalogs.servicios
   const almacenesFiltrados = formData.centro
     ? catalogs.almacenes.filter((a) => a.centroId === formData.centro)
     : []
 
-  // Resolve display names for read-only fields in edit mode
   const centroNombre = isEditMode
     ? catalogs.centros.find((c) => c.id === formData.centro)?.nombre || formData.centro
     : ""
@@ -148,35 +156,26 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     ? catalogs.almacenes.find((a) => a.id === formData.almacen)?.nombre || formData.almacen
     : ""
 
-  // Validation functions (only validate editable fields in edit mode)
   const validateField = useCallback(
     (name: string, value: string): string | undefined => {
-      // In edit mode, skip validation for read-only fields
       if (isEditMode && ["tipo", "itemComprableId", "centro", "almacen"].includes(name)) {
         return undefined
       }
 
       switch (name) {
-        case "tipo":
-          if (!value) return "Seleccione el tipo de solicitud."
-          break
-        case "itemComprableId":
-          if (!value) return "Seleccione un item del catalogo."
-          break
         case "descripcion": {
           const trimmed = value.trim()
           if (!trimmed) return "La descripcion es obligatoria."
-          if (trimmed.length < 10)
-            return "Debe tener entre 10 y 40 caracteres."
-          if (trimmed.length > 40)
+          if (trimmed.length < 10 || trimmed.length > 40)
             return "Debe tener entre 10 y 40 caracteres."
           break
         }
         case "cantidad":
           if (!value) return "La cantidad es obligatoria."
-          if (!CANTIDAD_REGEX.test(value))
-            return "No se permiten valores alfanumericos."
-          if (parseFloat(value) <= 0) return "Cantidad debe ser mayor que 0."
+          const num = parseFloat(value)
+          if (isNaN(num)) return "Debe ser un valor numerico."
+          if (num <= 0) return "Cantidad debe ser mayor que 0."
+          if (/\.\d{4,}/.test(value)) return "Maximo 3 decimales permitidos."
           break
         case "unidadMedida":
           if (!value) return "Seleccione una unidad de medida."
@@ -184,20 +183,21 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
         case "fechaEntrega": {
           if (!value) return "La fecha de entrega es obligatoria."
           const dateVal = new Date(value)
-          if (isNaN(dateVal.getTime())) return "Formato Invalido."
           const today = new Date()
           today.setHours(0, 0, 0, 0)
           dateVal.setHours(0, 0, 0, 0)
-          if (dateVal < today)
-            return "La fecha de entrega no puede ser anterior a hoy."
+          if (dateVal < today) return "La fecha no puede ser anterior a hoy."
           break
         }
         case "centro":
           if (!value) return "Seleccione un centro."
           break
+        case "itemComprableId":
+          if (!value) return "Seleccione un item del catalogo."
+          break
         case "almacen":
           if (formData.tipo === "MATERIAL" && !value)
-            return "El almacen es obligatorio para solicitudes de material."
+            return "El almacen es obligatorio para materiales."
           break
       }
       return undefined
@@ -213,600 +213,313 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
   }
 
   const updateField = (name: keyof SolicitudFormData, value: string) => {
-    // Block updates to read-only fields in edit mode
-    if (isEditMode && ["tipo", "itemComprableId", "centro", "almacen"].includes(name)) {
-      return
-    }
+    if (isEditMode && ["tipo", "itemComprableId", "centro", "almacen"].includes(name)) return
 
     setFormData((prev) => {
       const updated = { ...prev, [name]: value }
-      // Reset dependent fields (only in create mode)
       if (!isEditMode) {
         if (name === "tipo") {
           updated.itemComprableId = ""
           updated.almacen = ""
         }
-        if (name === "centro") {
-          updated.almacen = ""
-        }
+        if (name === "centro") updated.almacen = ""
       }
       return updated
     })
 
-    // Clear error on change if field was touched
     if (touched[name]) {
       const error = validateField(name, value)
       setErrors((prev) => ({ ...prev, [name]: error }))
     }
-
-    // Clear submit status on any change
     if (submitStatus) setSubmitStatus(null)
   }
-
-  // Clear almacen error when tipo changes to SERVICIO
-  useEffect(() => {
-    if (formData.tipo === "SERVICIO") {
-      setErrors((prev) => ({ ...prev, almacen: undefined }))
-    }
-  }, [formData.tipo])
 
   const validateAll = (): boolean => {
     const fields: (keyof SolicitudFormData)[] = isEditMode
       ? ["descripcion", "cantidad", "unidadMedida", "fechaEntrega"]
-      : [
-          "tipo",
-          "itemComprableId",
-          "descripcion",
-          "cantidad",
-          "unidadMedida",
-          "fechaEntrega",
-          "centro",
-          ...(formData.tipo === "MATERIAL" ? ["almacen" as keyof SolicitudFormData] : []),
-        ]
+      : ["tipo", "itemComprableId", "descripcion", "cantidad", "unidadMedida", "fechaEntrega", "centro", ...(formData.tipo === "MATERIAL" ? ["almacen" as keyof SolicitudFormData] : [])]
 
     const newErrors: FieldErrors = {}
-    const allTouched: Record<string, boolean> = {}
-
     let hasErrors = false
     for (const field of fields) {
-      const value = formData[field] || ""
-      const error = validateField(field, value)
+      const error = validateField(field, formData[field] || "")
       if (error) {
         newErrors[field] = error
         hasErrors = true
       }
-      allTouched[field] = true
     }
-
     setErrors(newErrors)
-    setTouched((prev) => ({ ...prev, ...allTouched }))
+    setTouched(Object.fromEntries(fields.map(f => [f, true])))
     return !hasErrors
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Prevent double submission (concurrency guard)
-    if (isSubmittingRef.current) return
-    if (!validateAll()) return
+    if (isSubmittingRef.current || !validateAll()) return
 
     isSubmittingRef.current = true
     setIsSubmitting(true)
     setSubmitStatus(null)
 
     try {
-      if (isEditMode && editingSolicitud) {
-        // PUT - update
-        const body = {
-          descripcion: formData.descripcion,
-          cantidad: formData.cantidad,
-          unidadMedida: formData.unidadMedida,
-          fechaEntrega: formatDateForApi(formData.fechaEntrega),
-        }
+      const endpoint = isEditMode 
+        ? `${API_BASE_URL}/api/solicitudes/${editingSolicitud?.id}`
+        : `${API_BASE_URL}/api/solicitudes`
+      
+      const method = isEditMode ? "PUT" : "POST"
 
-        const res = await fetch(`${API_BASE_URL}/api/solicitudes/${editingSolicitud.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        })
-
-        // Manejar error 401 - sesion expirada
-        if (res.status === 401) {
-          setSubmitStatus({
-            type: "error",
-            message: "Su sesion ha expirado. Por favor, inicie sesion nuevamente.",
-          })
-          return
-        }
-
-        const json = await res.json()
-
-        if (res.ok && json.success) {
-          setSubmitStatus({
-            type: "success",
-            message: `Solicitud ${editingSolicitud.id} modificada exitosamente.`,
-          })
-          onSuccess()
-        } else {
-          setSubmitStatus({
-            type: "error",
-            message: json.error || "Error al modificar la solicitud.",
-          })
-        }
-      } else {
-        // POST - create
-        const body = {
+      // Enviar el usuario seleccionado en los headers (Simulando autenticacion)
+      const res = await fetch(endpoint, {
+        method,
+        headers: { 
+          "Content-Type": "application/json",
+          "x-user-id": currentUser?.id || "" 
+        },
+        body: JSON.stringify({
           ...formData,
           fechaEntrega: formatDateForApi(formData.fechaEntrega),
-          almacen: formData.tipo === "MATERIAL" ? formData.almacen : undefined,
-        }
+        }),
+      })
 
-        const res = await fetch(`${API_BASE_URL}/api/solicitudes`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+      const json = await res.json()
+
+      if (res.ok && json.success) {
+        setSubmitStatus({
+          type: "success",
+          message: `Solicitud ${isEditMode ? editingSolicitud?.id : json.data.id} procesada exitosamente.`,
         })
-
-        // Manejar error 401 - sesion expirada
-        if (res.status === 401) {
-          setSubmitStatus({
-            type: "error",
-            message: "Su sesion ha expirado. Por favor, inicie sesion nuevamente.",
-          })
-          return
-        }
-
-        const json = await res.json()
-
-        if (res.ok && json.success) {
-          setSubmitStatus({
-            type: "success",
-            message: `Solicitud ${json.data.id} creada exitosamente.`,
-          })
-          // Reset form
-          setFormData({
-            tipo: "MATERIAL",
-            itemComprableId: "",
-            descripcion: "",
-            cantidad: "",
-            unidadMedida: "",
-            fechaEntrega: "",
-            centro: "",
-            almacen: "",
-          })
-          setTouched({})
-          setErrors({})
-          onSuccess()
-        } else {
-          setSubmitStatus({
-            type: "error",
-            message: json.error || "Error al crear la solicitud.",
-          })
-        }
+        if (!isEditMode) setFormData(getInitialFormData())
+        setTouched({})
+        onSuccess()
+      } else {
+        setSubmitStatus({ type: "error", message: json.error || "Error al procesar la solicitud." })
       }
     } catch {
-      setSubmitStatus({
-        type: "error",
-        message:
-          "Ha ocurrido un error inesperado. Los cambios no se guardaron.",
-      })
+      setSubmitStatus({ type: "error", message: "Error inesperado de red." })
     } finally {
       setIsSubmitting(false)
       isSubmittingRef.current = false
     }
   }
 
-  const descLength = formData.descripcion.trim().length
+  const userRole = currentUser?.roles?.[0]?.id || "SIN ROL"
 
   return (
-    <Card className="border-border">
-      <CardHeader className="pb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl font-semibold text-foreground">
-              {isEditMode
-                ? `Modificar Solicitud ${editingSolicitud?.id}`
-                : "Nueva Solicitud de Compra"}
-            </CardTitle>
-            <CardDescription>
-              {isEditMode
-                ? "Solo puede modificar: Descripcion, Cantidad, Fecha de Entrega y Unidad de Medida."
-                : "Complete los campos obligatorios para registrar una nueva solicitud."}
-            </CardDescription>
-          </div>
-          {isEditMode && (
-            <Badge variant="outline" className="shrink-0 gap-1.5 border-primary/30 text-primary">
-              <Lock className="size-3" />
-              Modo Edicion
-            </Badge>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
-          {/* Submit status message */}
-          {submitStatus && (
-            <div
-              role="alert"
-              className={`flex items-center gap-3 rounded-lg border p-4 text-sm ${
-                submitStatus.type === "success"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-destructive/30 bg-destructive/5 text-destructive"
-              }`}
-            >
-              {submitStatus.type === "success" ? (
-                <CheckCircle2 className="size-5 shrink-0" />
-              ) : (
-                <AlertCircle className="size-5 shrink-0" />
-              )}
-              {submitStatus.message}
-            </div>
-          )}
-
-          {/* ============ READ-ONLY SECTION (Edit Mode) ============ */}
-          {isEditMode && (
-            <div className="rounded-lg border border-border bg-muted/30 p-4">
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Lock className="size-3.5" />
-                Campos no modificables
+    <div className="flex flex-col gap-6">
+      {/* --- MODO LABORATORIO QA: SIMULADOR DE USUARIO --- */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="py-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="rounded-full bg-primary/10 p-2 text-primary">
+                <UserCircle2 className="size-6" />
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">Tipo</Label>
-                  <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-foreground">
-                    {formData.tipo === "MATERIAL" ? (
-                      <Package className="size-4 text-muted-foreground" />
-                    ) : (
-                      <Wrench className="size-4 text-muted-foreground" />
-                    )}
-                    {formData.tipo === "MATERIAL" ? "Material" : "Servicio"}
-                  </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Usuario en Sesion (Modo QA)</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{currentUser?.nombre || "Cargando..."}</span>
+                  <Badge variant="secondary" className="text-[10px] uppercase tracking-wider">
+                    {userRole}
+                  </Badge>
                 </div>
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">
-                    {formData.tipo === "MATERIAL" ? "Material" : "Servicio"}
-                  </Label>
-                  <div className="rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-foreground">
-                    <span className="mr-2 font-mono text-xs text-muted-foreground">
-                      {formData.itemComprableId}
-                    </span>
-                    {itemNombre}
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs text-muted-foreground">Centro</Label>
-                  <div className="rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-foreground">
-                    <span className="mr-2 font-mono text-xs text-muted-foreground">
-                      {formData.centro}
-                    </span>
-                    {centroNombre}
-                  </div>
-                </div>
-                {formData.tipo === "MATERIAL" && formData.almacen && (
-                  <div className="flex flex-col gap-1">
-                    <Label className="text-xs text-muted-foreground">Almacen</Label>
-                    <div className="rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-foreground">
-                      <span className="mr-2 font-mono text-xs text-muted-foreground">
-                        {formData.almacen}
-                      </span>
-                      {almacenNombre}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
-          )}
-
-          {/* ============ CREATE MODE FIELDS ============ */}
-          {!isEditMode && (
-            <>
-              {/* Tipo de Solicitud */}
-              <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium text-foreground">
-                  Tipo de Solicitud <span className="text-destructive">*</span>
-                </Label>
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => updateField("tipo", "MATERIAL")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-                      formData.tipo === "MATERIAL"
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    <Package className="size-4" />
-                    Material
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => updateField("tipo", "SERVICIO")}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-                      formData.tipo === "SERVICIO"
-                        ? "border-primary bg-primary/5 text-primary"
-                        : "border-border bg-card text-muted-foreground hover:border-primary/40"
-                    }`}
-                  >
-                    <Wrench className="size-4" />
-                    Servicio
-                  </button>
-                </div>
-              </div>
-
-              {/* Item Comprable */}
-              <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium text-foreground">
-                  {formData.tipo === "MATERIAL" ? "Material" : "Servicio"}{" "}
-                  <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={formData.itemComprableId}
-                  onValueChange={(val) => updateField("itemComprableId", val)}
-                >
-                  <SelectTrigger
-                    className={`w-full ${
-                      errors.itemComprableId && touched.itemComprableId
-                        ? "border-destructive"
-                        : ""
-                    }`}
-                    onBlur={() => handleBlur("itemComprableId")}
-                  >
-                    <SelectValue
-                      placeholder={`Seleccionar ${
-                        formData.tipo === "MATERIAL" ? "material" : "servicio"
-                      }`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {items.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        <span className="text-muted-foreground mr-2 font-mono text-xs">
-                          {item.id}
-                        </span>
-                        {item.nombre}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.itemComprableId && touched.itemComprableId && (
-                  <p className="text-destructive text-xs">{errors.itemComprableId}</p>
-                )}
-              </div>
-            </>
-          )}
-
-          {/* ============ EDITABLE FIELDS (both modes) ============ */}
-
-          {/* Descripcion */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium text-foreground">
-                Descripcion <span className="text-destructive">*</span>
-              </Label>
-              <span
-                className={`text-xs tabular-nums ${
-                  descLength > 40 ? "text-destructive" : "text-muted-foreground"
-                }`}
+            
+            <div className="flex flex-col gap-1.5 min-w-[200px]">
+              <Label className="text-[10px] font-bold uppercase text-muted-foreground">Cambiar Usuario para Pruebas</Label>
+              <Select 
+                value={currentUser?.id} 
+                onValueChange={(val) => setCurrentUser(catalogs.usuarios.find(u => u.id === val) || null)}
               >
-                {descLength}/40
-              </span>
-            </div>
-            <Textarea
-              value={formData.descripcion}
-              onChange={(e) => updateField("descripcion", e.target.value)}
-              onBlur={() => handleBlur("descripcion")}
-              placeholder="Ingrese una descripcion (10-40 caracteres)"
-              maxLength={50}
-              rows={2}
-              className={`resize-none ${
-                errors.descripcion && touched.descripcion
-                  ? "border-destructive"
-                  : ""
-              }`}
-            />
-            {errors.descripcion && touched.descripcion && (
-              <p className="text-destructive text-xs">{errors.descripcion}</p>
-            )}
-          </div>
-
-          {/* Cantidad + Unidad de Medida */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
-                Cantidad <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={formData.cantidad}
-                onChange={(e) => updateField("cantidad", e.target.value)}
-                onBlur={() => handleBlur("cantidad")}
-                placeholder="Ej: 100 o 50.5"
-                className={
-                  errors.cantidad && touched.cantidad
-                    ? "border-destructive"
-                    : ""
-                }
-              />
-              {errors.cantidad && touched.cantidad && (
-                <p className="text-destructive text-xs">{errors.cantidad}</p>
-              )}
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm font-medium text-foreground">
-                Unidad de Medida <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={formData.unidadMedida}
-                onValueChange={(val) => updateField("unidadMedida", val)}
-              >
-                <SelectTrigger
-                  className={`w-full ${
-                    errors.unidadMedida && touched.unidadMedida
-                      ? "border-destructive"
-                      : ""
-                  }`}
-                  onBlur={() => handleBlur("unidadMedida")}
-                >
-                  <SelectValue placeholder="Seleccionar UM" />
+                <SelectTrigger className="h-9 bg-background">
+                  <SelectValue placeholder="Seleccionar usuario" />
                 </SelectTrigger>
                 <SelectContent>
-                  {catalogs.unidadesMedida.map((um) => (
-                    <SelectItem key={um.id} value={um.id}>
-                      <Badge variant="outline" className="mr-2 font-mono">
-                        {um.id}
-                      </Badge>
-                      {um.nombre}
+                  {catalogs.usuarios.map(u => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.nombre} ({u.roles?.[0]?.id})
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              {errors.unidadMedida && touched.unidadMedida && (
-                <p className="text-destructive text-xs">{errors.unidadMedida}</p>
-              )}
             </div>
           </div>
+          
+          <div className="mt-4 flex items-start gap-2 rounded border border-blue-200 bg-blue-50 p-2 text-[11px] text-blue-700">
+            <Info className="size-3.5 shrink-0 mt-0.5" />
+            <p>
+              <strong>Nota QA:</strong> Use este selector para probar las restricciones de roles. 
+              Ej: Seleccione el <strong>Aprobador</strong> y verifique que no pueda crear solicitudes.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Fecha de Entrega */}
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm font-medium text-foreground">
-              Fecha de Entrega <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              type="date"
-              value={formData.fechaEntrega}
-              min={getTodayString()}
-              onChange={(e) => updateField("fechaEntrega", e.target.value)}
-              onBlur={() => handleBlur("fechaEntrega")}
-              className={
-                errors.fechaEntrega && touched.fechaEntrega
-                  ? "border-destructive"
-                  : ""
-              }
-            />
-            {errors.fechaEntrega && touched.fechaEntrega && (
-              <p className="text-destructive text-xs">{errors.fechaEntrega}</p>
+      <Card className="border-border shadow-sm">
+        <CardHeader className="pb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-xl font-bold text-foreground">
+                {isEditMode ? `Modificar Solicitud ${editingSolicitud?.id}` : "Nueva Solicitud de Compra"}
+              </CardTitle>
+              <CardDescription>
+                {isEditMode ? "Actualice los campos permitidos." : "Complete el formulario para iniciar el proceso de compra."}
+              </CardDescription>
+            </div>
+            {isEditMode && (
+              <Badge variant="outline" className="gap-1.5 border-primary/30 text-primary">
+                <Lock className="size-3" />
+                Solo Lectura Activo
+              </Badge>
             )}
           </div>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
+            {submitStatus && (
+              <div role="alert" className={`flex items-center gap-3 rounded-lg border p-4 text-sm ${submitStatus.type === "success" ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-destructive/30 bg-destructive/5 text-destructive"}`}>
+                {submitStatus.type === "success" ? <CheckCircle2 className="size-5 shrink-0" /> : <AlertCircle className="size-5 shrink-0" />}
+                {submitStatus.message}
+              </div>
+            )}
 
-          {/* ============ CREATE MODE ONLY: Centro + Almacen ============ */}
-          {!isEditMode && (
-            <>
-              {/* Centro */}
+            {/* Read-Only Fields in Edit Mode */}
+            {isEditMode && (
+              <div className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-muted/30 p-4 sm:grid-cols-2">
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs text-muted-foreground uppercase font-bold">Centro</Label>
+                  <p className="text-sm font-medium">{formData.centro} - {centroNombre}</p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs text-muted-foreground uppercase font-bold">Item Seleccionado</Label>
+                  <p className="text-sm font-medium">{formData.itemComprableId} - {itemNombre}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Create Mode Only: Tipo e Item */}
+            {!isEditMode && (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-bold">Tipo de Solicitud <span className="text-destructive">*</span></Label>
+                  <div className="flex gap-2">
+                    <Button type="button" variant={formData.tipo === "MATERIAL" ? "default" : "outline"} className="flex-1" onClick={() => updateField("tipo", "MATERIAL")}>
+                      <Package className="mr-2 size-4" /> Material
+                    </Button>
+                    <Button type="button" variant={formData.tipo === "SERVICIO" ? "default" : "outline"} className="flex-1" onClick={() => updateField("tipo", "SERVICIO")}>
+                      <Wrench className="mr-2 size-4" /> Servicio
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-bold">{formData.tipo === "MATERIAL" ? "Material" : "Servicio"} <span className="text-destructive">*</span></Label>
+                  <Select value={formData.itemComprableId} onValueChange={(val) => updateField("itemComprableId", val)}>
+                    <SelectTrigger className={errors.itemComprableId && touched.itemComprableId ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Seleccione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {items.map(i => <SelectItem key={i.id} value={i.id}><span className="font-mono text-xs text-muted-foreground mr-2">{i.id}</span> {i.nombre}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.itemComprableId && touched.itemComprableId && <p className="text-destructive text-[10px]">{errors.itemComprableId}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* Common Fields: Descripcion, Cantidad, UM, Fecha */}
+            <div className="flex flex-col gap-2">
+              <Label className="text-sm font-bold">Descripcion <span className="text-destructive">*</span></Label>
+              <Textarea 
+                value={formData.descripcion} 
+                onChange={e => updateField("descripcion", e.target.value)} 
+                onBlur={() => handleBlur("descripcion")}
+                placeholder="Indique brevemente el motivo o detalle de la necesidad..."
+                className={`min-h-[80px] ${errors.descripcion && touched.descripcion ? "border-destructive" : ""}`}
+              />
+              <div className="flex justify-between">
+                {errors.descripcion && touched.descripcion && <p className="text-destructive text-[10px]">{errors.descripcion}</p>}
+                <p className={`ml-auto text-[10px] font-mono ${formData.descripcion.length > 40 ? "text-destructive" : "text-muted-foreground"}`}>
+                  {formData.descripcion.length}/40
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
               <div className="flex flex-col gap-2">
-                <Label className="text-sm font-medium text-foreground">
-                  Centro <span className="text-destructive">*</span>
-                </Label>
-                <Select
-                  value={formData.centro}
-                  onValueChange={(val) => updateField("centro", val)}
-                >
-                  <SelectTrigger
-                    className={`w-full ${
-                      errors.centro && touched.centro ? "border-destructive" : ""
-                    }`}
-                    onBlur={() => handleBlur("centro")}
-                  >
-                    <SelectValue placeholder="Seleccionar centro" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {catalogs.centros.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>
-                        <span className="text-muted-foreground mr-2 font-mono text-xs">
-                          {c.id}
-                        </span>
-                        {c.nombre}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.centro && touched.centro && (
-                  <p className="text-destructive text-xs">{errors.centro}</p>
-                )}
+                <Label className="text-sm font-bold">Cantidad <span className="text-destructive">*</span></Label>
+                <Input type="text" value={formData.cantidad} onChange={e => updateField("cantidad", e.target.value)} onBlur={() => handleBlur("cantidad")} placeholder="0.000" className={errors.cantidad && touched.cantidad ? "border-destructive" : ""} />
+                {errors.cantidad && touched.cantidad && <p className="text-destructive text-[10px]">{errors.cantidad}</p>}
               </div>
 
-              {/* Almacen (only for MATERIAL) */}
-              {formData.tipo === "MATERIAL" && (
-                <div className="flex flex-col gap-2">
-                  <Label className="text-sm font-medium text-foreground">
-                    Almacen <span className="text-destructive">*</span>
-                  </Label>
-                  {!formData.centro ? (
-                    <p className="text-muted-foreground text-xs italic">
-                      Seleccione primero un centro para ver los almacenes
-                      disponibles.
-                    </p>
-                  ) : almacenesFiltrados.length === 0 ? (
-                    <p className="text-muted-foreground text-xs italic">
-                      No hay almacenes disponibles para el centro seleccionado.
-                    </p>
-                  ) : (
-                    <Select
-                      value={formData.almacen}
-                      onValueChange={(val) => updateField("almacen", val)}
-                    >
-                      <SelectTrigger
-                        className={`w-full ${
-                          errors.almacen && touched.almacen
-                            ? "border-destructive"
-                            : ""
-                        }`}
-                        onBlur={() => handleBlur("almacen")}
-                      >
-                        <SelectValue placeholder="Seleccionar almacen" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {almacenesFiltrados.map((a) => (
-                          <SelectItem key={a.id} value={a.id}>
-                            <span className="text-muted-foreground mr-2 font-mono text-xs">
-                              {a.id}
-                            </span>
-                            {a.nombre}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  {errors.almacen && touched.almacen && (
-                    <p className="text-destructive text-xs">{errors.almacen}</p>
-                  )}
-                </div>
-              )}
-            </>
-          )}
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-bold">U.M. <span className="text-destructive">*</span></Label>
+                <Select value={formData.unidadMedida} onValueChange={val => updateField("unidadMedida", val)}>
+                  <SelectTrigger className={errors.unidadMedida && touched.unidadMedida ? "border-destructive" : ""}>
+                    <SelectValue placeholder="UM" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {catalogs.unidadesMedida.map(um => <SelectItem key={um.id} value={um.id}>{um.id} - {um.nombre}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                {errors.unidadMedida && touched.unidadMedida && <p className="text-destructive text-[10px]">{errors.unidadMedida}</p>}
+              </div>
 
-          {/* Submit / Cancel */}
-          <div className="flex justify-end gap-3 pt-2">
-            {isEditMode && onCancelEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancelEdit}
-                disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Label className="text-sm font-bold">Fecha Entrega <span className="text-destructive">*</span></Label>
+                <Input type="date" min={getTodayString()} value={formData.fechaEntrega} onChange={e => updateField("fechaEntrega", e.target.value)} onBlur={() => handleBlur("fechaEntrega")} className={errors.fechaEntrega && touched.fechaEntrega ? "border-destructive" : ""} />
+                {errors.fechaEntrega && touched.fechaEntrega && <p className="text-destructive text-[10px]">{errors.fechaEntrega}</p>}
+              </div>
+            </div>
+
+            {/* Create Mode Only: Centro y Almacen */}
+            {!isEditMode && (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-bold">Centro <span className="text-destructive">*</span></Label>
+                  <Select value={formData.centro} onValueChange={val => updateField("centro", val)}>
+                    <SelectTrigger className={errors.centro && touched.centro ? "border-destructive" : ""}>
+                      <SelectValue placeholder="Seleccione Centro..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {catalogs.centros.map(c => <SelectItem key={c.id} value={c.id}>{c.id} - {c.nombre}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.centro && touched.centro && <p className="text-destructive text-[10px]">{errors.centro}</p>}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <Label className="text-sm font-bold">Almacen {formData.tipo === "MATERIAL" && <span className="text-destructive">*</span>}</Label>
+                  <Select disabled={formData.tipo === "SERVICIO" || !formData.centro} value={formData.almacen} onValueChange={val => updateField("almacen", val)}>
+                    <SelectTrigger className={errors.almacen && touched.almacen ? "border-destructive" : ""}>
+                      <SelectValue placeholder={formData.tipo === "SERVICIO" ? "No aplica" : "Seleccione..."} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {almacenesFiltrados.map(a => <SelectItem key={a.id} value={a.id}>{a.id} - {a.nombre}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                  {errors.almacen && touched.almacen && <p className="text-destructive text-[10px]">{errors.almacen}</p>}
+                </div>
+              </div>
             )}
-            <Button
-              type="submit"
-              disabled={isSubmitting}
-              className="min-w-[140px]"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Guardando...
-                </>
-              ) : isEditMode ? (
-                "Guardar Cambios"
-              ) : (
-                "Guardar"
+
+            <div className="flex justify-end gap-3 pt-6 border-t border-border">
+              {isEditMode && onCancelEdit && (
+                <Button type="button" variant="ghost" onClick={onCancelEdit} disabled={isSubmitting}>Cancelar</Button>
               )}
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+              <Button type="submit" disabled={isSubmitting || (userRole !== 'SOLICITANTE' && !isEditMode)} className="px-8">
+                {isSubmitting ? <><Loader2 className="mr-2 size-4 animate-spin" /> Procesando...</> : isEditMode ? "Modificar" : "Crear Solicitud"}
+              </Button>
+            </div>
+            
+            {!isEditMode && userRole !== 'SOLICITANTE' && (
+              <p className="text-center text-[10px] text-destructive font-medium italic">
+                * El rol actual ({userRole}) no tiene permisos para crear solicitudes de compra.
+              </p>
+            )}
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

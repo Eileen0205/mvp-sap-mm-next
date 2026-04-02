@@ -61,10 +61,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a hoy." }, { status: 400 })
     }
 
-    // 3. Obtener Usuario de Prueba (Simulando sesión)
-    const usuario = await prisma.usuario.findUnique({ where: { username: 'eileen_solic_01' } })
+    // 3. Obtener Usuario desde Headers (Simulando autenticacion para QA)
+    const userIdHeader = request.headers.get("x-user-id")
+    
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "No se ha identificado un usuario en sesion." }, { status: 401 })
+    }
+
+    const usuario = await prisma.usuario.findUnique({ 
+      where: { id: userIdHeader },
+      include: { roles: true }
+    })
+
     if (!usuario) {
-      return NextResponse.json({ success: false, error: "Usuario de prueba no encontrado. Ejecute el seed." }, { status: 500 })
+      return NextResponse.json({ success: false, error: "Usuario no encontrado en la base de datos." }, { status: 401 })
+    }
+
+    // Validación de Rol para Creación (RN: Solo Solicitantes pueden crear)
+    const isSolicitante = usuario.roles.some(r => r.id === 'SOLICITANTE')
+    if (!isSolicitante) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `El usuario ${usuario.nombre} tiene rol ${usuario.roles[0]?.id || 'N/A'} y no tiene permisos para CREAR solicitudes.` 
+      }, { status: 403 })
     }
 
     // 4. Generar ID Secuencial (PR-2026-####)

@@ -5,11 +5,15 @@ export const dynamic = 'force-dynamic'
 
 export async function GET() {
   try {
-    const [centros, almacenes, materiales, servicios] = await Promise.all([
+    const [centros, almacenes, materiales, servicios, usuarios] = await Promise.all([
       prisma.centro.findMany({ orderBy: { id: 'asc' } }),
       prisma.almacen.findMany({ orderBy: { id: 'asc' } }),
       prisma.material.findMany({ orderBy: { id: 'asc' } }),
       prisma.servicio.findMany({ orderBy: { id: 'asc' } }),
+      prisma.usuario.findMany({ 
+        include: { roles: true },
+        orderBy: { nombre: 'asc' } 
+      }),
     ])
 
     // Unidades de medida siguen siendo estáticas por ahora (no están en el schema de DB)
@@ -28,6 +32,7 @@ export async function GET() {
         almacenes,
         materiales,
         servicios,
+        usuarios,
         unidadesMedida,
       },
       error: null,
