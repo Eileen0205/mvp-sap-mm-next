@@ -488,18 +488,20 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
                   {errors.centro && touched.centro && <p className="text-destructive text-[10px]">{errors.centro}</p>}
                 </div>
 
-                <div className="flex flex-col gap-2">
-                  <Label className="text-sm font-bold">Almacen {formData.tipo === "MATERIAL" && <span className="text-destructive">*</span>}</Label>
-                  <Select disabled={formData.tipo === "SERVICIO" || !formData.centro} value={formData.almacen} onValueChange={val => updateField("almacen", val)}>
-                    <SelectTrigger className={errors.almacen && touched.almacen ? "border-destructive" : ""}>
-                      <SelectValue placeholder={formData.tipo === "SERVICIO" ? "No aplica" : "Seleccione..."} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {almacenesFiltrados.map(a => <SelectItem key={a.id} value={a.id}>{a.id} - {a.nombre}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                  {errors.almacen && touched.almacen && <p className="text-destructive text-[10px]">{errors.almacen}</p>}
-                </div>
+                {formData.tipo === "MATERIAL" && (
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-sm font-bold">Almacen <span className="text-destructive">*</span></Label>
+                    <Select disabled={!formData.centro} value={formData.almacen} onValueChange={val => updateField("almacen", val)}>
+                      <SelectTrigger className={errors.almacen && touched.almacen ? "border-destructive" : ""}>
+                        <SelectValue placeholder="Seleccione..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {almacenesFiltrados.map(a => <SelectItem key={a.id} value={a.id}>{a.id} - {a.nombre}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {errors.almacen && touched.almacen && <p className="text-destructive text-[10px]">{errors.almacen}</p>}
+                  </div>
+                )}
               </div>
             )}
 
