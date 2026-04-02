@@ -1,3 +1,4 @@
+// 1. Configuración del Cliente y Fuente de Datos (Vercel Postgres)
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,17 +8,87 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 2. Usuarios y Seguridad (Bases para EPIC-03)
+model Usuario {
+  id          String      @id @default(uuid()) // PK Inmutable
+  username    String      @unique
+  nombre      String      @db.VarChar(100)
+  email       String      @unique
+  estado      String      @default("Activo") // Activo | Inactivo
+  
+  // Relaciones
+  roles       Rol[]       @relation("UsuarioRoles")
+  centros     Centro[]    @relation("UsuarioCentros")
+  solicitudes Solicitud[] // Solicitudes creadas por este usuario
+}
+
+model Rol {
+  id        String      @id // SOLICITANTE | APROBADOR | ATF
+  nombre    String      @db.VarChar(50)
+  usuarios  Usuario[]   @relation("UsuarioRoles")
+}
+
+// 3. Datos Maestros (Catálogos Preexistentes)
+model Centro {
+  id          String      @id // 4 dígitos numéricos
+  nombre      String      @db.VarChar(100)
+  
+  // Relaciones
+  almacenes   Almacen[]
+  solicitudes Solicitud[]
+  usuarios    Usuario[]   @relation("UsuarioCentros")
+}
+
+model Almacen {
+  id          String      @id // 3-5 caracteres alfanuméricos
+  nombre      String      @db.VarChar(100)
+  centroId    String      
+  
+  // Relaciones
+  centro      Centro      @relation(fields: [centroId], references: [id])
+  solicitudes Solicitud[]
+}
+
+model Material {
+  id          String      @id // MAT-####
+  nombre      String      @db.VarChar(100)
+  descripcion String?     @db.VarChar(255)
+  solicitudes Solicitud[]
+}
+
+model Servicio {
+  id          String      @id // SRV-####
+  nombre      String      @db.VarChar(100)
+  descripcion String?     @db.VarChar(255)
+  solicitudes Solicitud[]
+}
+
+// 4. Núcleo del Negocio (EPIC-01 - Gestión de Solicitudes)
 model Solicitud {
-  id                  String   @id // Ejemplo: PR-2026-0001
-  tipo                String   // MATERIAL | SERVICIO
-  itemComprableId     String
-  itemComprableNombre String
-  descripcion         String
-  cantidad            Float
-  unidadMedida        String
-  fechaEntrega        String   // DD/MM/AAAA
-  fechaCreacion       String   // DD/MM/AAAA
-  estado              String   @default("Creada")
-  centro              String
-  almacen             String?  // Opcional para servicios
+  id                  String      @id // PR-2026-####
+  tipo                String      @db.VarChar(10) // MATERIAL | SERVICIO
+  descripcion         String      @db.VarChar(40) // Regla de Negocio (10-40)
+  cantidad            Decimal     @db.Decimal(13, 3) // Precisión SAP
+  unidadMedida        String      @db.Char(3) // KG, MTR, etc.
+  fechaCreacion       DateTime    @default(now())
+  fechaEntrega        DateTime
+  estado              String      @default("Creada") // Creada | En Revisión | Aprobada | Rechazada
+
+  // Relaciones Técnicas (IDs de Foreign Keys)
+  usuarioId           String
+  centroId            String      
+  almacenId           String?     // Opcional para Servicios
+  materialId          String?     // Opcional si es Servicio
+  servicioId          String?     // Opcional si es Material
+
+  // Definición de Relaciones (Foreign Keys)
+  usuario             Usuario     @relation(fields: [usuarioId], references: [id])
+  centro              Centro      @relation(fields: [centroId], references: [id])
+  almacen             Almacen?    @relation(fields: [almacenId], references: [id])
+  material            Material?   @relation(fields: [materialId], references: [id])
+  servicio            Servicio?   @relation(fields: [servicioId], references: [id])
+
+  // Validación de unicidad (Triada: Material/Servicio + Centro + Fecha)
+  @@unique([materialId, centroId, fechaEntrega], name: "unique_material_request")
+  @@unique([servicioId, centroId, fechaEntrega], name: "unique_service_request")
 }

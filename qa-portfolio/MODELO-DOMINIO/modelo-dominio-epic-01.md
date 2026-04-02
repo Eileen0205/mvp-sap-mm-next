@@ -43,7 +43,7 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 - ItemComprable (Material o Servicio)
 - Centro (Entidad Centro)
 - Almacén (Entidad Almacén)
-- Usuario Solicitante
+- Id Usuario Solicitante
 
 ## Usuario
 
@@ -195,11 +195,15 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
  - **Identificador de solicitud:** String, obligatorio, único
     - Convención sugerida: prefijo identificador del tipo (ej: PR-2026-0001)
  - **Descripción:** String, obligatorio, 10-40 caracteres
- - **Cantidad:** Decimal, obligatorio, soporta hasta 10 enteros y 3 decimales,  mayor que 0
+ - **Cantidad:** Decimal(13, 3), obligatorio, soporta hasta 10 enteros y 3 decimales,  mayor que 0
  - **Unidad de Medida:** Char(3), obligatorio (ej: KG, MTR, LB, LT, HR)
- - **Fecha de creación:** XX/XX/XXXX, obligatoria
- - **Fecha de entrega:** XX/XX/XXXX, obligatoria
- - **Usuario_Solicitante:** String, obligatorio, 10-40 caracateres alfabéticos
+ - **Fecha de creación:** DateTime, obligatoria
+ - **Fecha de entrega:** DateTime, obligatoria
+ - **Id Usuario Solicitante**: UUID / String (Relación obligatoria con entidad Usuario)
+ - **Nombre Usuario Solicitante**: String, obligatorio, 10-40 caracteres alfabéticos Atributo visual (se obtiene del Usuario relacionado).
+ 
+
+> Nota: Los IDs de Usuario, Centro, Almacen, Material y Servicio son Llaves Primarias (PK) inmutables.
 
 # Definición de Formatos de Datos Maestros
 
