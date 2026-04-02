@@ -1,16 +1,43 @@
 import { NextResponse } from "next/server"
-import { centros, almacenes, materiales, servicios, unidadesMedida } from "@/lib/data"
+import { prisma } from "@/lib/prisma"
+
+export const dynamic = 'force-dynamic'
 
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    data: {
-      centros,
-      almacenes,
-      materiales,
-      servicios,
-      unidadesMedida,
-    },
-    error: null,
-  })
+  try {
+    const [centros, almacenes, materiales, servicios] = await Promise.all([
+      prisma.centro.findMany({ orderBy: { id: 'asc' } }),
+      prisma.almacen.findMany({ orderBy: { id: 'asc' } }),
+      prisma.material.findMany({ orderBy: { id: 'asc' } }),
+      prisma.servicio.findMany({ orderBy: { id: 'asc' } }),
+    ])
+
+    // Unidades de medida siguen siendo estáticas por ahora (no están en el schema de DB)
+    const unidadesMedida = [
+      { id: "KG", nombre: "Kilogramos" },
+      { id: "MTR", nombre: "Metros" },
+      { id: "LTR", nombre: "Litros" },
+      { id: "UN", nombre: "Unidades" },
+      { id: "PA", nombre: "Paquetes" },
+    ]
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        centros,
+        almacenes,
+        materiales,
+        servicios,
+        unidadesMedida,
+      },
+      error: null,
+    })
+  } catch (error) {
+    console.error("Error fetching catalogs:", error)
+    return NextResponse.json({
+      success: false,
+      data: null,
+      error: "Error al cargar los catálogos desde la base de datos.",
+    }, { status: 500 })
+  }
 }
