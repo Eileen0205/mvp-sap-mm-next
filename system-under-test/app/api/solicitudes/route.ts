@@ -22,6 +22,7 @@ export async function GET() {
       itemComprableNombre: s.tipo === 'MATERIAL' ? s.material?.nombre : s.servicio?.nombre,
       usuarioSolicitante: s.usuario.nombre,
       centroNombre: s.centro.nombre,
+      unidadMedida: s.unidadMedidaId, // Mapeo para el frontend
       // Convertir fechas a formato legible DD/MM/AAAA para el frontend actual
       fechaEntrega: s.fechaEntrega.toLocaleDateString('es-ES'),
       fechaCreacion: s.fechaCreacion.toLocaleDateString('es-ES')
@@ -99,7 +100,7 @@ export async function POST(request: Request) {
         tipo,
         descripcion: descripcion.trim(),
         cantidad: numCantidad,
-        unidadMedida,
+        unidadMedidaId: unidadMedida, // Usamos el ID que viene del combo
         fechaEntrega: fechaEntregaObj,
         estado: "Creada",
         usuarioId: usuario.id,

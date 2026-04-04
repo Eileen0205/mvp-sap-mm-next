@@ -63,7 +63,7 @@ export async function PUT(
       data: {
         descripcion: descripcion ? descripcion.trim() : existente.descripcion,
         cantidad: cantidad ? parseFloat(cantidad) : existente.cantidad,
-        unidadMedida: unidadMedida || existente.unidadMedida,
+        unidadMedidaId: unidadMedida || existente.unidadMedidaId,
         fechaEntrega: fechaEntrega || existente.fechaEntrega,
       }
     })
