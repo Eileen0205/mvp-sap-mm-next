@@ -175,6 +175,7 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                     <TableHead>Centro</TableHead>
                     <TableHead>Almacen</TableHead>
                     <TableHead>F. Entrega</TableHead>
+                    <TableHead>Solicitante</TableHead>
                     <TableHead>Estado</TableHead>
                     <TableHead className="pr-6 w-[140px]">Acciones</TableHead>
                   </TableRow>
@@ -232,6 +233,9 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                         </TableCell>
                         <TableCell className="font-mono text-xs">
                           {s.fechaEntrega}
+                        </TableCell>
+                        <TableCell className="text-xs font-medium">
+                          {s.usuarioSolicitante}
                         </TableCell>
                         <TableCell>
                           <Badge className={config.className}>

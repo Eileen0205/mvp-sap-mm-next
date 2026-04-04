@@ -9,6 +9,7 @@ export async function GET() {
       orderBy: { id: 'desc' },
       include: {
         centro: true,
+        almacen: true,
         material: true,
         servicio: true,
         usuario: { select: { nombre: true } }
@@ -19,7 +20,7 @@ export async function GET() {
     const formattedData = solicitudes.map(s => ({
       ...s,
       itemComprableNombre: s.tipo === 'MATERIAL' ? s.material?.nombre : s.servicio?.nombre,
-      usuarioNombre: s.usuario.nombre,
+      usuarioSolicitante: s.usuario.nombre,
       centroNombre: s.centro.nombre,
       // Convertir fechas a formato legible DD/MM/AAAA para el frontend actual
       fechaEntrega: s.fechaEntrega.toLocaleDateString('es-ES'),
