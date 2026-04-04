@@ -222,10 +222,10 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                             {s.unidadMedida}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-xs">{s.centro}</TableCell>
+                        <TableCell className="text-xs">{s.centro.nombre}</TableCell>
                         <TableCell className="text-xs">
                           {s.tipo === "MATERIAL" ? (
-                            s.almacen || <span className="text-muted-foreground">-</span>
+                            s.almacen?.nombre || <span className="text-muted-foreground">-</span>
                           ) : (
                             <span className="text-muted-foreground">-</span>
                           )}
@@ -384,11 +384,11 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                     Logistica
                   </h4>
                   <div className="grid grid-cols-2 gap-4 rounded-lg bg-muted/50 p-4">
-                    <DetailRow label="Centro" value={selectedSolicitud.centro} />
+                    <DetailRow label="Centro" value={selectedSolicitud.centro.nombre} />
                     {selectedSolicitud.tipo === "MATERIAL" && (
                       <DetailRow
                         label="Almacen"
-                        value={selectedSolicitud.almacen || "-"}
+                        value={selectedSolicitud.almacen?.nombre || "-"}
                       />
                     )}
                   </div>

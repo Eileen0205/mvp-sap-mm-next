@@ -28,8 +28,10 @@ export interface SolicitudCompra {
   unidadMedida: string
   fechaCreacion: string
   fechaEntrega: string
-  centro: string
-  almacen?: string
+  centroId: string
+  centro: Centro
+  almacenId?: string
+  almacen?: Almacen
   tipo: "MATERIAL" | "SERVICIO"
   estado: EstadoSolicitud
   itemComprableId: string

@@ -103,8 +103,8 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
         cantidad: String(editingSolicitud.cantidad),
         unidadMedida: editingSolicitud.unidadMedida,
         fechaEntrega: formatDateForInput(editingSolicitud.fechaEntrega),
-        centro: editingSolicitud.centro,
-        almacen: editingSolicitud.almacen || "",
+        centro: editingSolicitud.centroId,
+        almacen: editingSolicitud.almacenId || "",
       }
     }
     return {
