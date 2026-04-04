@@ -52,7 +52,7 @@ interface Props {
   onCancelEdit?: () => void
 }
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || ""
+const API_BASE_URL = ""
 
 function formatDateForInput(dateStr: string): string {
   if (!dateStr) return ""
@@ -87,7 +87,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
   const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
 
   // Inicializar sesion con el primer solicitante del seed
-    useEffect(() => {
+  useEffect(() => {
     if (catalogs.usuarios.length > 0 && !currentUser) {
       const solicitante = catalogs.usuarios.find(u => u.roles?.some((r: any) => r.id === 'SOLICITANTE')) || catalogs.usuarios[0]
       setCurrentUser(solicitante)
