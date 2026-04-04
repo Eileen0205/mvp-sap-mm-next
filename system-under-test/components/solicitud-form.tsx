@@ -87,9 +87,9 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
   const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
 
   // Inicializar sesion con el primer solicitante del seed
-  useEffect(() => {
+    useEffect(() => {
     if (catalogs.usuarios.length > 0 && !currentUser) {
-      const solicitante = catalogs.usuarios.find(u => u.roles?.some(r => r.id === 'SOLICITANTE')) || catalogs.usuarios[0]
+      const solicitante = catalogs.usuarios.find(u => u.roles?.some((r: any) => r.id === 'SOLICITANTE')) || catalogs.usuarios[0]
       setCurrentUser(solicitante)
     }
   }, [catalogs.usuarios, currentUser])
@@ -101,7 +101,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
         itemComprableId: editingSolicitud.itemComprableId,
         descripcion: editingSolicitud.descripcion,
         cantidad: String(editingSolicitud.cantidad),
-        unidadMedida: editingSolicitud.unidadMedida,
+        unidadMedida: editingSolicitud.unidadMedidaId,
         fechaEntrega: formatDateForInput(editingSolicitud.fechaEntrega),
         centro: editingSolicitud.centroId,
         almacen: editingSolicitud.almacenId || "",
@@ -147,10 +147,10 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     : ""
   const itemNombre = isEditMode
     ? (formData.tipo === "MATERIAL"
-        ? catalogs.materiales.find((m) => m.id === formData.itemComprableId)?.nombre
-        : catalogs.servicios.find((s) => s.id === formData.itemComprableId)?.nombre) ||
-      editingSolicitud?.itemComprableNombre ||
-      formData.itemComprableId
+      ? catalogs.materiales.find((m) => m.id === formData.itemComprableId)?.nombre
+      : catalogs.servicios.find((s) => s.id === formData.itemComprableId)?.nombre) ||
+    editingSolicitud?.itemComprableNombre ||
+    formData.itemComprableId
     : ""
   const almacenNombre = isEditMode && formData.almacen
     ? catalogs.almacenes.find((a) => a.id === formData.almacen)?.nombre || formData.almacen
@@ -262,18 +262,18 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     setSubmitStatus(null)
 
     try {
-      const endpoint = isEditMode 
+      const endpoint = isEditMode
         ? `${API_BASE_URL}/api/solicitudes/${editingSolicitud?.id}`
         : `${API_BASE_URL}/api/solicitudes`
-      
+
       const method = isEditMode ? "PUT" : "POST"
 
       // Enviar el usuario seleccionado en los headers (Simulando autenticacion)
       const res = await fetch(endpoint, {
         method,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "x-user-id": currentUser?.id || "" 
+          "x-user-id": currentUser?.id || ""
         },
         body: JSON.stringify({
           ...formData,
@@ -324,11 +324,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
                 </div>
               </div>
             </div>
-            
+
             <div className="flex flex-col gap-1.5 min-w-[200px]">
               <Label className="text-[10px] font-bold uppercase text-muted-foreground">Cambiar Usuario para Pruebas</Label>
-              <Select 
-                value={currentUser?.id} 
+              <Select
+                value={currentUser?.id}
                 onValueChange={(val) => setCurrentUser(catalogs.usuarios.find(u => u.id === val) || null)}
               >
                 <SelectTrigger className="h-9 bg-background">
@@ -344,11 +344,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
               </Select>
             </div>
           </div>
-          
+
           <div className="mt-4 flex items-start gap-2 rounded border border-blue-200 bg-blue-50 p-2 text-[11px] text-blue-700">
             <Info className="size-3.5 shrink-0 mt-0.5" />
             <p>
-              <strong>Nota QA:</strong> Use este selector para probar las restricciones de roles. 
+              <strong>Nota QA:</strong> Use este selector para probar las restricciones de roles.
               Ej: Seleccione el <strong>Aprobador</strong> y verifique que no pueda crear solicitudes.
             </p>
           </div>
@@ -430,9 +430,9 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
             {/* Common Fields: Descripcion, Cantidad, UM, Fecha */}
             <div className="flex flex-col gap-2">
               <Label className="text-sm font-bold">Descripcion <span className="text-destructive">*</span></Label>
-              <Textarea 
-                value={formData.descripcion} 
-                onChange={e => updateField("descripcion", e.target.value)} 
+              <Textarea
+                value={formData.descripcion}
+                onChange={e => updateField("descripcion", e.target.value)}
                 onBlur={() => handleBlur("descripcion")}
                 placeholder="Indique brevemente el motivo o detalle de la necesidad..."
                 className={`min-h-[80px] ${errors.descripcion && touched.descripcion ? "border-destructive" : ""}`}
@@ -513,7 +513,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
                 {isSubmitting ? <><Loader2 className="mr-2 size-4 animate-spin" /> Procesando...</> : isEditMode ? "Modificar" : "Crear Solicitud"}
               </Button>
             </div>
-            
+
             {!isEditMode && userRole !== 'SOLICITANTE' && (
               <p className="text-center text-[10px] text-destructive font-medium italic">
                 * El rol actual ({userRole}) no tiene permisos para crear solicitudes de compra.

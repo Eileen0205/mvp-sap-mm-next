@@ -8,27 +8,40 @@ const VALID_ESTADOS: EstadoSolicitud[] = ["Creada", "EnRevision", "Aprobada", "R
 // GET /api/solicitudes/[id] - Visualizar detalle real
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await prisma.$connect()
-    
+    const { id } = await params
     const solicitud = await prisma.solicitud.findUnique({
-      where: { id: params.id }
+      where: { id },
+      include: {
+        centro: true,
+        almacen: true,
+        material: true,
+        servicio: true,
+        unidadMedida: true,
+        usuario: { select: { nombre: true } }
+      }
     })
 
     if (!solicitud) {
       return NextResponse.json({ success: false, error: "Solicitud no encontrada." }, { status: 404 })
     }
 
-    return NextResponse.json({ success: true, data: solicitud, error: null })
+    // Transformar para el frontend igual que en el listado
+    const formatted = {
+      ...solicitud,
+      itemComprableNombre: solicitud.tipo === 'MATERIAL' ? solicitud.material?.nombre : solicitud.servicio?.nombre,
+      usuarioSolicitante: solicitud.usuario.nombre,
+      centroNombre: solicitud.centro.nombre,
+      unidadMedida: solicitud.unidadMedidaId.trim(),
+      fechaEntrega: solicitud.fechaEntrega.toLocaleDateString('es-ES'),
+      fechaCreacion: solicitud.fechaCreacion.toLocaleDateString('es-ES')
+    }
+
+    return NextResponse.json({ success: true, data: formatted, error: null })
   } catch (err) {
     console.error("ERROR GET /api/solicitudes/[id]:", err)
-    try {
-      await prisma.$disconnect()
-    } catch {
-      // Ignorar errores de desconexión
-    }
     return NextResponse.json({ success: false, error: "Error al consultar la solicitud." }, { status: 500 })
   }
 }
@@ -36,17 +49,16 @@ export async function GET(
 // PUT /api/solicitudes/[id] - Modificar en DB real
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await prisma.$connect()
-    
+    const { id } = await params
     const body = await request.json()
     const { descripcion, cantidad, unidadMedida, fechaEntrega } = body
 
     // 1. Verificar si existe y si está en estado CREADA (RN)
     const existente = await prisma.solicitud.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existente) {
@@ -59,7 +71,7 @@ export async function PUT(
 
     // 2. Actualizar en Postgres
     const actualizada = await prisma.solicitud.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         descripcion: descripcion ? descripcion.trim() : existente.descripcion,
         cantidad: cantidad ? parseFloat(cantidad) : existente.cantidad,
@@ -71,11 +83,6 @@ export async function PUT(
     return NextResponse.json({ success: true, data: actualizada, error: null })
   } catch (err) {
     console.error("Error en PUT /api/solicitudes/[id]:", err)
-    try {
-      await prisma.$disconnect()
-    } catch {
-      // Ignorar errores de desconexión
-    }
     return NextResponse.json({ success: false, error: "Error técnico al actualizar en la DB." }, { status: 500 })
   }
 }
@@ -83,11 +90,10 @@ export async function PUT(
 // PATCH /api/solicitudes/[id] - Cambiar estado de la solicitud
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await prisma.$connect()
-    
+    const { id } = await params
     const body = await request.json()
     const { estado } = body
 
@@ -109,7 +115,7 @@ export async function PATCH(
 
     // Verificar si existe la solicitud
     const existente = await prisma.solicitud.findUnique({
-      where: { id: params.id }
+      where: { id }
     })
 
     if (!existente) {
@@ -129,7 +135,7 @@ export async function PATCH(
 
     // Actualizar estado en la base de datos
     const actualizada = await prisma.solicitud.update({
-      where: { id: params.id },
+      where: { id },
       data: { estado }
     })
 
@@ -141,11 +147,6 @@ export async function PATCH(
 
   } catch (err) {
     console.error("Error en PATCH /api/solicitudes/[id]:", err)
-    try {
-      await prisma.$disconnect()
-    } catch {
-      // Ignorar errores de desconexión
-    }
     return NextResponse.json({ 
       success: false, 
       error: "Error técnico al cambiar el estado." 

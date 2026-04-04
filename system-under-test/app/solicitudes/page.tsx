@@ -5,13 +5,14 @@ import { SolicitudForm } from "@/components/solicitud-form"
 import { SolicitudesTable } from "@/components/solicitudes-table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClipboardPlus, List } from "lucide-react"
-import type { SolicitudCompra, Centro, Almacen, Material, Servicio } from "@/lib/types"
+import type { SolicitudCompra, Centro, Almacen, Material, Servicio, Usuario } from "@/lib/types"
 
 interface Catalogs {
   centros: Centro[]
   almacenes: Almacen[]
   materiales: Material[]
   servicios: Servicio[]
+  usuarios: Usuario[]
   unidadesMedida: { id: string; nombre: string }[]
 }
 
@@ -155,7 +156,10 @@ export default function SolicitudesPage() {
               </div>
             ) : catalogs ? (
               <SolicitudForm
-                catalogs={catalogs}
+                catalogs={{
+                  ...catalogs,
+                  usuarios: catalogs.usuarios || []
+                }}
                 onSuccess={editingSolicitud ? handleEditSuccess : handleCreateSuccess}
                 editingSolicitud={editingSolicitud}
                 onCancelEdit={handleCancelEdit}

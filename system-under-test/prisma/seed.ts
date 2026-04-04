@@ -87,7 +87,7 @@ async function main() {
     { id: 'MTR', nombre: 'Metros' },
     { id: 'LTR', nombre: 'Litros' },
     { id: 'UN', nombre: 'Unidades' },
-    { id: 'PA', nombre: 'Par' },
+    { id: 'PA', nombre: 'Paquetes' },
     { id: 'HRS', nombre: 'Horas' },
   ];
 

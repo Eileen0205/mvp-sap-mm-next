@@ -12,6 +12,7 @@ export async function GET() {
         almacen: true,
         material: true,
         servicio: true,
+        unidadMedida: true, // Incluir la nueva relación
         usuario: { select: { nombre: true } }
       }
     })
@@ -19,10 +20,11 @@ export async function GET() {
     // Transformar para que el frontend reciba los nombres como espera
     const formattedData = solicitudes.map(s => ({
       ...s,
+      cantidad: Number(s.cantidad), // Convertir Decimal a Number
       itemComprableNombre: s.tipo === 'MATERIAL' ? s.material?.nombre : s.servicio?.nombre,
       usuarioSolicitante: s.usuario.nombre,
       centroNombre: s.centro.nombre,
-      unidadMedida: s.unidadMedidaId, // Mapeo para el frontend
+      unidadMedidaId: s.unidadMedidaId.trim(), // ID limpio (KG, HRS)
       // Convertir fechas a formato legible DD/MM/AAAA para el frontend actual
       fechaEntrega: s.fechaEntrega.toLocaleDateString('es-ES'),
       fechaCreacion: s.fechaCreacion.toLocaleDateString('es-ES')
@@ -38,10 +40,10 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { tipo, itemComprableId, descripcion, cantidad, unidadMedida, fechaEntrega, centro: centroId, almacen: almacenId } = body
+    const { tipo, itemComprableId, descripcion, cantidad, unidadMedida: umId, fechaEntrega, centro: centroId, almacen: almacenId } = body
 
     // 1. Validaciones de Negocio Críticas (RN07, RN04)
-    if (!tipo || !itemComprableId || !descripcion || !cantidad || !unidadMedida || !fechaEntrega || !centroId) {
+    if (!tipo || !itemComprableId || !descripcion || !cantidad || !umId || !fechaEntrega || !centroId) {
       return NextResponse.json({ success: false, error: "Faltan campos obligatorios." }, { status: 400 })
     }
 
@@ -55,19 +57,17 @@ export async function POST(request: Request) {
     }
 
     // 2. Procesar Fechas
-    // Esperamos formato DD/MM/AAAA del frontend
     const [dia, mes, anio] = fechaEntrega.split('/').map(Number)
     const fechaEntregaObj = new Date(anio, mes - 1, dia)
     
-    if (fechaEntregaObj < new Date().setHours(0,0,0,0)) {
+    if (fechaEntregaObj.getTime() < new Date().setHours(0,0,0,0)) {
       return NextResponse.json({ success: false, error: "La fecha de entrega no puede ser anterior a hoy." }, { status: 400 })
     }
 
-    // 3. Obtener Usuario desde Headers (Simulando autenticacion para QA)
+    // 3. Obtener Usuario desde Headers
     const userIdHeader = request.headers.get("x-user-id")
-    
     if (!userIdHeader) {
-      return NextResponse.json({ success: false, error: "No se ha identificado un usuario en sesion." }, { status: 401 })
+      return NextResponse.json({ success: false, error: "No se ha identificado un usuario en sesión." }, { status: 401 })
     }
 
     const usuario = await prisma.usuario.findUnique({ 
@@ -76,19 +76,10 @@ export async function POST(request: Request) {
     })
 
     if (!usuario) {
-      return NextResponse.json({ success: false, error: "Usuario no encontrado en la base de datos." }, { status: 401 })
+      return NextResponse.json({ success: false, error: "Usuario no encontrado." }, { status: 401 })
     }
 
-    // Validación de Rol para Creación (RN: Solo Solicitantes pueden crear)
-    const isSolicitante = usuario.roles.some(r => r.id === 'SOLICITANTE')
-    if (!isSolicitante) {
-      return NextResponse.json({ 
-        success: false, 
-        error: `El usuario ${usuario.nombre} tiene rol ${usuario.roles[0]?.id || 'N/A'} y no tiene permisos para CREAR solicitudes.` 
-      }, { status: 403 })
-    }
-
-    // 4. Generar ID Secuencial (PR-2026-####)
+    // 4. Generar ID Secuencial
     const count = await prisma.solicitud.count()
     const currentYear = new Date().getFullYear()
     const nextId = `PR-${currentYear}-${String(count + 1).padStart(4, '0')}`
@@ -100,7 +91,7 @@ export async function POST(request: Request) {
         tipo,
         descripcion: descripcion.trim(),
         cantidad: numCantidad,
-        unidadMedidaId: unidadMedida, // Usamos el ID que viene del combo
+        unidadMedidaId: umId, // Usamos el ID del catálogo (ej: HRS)
         fechaEntrega: fechaEntregaObj,
         estado: "Creada",
         usuarioId: usuario.id,
@@ -116,12 +107,12 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error("Error creating solicitud:", error)
     
-    // Manejo de la Tríada de Unicidad (P2 - Nivel 3 Robustez)
     if (error.code === 'P2002') {
-      return NextResponse.json({ 
-        success: false, 
-        error: "Ya existe una solicitud activa para el mismo ítem, centro y fecha de entrega." 
-      }, { status: 400 })
+      return NextResponse.json({ success: false, error: "Ya existe una solicitud activa para el mismo ítem, centro y fecha de entrega." }, { status: 400 })
+    }
+    
+    if (error.code === 'P2003') {
+      return NextResponse.json({ success: false, error: "Error de integridad: La unidad de medida o centro no existen en el catálogo." }, { status: 400 })
     }
 
     return NextResponse.json({ success: false, error: "Error técnico al procesar la solicitud." }, { status: 500 })

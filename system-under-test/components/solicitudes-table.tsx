@@ -220,7 +220,7 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                         </TableCell>
                         <TableCell>
                           <Badge variant="outline" className="font-mono text-[10px]">
-                            {s.unidadMedida}
+                            {typeof s.unidadMedida === 'string' ? s.unidadMedida : s.unidadMedidaId}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs">{s.centro.nombre}</TableCell>
@@ -371,11 +371,11 @@ export function SolicitudesTable({ solicitudes, isLoading, onEdit, onRefresh }: 
                         label="Cantidad"
                         value={
                           <span className="font-mono">
-                            {selectedSolicitud.cantidad} {selectedSolicitud.unidadMedida}
+                            {selectedSolicitud.cantidad} {typeof selectedSolicitud.unidadMedida === 'string' ? selectedSolicitud.unidadMedida : selectedSolicitud.unidadMedidaId}
                           </span>
                         }
                       />
-                      <DetailRow label="Unidad de Medida" value={selectedSolicitud.unidadMedida} />
+                      <DetailRow label="Unidad de Medida" value={typeof selectedSolicitud.unidadMedida === 'string' ? selectedSolicitud.unidadMedida : selectedSolicitud.unidadMedidaId} />
                     </div>
                   </div>
                 </div>

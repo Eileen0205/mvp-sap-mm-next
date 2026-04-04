@@ -25,7 +25,8 @@ export interface SolicitudCompra {
   id: string
   descripcion: string
   cantidad: number
-  unidadMedida: string
+  unidadMedidaId: string
+  unidadMedida: UnidadMedida
   fechaCreacion: string
   fechaEntrega: string
   centroId: string
@@ -37,6 +38,11 @@ export interface SolicitudCompra {
   itemComprableId: string
   itemComprableNombre: string
   usuarioSolicitante: string
+}
+
+export interface UnidadMedida {
+  id: string
+  nombre: string
 }
 
 export interface Centro {
@@ -62,6 +68,14 @@ export interface Servicio {
   descripcion?: string
 }
 
+export interface Usuario {
+  id: string
+  nombre: string
+  username?: string
+  email?: string
+  roles?: { id: string; nombre: string }[]
+}
+
 export interface ApiResponse<T = unknown> {
   success: boolean
   data: T | null
@@ -75,7 +89,7 @@ export interface SolicitudFormData {
   itemComprableId: string
   descripcion: string
   cantidad: string
-  unidadMedida: string
+  unidadMedida: string // ID de la unidad
   fechaEntrega: string
   centro: string
   almacen?: string
@@ -84,7 +98,7 @@ export interface SolicitudFormData {
 export interface SolicitudUpdateData {
   descripcion: string
   cantidad: string
-  unidadMedida: string
+  unidadMedida: string // ID de la unidad
   fechaEntrega: string
 }
 
