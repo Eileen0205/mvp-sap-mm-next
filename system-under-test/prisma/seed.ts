@@ -81,7 +81,26 @@ async function main() {
   }
   console.log('✔ Catálogo de Servicios creado.');
 
-  // 6. Crear Usuarios de Prueba (Asignados a Centro 1000)
+  // 6. Crear Unidades de Medida
+  const unidadesMedida = [
+    { id: 'KG', nombre: 'Kilogramos' },
+    { id: 'MTR', nombre: 'Metros' },
+    { id: 'LTR', nombre: 'Litros' },
+    { id: 'UN', nombre: 'Unidades' },
+    { id: 'PA', nombre: 'Par' },
+    { id: 'HRS', nombre: 'Horas' },
+  ];
+
+  for (const um of unidadesMedida) {
+    await prisma.unidadMedida.upsert({
+      where: { id: um.id },
+      update: {},
+      create: um,
+    });
+  }
+  console.log('✔ Catálogo de Unidades de Medida creado.');
+
+  // 7. Crear Usuarios de Prueba (Asignados a Centro 1000)
   const usuarioSolicitante = await prisma.usuario.upsert({
     where: { username: 'eileen_solic_01' },
     update: {},

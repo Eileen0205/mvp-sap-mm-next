@@ -63,13 +63,19 @@ model Servicio {
   solicitudes Solicitud[]
 }
 
+model UnidadMedida {
+  id          String      @id @db.Char(3) // KG, MTR, HRS, etc.
+  nombre      String      @db.VarChar(50)
+  solicitudes Solicitud[]
+}
+
 // 4. Núcleo del Negocio (EPIC-01 - Gestión de Solicitudes)
 model Solicitud {
   id                  String      @id // PR-2026-####
   tipo                String      @db.VarChar(10) // MATERIAL | SERVICIO
   descripcion         String      @db.VarChar(40) // Regla de Negocio (10-40)
   cantidad            Decimal     @db.Decimal(13, 3) // Precisión SAP
-  unidadMedida        String      @db.Char(3) // KG, MTR, etc.
+  unidadMedidaId      String      @db.Char(3) 
   fechaCreacion       DateTime    @default(now())
   fechaEntrega        DateTime
   estado              String      @default("Creada") // Creada | En Revisión | Aprobada | Rechazada
@@ -82,11 +88,12 @@ model Solicitud {
   servicioId          String?     // Opcional si es Material
 
   // Definición de Relaciones (Foreign Keys)
-  usuario             Usuario     @relation(fields: [usuarioId], references: [id])
-  centro              Centro      @relation(fields: [centroId], references: [id])
-  almacen             Almacen?    @relation(fields: [almacenId], references: [id])
-  material            Material?   @relation(fields: [materialId], references: [id])
-  servicio            Servicio?   @relation(fields: [servicioId], references: [id])
+  usuario             Usuario       @relation(fields: [usuarioId], references: [id])
+  centro              Centro        @relation(fields: [centroId], references: [id])
+  almacen             Almacen?      @relation(fields: [almacenId], references: [id])
+  material            Material?     @relation(fields: [materialId], references: [id])
+  servicio            Servicio?     @relation(fields: [servicioId], references: [id])
+  unidadMedida        UnidadMedida  @relation(fields: [unidadMedidaId], references: [id])
 
   // Validación de unicidad (Triada: Material/Servicio + Centro + Fecha)
   @@unique([materialId, centroId, fechaEntrega], name: "unique_material_request")
