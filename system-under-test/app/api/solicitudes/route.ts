@@ -4,8 +4,22 @@ import { prisma } from "@/lib/prisma"
 export const dynamic = 'force-dynamic'
 
 // GET /api/solicitudes - Listar todas
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const userIdHeader = request.headers.get("x-user-id")
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "Acceso denegado: No se ha identificado un usuario en sesión." }, { status: 401 })
+    }
+
+    const usuario = await prisma.usuario.findUnique({ 
+      where: { id: userIdHeader },
+      include: { roles: true }
+    })
+
+    if (!usuario) {
+      return NextResponse.json({ success: false, error: "Usuario no autorizado." }, { status: 403 })
+    }
+
     const solicitudes = await prisma.solicitud.findMany({
       orderBy: { id: 'desc' },
       include: {

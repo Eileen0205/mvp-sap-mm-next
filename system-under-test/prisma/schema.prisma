@@ -64,7 +64,7 @@ model Servicio {
 }
 
 model UnidadMedida {
-  id          String      @id @db.Char(3) // KG, MTR, HRS, etc.
+  id          String      @id @db.VarChar(3) // KG, MTR, HRS, etc.
   nombre      String      @db.VarChar(50)
   solicitudes Solicitud[]
 }
@@ -75,7 +75,7 @@ model Solicitud {
   tipo                String      @db.VarChar(10) // MATERIAL | SERVICIO
   descripcion         String      @db.VarChar(40) // Regla de Negocio (10-40)
   cantidad            Decimal     @db.Decimal(13, 3) // Precisión SAP
-  unidadMedidaId      String      @db.Char(3) 
+  unidadMedidaId      String      @db.VarChar(3) 
   fechaCreacion       DateTime    @default(now())
   fechaEntrega        DateTime
   estado              String      @default("Creada") // Creada | En Revisión | Aprobada | Rechazada
