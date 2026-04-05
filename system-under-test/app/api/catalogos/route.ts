@@ -3,8 +3,21 @@ import { prisma } from "@/lib/prisma"
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const userIdHeader = request.headers.get("x-user-id")
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "Acceso denegado: Se requiere identificación de usuario." }, { status: 401 })
+    }
+
+    const usuarioAutenticado = await prisma.usuario.findUnique({ 
+      where: { id: userIdHeader }
+    })
+
+    if (!usuarioAutenticado) {
+      return NextResponse.json({ success: false, error: "Usuario no autorizado para consultar catálogos." }, { status: 403 })
+    }
+
     const [centros, almacenes, materiales, servicios, usuarios, unidadesMedida] = await Promise.all([
       prisma.centro.findMany({ orderBy: { id: 'asc' } }),
       prisma.almacen.findMany({ orderBy: { id: 'asc' } }),
