@@ -82,7 +82,7 @@ async function main() {
   console.log('✔ Catálogo de Servicios creado.');
 
   // 6. Crear Unidades de Medida
-  const unidadesMedida = [
+  const unidadMedida = [
     { id: 'KG', nombre: 'Kilogramos' },
     { id: 'MTR', nombre: 'Metros' },
     { id: 'LTR', nombre: 'Litros' },
@@ -91,7 +91,7 @@ async function main() {
     { id: 'HRS', nombre: 'Horas' },
   ];
 
-  for (const um of unidadesMedida) {
+  for (const um of unidadMedida) {
     await prisma.unidadMedida.upsert({
       where: { id: um.id },
       update: {},

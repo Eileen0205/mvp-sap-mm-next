@@ -263,11 +263,10 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
 
     try {
       const endpoint = isEditMode
-        ? `${API_BASE_URL}/api/solicitudes/${editingSolicitud?.id}`
-        : `${API_BASE_URL}/api/solicitudes`
+        ? `/api/solicitudes/${editingSolicitud?.id}`
+        : `/api/solicitudes`
 
       const method = isEditMode ? "PUT" : "POST"
-
       // Enviar el usuario seleccionado en los headers (Simulando autenticacion)
       const res = await fetch(endpoint, {
         method,
