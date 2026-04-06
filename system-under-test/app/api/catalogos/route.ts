@@ -9,20 +9,30 @@ export async function GET(request: Request) {
     if (!userIdHeader) {
       return NextResponse.json({ success: false, error: "Acceso denegado: Se requiere identificación de usuario." }, { status: 401 })
     }
+const usuarioAutenticado = await prisma.usuario.findUnique({ 
+  where: { id: userIdHeader },
+  include: { centros: { select: { id: true } } }
+})
 
-    const usuarioAutenticado = await prisma.usuario.findUnique({ 
-      where: { id: userIdHeader }
-    })
+if (!usuarioAutenticado) {
+  return NextResponse.json({ success: false, error: "Usuario no autorizado." }, { status: 403 })
+}
 
-    if (!usuarioAutenticado) {
-      return NextResponse.json({ success: false, error: "Usuario no autorizado para consultar catálogos." }, { status: 403 })
-    }
+const centroIdsAutorizados = usuarioAutenticado.centros.map(c => c.id)
 
-    const [centros, almacenes, materiales, servicios, usuarios, unidadesMedida] = await Promise.all([
-      prisma.centro.findMany({ orderBy: { id: 'asc' } }),
-      prisma.almacen.findMany({ orderBy: { id: 'asc' } }),
-      prisma.material.findMany({ orderBy: { id: 'asc' } }),
-      prisma.servicio.findMany({ orderBy: { id: 'asc' } }),
+const [centros, almacenes, materiales, servicios, usuarios, unidadesMedida] = await Promise.all([
+  // FILTRADO: Solo centros autorizados
+  prisma.centro.findMany({ 
+    where: { id: { in: centroIdsAutorizados } },
+    orderBy: { id: 'asc' } 
+  }),
+  // FILTRADO: Solo almacenes de centros autorizados
+  prisma.almacen.findMany({ 
+    where: { centroId: { in: centroIdsAutorizados } },
+    orderBy: { id: 'asc' } 
+  }),
+  prisma.material.findMany({ orderBy: { id: 'asc' } }),
+...
       prisma.usuario.findMany({ 
         include: { roles: true },
         orderBy: { nombre: 'asc' } 

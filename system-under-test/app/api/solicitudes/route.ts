@@ -79,11 +79,23 @@ export async function POST(request: Request) {
 
     const usuario = await prisma.usuario.findUnique({ 
       where: { id: userIdHeader },
-      include: { roles: true }
+      include: { 
+        roles: true,
+        centros: true // Incluimos centros autorizados
+      }
     })
 
     if (!usuario) {
       return NextResponse.json({ success: false, error: "Usuario no encontrado." }, { status: 401 })
+    }
+
+    // NUEVA VALIDACIÓN: ¿El centro enviado es uno de los autorizados para este usuario?
+    const centroAutorizado = usuario.centros.find(c => c.id === centroId)
+    if (!centroAutorizado) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `Acceso denegado: No tiene permisos para crear solicitudes en el Centro ${centroId}.` 
+      }, { status: 403 })
     }
 
     const count = await prisma.solicitud.count()

@@ -11,6 +11,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userIdHeader = request.headers.get("x-user-id")
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "No autenticado" }, { status: 401 })
+    }
+
     const { id } = await params
     const solicitud = await prisma.solicitud.findUnique({
       where: { id },
@@ -26,6 +31,19 @@ export async function GET(
 
     if (!solicitud) {
       return NextResponse.json({ success: false, error: "Solicitud no encontrada." }, { status: 404 })
+    }
+
+    // Seguridad: ¿El usuario tiene permiso sobre el centro de esta solicitud?
+    const usuarioAuth = await prisma.usuario.findUnique({
+      where: { id: userIdHeader },
+      include: { centros: true }
+    })
+
+    if (!usuarioAuth || !usuarioAuth.centros.some(c => c.id === solicitud.centroId)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "No tiene permisos para visualizar esta solicitud." 
+      }, { status: 403 })
     }
 
     // Transformar para el frontend igual que en el listado
@@ -52,17 +70,32 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userIdHeader = request.headers.get("x-user-id")
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "No autenticado" }, { status: 401 })
+    }
+
     const { id } = await params
     const body = await request.json()
     const { descripcion, cantidad, unidadMedida, fechaEntrega } = body
 
-    // 1. Verificar si existe y si está en estado CREADA (RN)
+    // 1. Verificar si existe
     const existente = await prisma.solicitud.findUnique({
       where: { id }
     })
 
     if (!existente) {
       return NextResponse.json({ success: false, error: "Solicitud no encontrada." }, { status: 404 })
+    }
+
+    // Seguridad: ¿El usuario tiene permiso sobre el centro de esta solicitud?
+    const usuarioAuth = await prisma.usuario.findUnique({
+      where: { id: userIdHeader },
+      include: { centros: true }
+    })
+
+    if (!usuarioAuth || !usuarioAuth.centros.some(c => c.id === existente.centroId)) {
+      return NextResponse.json({ success: false, error: "No tiene permisos para modificar esta solicitud." }, { status: 403 })
     }
 
     if (existente.estado !== ESTADO_INICIAL) {
@@ -93,6 +126,11 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userIdHeader = request.headers.get("x-user-id")
+    if (!userIdHeader) {
+      return NextResponse.json({ success: false, error: "No autenticado" }, { status: 401 })
+    }
+
     const { id } = await params
     const body = await request.json()
     const { estado } = body
@@ -123,6 +161,19 @@ export async function PATCH(
         success: false, 
         error: "Solicitud no encontrada." 
       }, { status: 404 })
+    }
+
+    // Seguridad: ¿El usuario tiene permiso sobre el centro de esta solicitud?
+    const usuarioAuth = await prisma.usuario.findUnique({
+      where: { id: userIdHeader },
+      include: { centros: true }
+    })
+
+    if (!usuarioAuth || !usuarioAuth.centros.some(c => c.id === existente.centroId)) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "No tiene permisos para cambiar el estado de esta solicitud." 
+      }, { status: 403 })
     }
 
     // Validar transición de estado (solo desde "Creada" se puede enviar a revisión)
