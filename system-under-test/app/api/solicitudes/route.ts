@@ -98,6 +98,23 @@ export async function POST(request: Request) {
       }, { status: 403 })
     }
 
+    // NUEVA VALIDACIÓN DE INTEGRIDAD: ¿El almacén pertenece al centro? (Solo para MATERIAL)
+    if (tipo === "MATERIAL" && almacenId) {
+      const almacenValido = await prisma.almacen.findFirst({
+        where: { 
+          id: almacenId,
+          centroId: centroId 
+        }
+      })
+
+      if (!almacenValido) {
+        return NextResponse.json({ 
+          success: false, 
+          error: `Regla de Negocio: El almacén ${almacenId} no pertenece al Centro ${centroId}.` 
+        }, { status: 400 })
+      }
+    }
+
     const count = await prisma.solicitud.count()
     const currentYear = new Date().getFullYear()
     const nextId = `PR-${currentYear}-${String(count + 1).padStart(4, '0')}`
