@@ -13,11 +13,22 @@ export async function GET(request: Request) {
 
     const usuario = await prisma.usuario.findUnique({ 
       where: { id: userIdHeader },
-      include: { roles: true }
+      include: { 
+        roles: true,
+        centros: true // Indispensable para el filtrado por centro
+      }
     })
 
     if (!usuario) {
       return NextResponse.json({ success: false, error: "Usuario no autorizado." }, { status: 403 })
+    }
+
+    // NUEVA VALIDACIÓN DE SEGURIDAD: Usuario debe estar Activo
+    if (usuario.estado !== "Activo") {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Acceso denegado: Su cuenta de usuario se encuentra Inactiva." 
+      }, { status: 403 })
     }
 
     // NUEVA LÓGICA DE FILTRADO POR ROL (US: Listar Solicitudes)
