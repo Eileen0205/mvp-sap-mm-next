@@ -262,11 +262,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     setSubmitStatus(null)
 
     try {
+      const method = isEditMode ? "PUT" : "POST";
       const endpoint = isEditMode
         ? `/api/solicitudes/${editingSolicitud?.id}`
-        : `/api/solicitudes`
+        : "/api/solicitudes";
 
-      const method = isEditMode ? "PUT" : "POST"
       // Enviar el usuario seleccionado en los headers (Simulando autenticacion)
       const res = await fetch(endpoint, {
         method,
@@ -515,7 +515,7 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
 
             {!isEditMode && userRole !== 'SOLICITANTE' && (
               <p className="text-center text-[10px] text-destructive font-medium italic">
-                * El rol actual ({userRole}) no tiene permisos para crear solicitudes de compra.
+                * El rol actual ({userRole}) solo tiene permisos de lectura global y soporte. La creación de solicitudes está reservada para el rol SOLICITANTE.
               </p>
             )}
           </form>

@@ -20,7 +20,22 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, error: "Usuario no autorizado." }, { status: 403 })
     }
 
+    // NUEVA LÓGICA DE FILTRADO POR ROL (US: Listar Solicitudes)
+    const isAprobador = usuario.roles.some(r => r.id === 'APROBADOR' || r.id === 'ATF')
+    const centroIds = usuario.centros.map(c => c.id)
+
+    const whereClause: any = {}
+    
+    if (!isAprobador) {
+      // Si es solo SOLICITANTE, solo ve las suyas
+      whereClause.usuarioId = usuario.id
+    } else {
+      // Si es APROBADOR, ve todas las de sus centros autorizados
+      whereClause.centroId = { in: centroIds }
+    }
+
     const solicitudes = await prisma.solicitud.findMany({
+      where: whereClause,
       orderBy: { id: 'desc' },
       include: {
         centro: true,
@@ -81,12 +96,29 @@ export async function POST(request: Request) {
       where: { id: userIdHeader },
       include: { 
         roles: true,
-        centros: true // Incluimos centros autorizados
+        centros: true 
       }
     })
 
     if (!usuario) {
       return NextResponse.json({ success: false, error: "Usuario no encontrado." }, { status: 401 })
+    }
+
+    // NUEVA VALIDACIÓN DE ROL: Solo SOLICITANTE puede crear
+    const isSolicitante = usuario.roles.some(r => r.id === 'SOLICITANTE')
+    if (!isSolicitante) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Acceso denegado: Solo el rol Solicitante puede crear nuevas solicitudes de compra." 
+      }, { status: 403 })
+    }
+
+    // NUEVA VALIDACIÓN DE DESCRIPCIÓN (Regla de Negocio EPIC-01)
+    if (descripcion.trim().length < 10 || descripcion.trim().length > 40) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Regla de Negocio: La descripción debe tener entre 10 y 40 caracteres." 
+      }, { status: 400 })
     }
 
     // NUEVA VALIDACIÓN: ¿El centro enviado es uno de los autorizados para este usuario?
