@@ -51,7 +51,6 @@ Estas consideraciones aplican a:
 
 - Validación Atómica: Todas las reglas de negocio deben validarse en el servidor de forma prioritaria.
 - Rollback: Si cualquiera de las validaciones falla, el sistema no debe crear ningún registro parcial. La operación debe ser "todo o nada"
-- Validación Descripción: Si la longitud del campo es <10 (aplicando trim para ignorar espacios vacíos), el sistema debe retornar el error: "La descripción es demasiado breve (mín. 10 caracteres)".
 - Validación de duplicados: El backend debe asegurar que un reintento de creación y/o modificación del usuario tras un fallo de red, no genere una solicitud duplicada.
 
 **Definición de Datos y Formatos (Casos de Borde)**
@@ -63,10 +62,12 @@ Estas consideraciones aplican a:
   - Bloqueo total de caracteres alfabéticos o especiales.
 
 - **Fecha de Entrega:**
-
+   
+  - El formato para la fecha debe ser ISO 8601 (YYYY-MM-DD)
   - Hoy: Es un valor válido (se toma como fecha límite el cierre del día del sistema). 
   - Pasado: Cualquier fecha (ej. Ayer) debe ser rechazada. 
   - Las validaciones de fecha deben realizarse siempre tomando como referencia la hora del servidor.
+  - Se deben validar fechas con formatos inválidos y fechas válidas con lógica real.
 
 - **Descripción:**
 
@@ -90,9 +91,12 @@ Estas consideraciones aplican a:
     * Forma y Fuente: Todos los estados deben tener el mismo redondeo de esquinas, el mismo tamaño de letra y el mismo espacio interno (padding).
     * Iconografía: Si se usa un icono para estados, debe ser el mismo en todo el sistema.
 - Visibilidad Dinámica del Almacén (Dependencia de Tipo)**
-    * El campo "Almacén" solo tiene sentido funcional para ítems de tipo **Material**.
-    * Formularios (Creación/Modificación/Detalle): Si el ítem es un "Servicio", el campo Almacén debe ocultarse por completo de la interfaz para evitar ruido visual.
-    * Listados (Tablas):La columna Almacén debe ser estática por estructura de datos, pero para servicios el valor debe mostrarse **vacío o con un guion ("-")**.
+    - El campo "Almacén" solo tiene sentido funcional para ítems de tipo **Material**.
+    - Formularios (Creación/Modificación/Detalle): Si el ítem es un "Servicio", el campo Almacén debe ocultarse por completo de la interfaz para evitar ruido visual.
+    - Listados (Tablas):La columna Almacén debe ser estática por estructura de datos, pero para servicios el valor debe mostrarse **vacío o con un guion ("-")**.
+- Deshabilitación de botones de acción y estados: 
+    - Los botones que sean deshabilitados en el sistema porque no se cumple una regla para continuar con la funcionalidad deben cambiar a un color "Gris" para que el usuario no realice clics innecesarios.
+    - Los botones de estados deben ser visibles teniendo en cuenta los permisos por Rol y estado.
 
 **Gestión de Errores**
 
@@ -113,7 +117,7 @@ Estas consideraciones aplican a:
     - A nivel de interfaz
     - Como en la lógica de negocio.
 
-- Cualquier cambio de estado de usuario a 'Inactivo' debe invalidar inmediatamente su sesión activa y bloquear cualquier intento de persistencia en curso".
+- Cualquier cambio de estado de usuario a 'Inactivo' debe invalidar inmediatamente su sesión activa y bloquear cualquier intento de persistencia en curso.
 
 **Fallos de Sistema (fallos inesperados de infraestructura o conectividad)**
 
@@ -130,6 +134,6 @@ Estas consideraciones aplican a:
 
 - Los mensajes de error de validación (ej. fecha inválida) deben aparecer junto al campo que contiene el error.
 - Mientras se crea o se guarda la modificación de una solicitud, el sistema deberá mostrar un indicador de carga (ej.un spinner) para informar al usuario que la operación está en proceso.
-- Tras una guardado exitoso, se debe mostrar un mensaje de confirmación temporal.
+- Tras una guardado exitoso, se debe mostrar un mensaje de confirmación de éxito.
 - En el listado de solicitudes, se debe verificar que si una descripción es muy larga, se trunque correctamente, para no romper el diseño de la tabla, pero que sea legible al 100% en el Detalle.
  

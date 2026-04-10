@@ -36,7 +36,24 @@
 - **RN12:** Si ocurre un error durante el guardado, no deben persistir cambios parciales en la solicitud.
 - **RN13:** Las validaciones de formato, obligatoriedad y fecha de entrega no pasada aplican conforme a lo definido en US-01.
 
-## 4. Escenarios y Criterios de Aceptación (AC)
+## 4. Criterios de Aceptación
+
+- AC01: Modificación de solicitud exitosa
+- AC02a: Control de modificación por rol
+- AC02b: Control de modificación por propiedad de la solicitud (propietario)
+- AC02c: Control de modificación por estado de usuario (activo/inactivo)
+- AC03a: Validaciones de campos obligatorios
+- AC03b: Validación de descripción (mínimo/máximo)
+- AC03c: Validación de cantidad (formato, decimales, límite)
+- AC03d: Validación de fecha (pasado/formato)
+- AC04: Inmutabilidad de campos clave (ítem, centro, almacén)
+- AC05: Control de modificación de solicitudes inexistentes
+- AC07: Control de duplicidad por modificación
+- AC08a: Restricción de edición por estado en interfaz (UI)
+- AC08b: Restricción de edición por estado vía URL/directa
+- AC09: Manejo de errores inesperados y performance
+
+## 5. Escenarios y 
 
 > Nota: Algunos escenarios redefinen el contexto fuera del Background para cubrir casos negativos específicos.
 
@@ -89,9 +106,7 @@ Background:
               | Descripción   | MTTO       | Debe tener entre 10 y 40 caracteres | 
               | Cantidad      | -5         | Cantidad debe ser mayor que 0       |   
               | Fecha Entrega | 32/05/2014 | Fecha Inexistente                   |
-
-             
-      
+     
       @US-02 @negative @fecha
       Scenario: Intento de modificación de solicitud con una fecha en el pasado
        
@@ -194,7 +209,7 @@ Background:
               Then el sistema notifica que los cambios no se guardaron
               And no persisten cambios en el sistema
 ```
-## 5. Consideraciones de QA
+## 6. Consideraciones de QA
 
 > Nota: Aplican las Consideraciones Generales QA definidas para EPIC-01
 > Los formatos y límites específicos de cada campo se detallan en Consideraciones Generales QA EPIC-01.
@@ -208,7 +223,7 @@ Background:
 
 - Usuarios sin el rol Solicitante o en estado Inactivo no deben visualizar el botón "Modificar Solicitud". Si intentan acceder por URL directa, el sistema debe bloquear el acceso y mostrar un mensaje de acceso denegado.
 
-## 6. DoD (Definition of Done)
+## 7. DoD (Definition of Done)
 
 - Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación).
 
@@ -219,13 +234,13 @@ Además específicamente para la US:
 - Verificación de que los campos no modificables permanezcan en modo "Solo Lectura".
 - Verificación de la no duplicidad luego de una modificación según reglas definidas.
 
-## 7. Dependencias
+## 8. Dependencias
 
 - **EPIC-01 / US-01**: Debe existir una solicitud válida creada.
 - **EPIC-02**: La solicitud debe estar en estado `Creada` para poder modificarse.
 - **EPIC-03**: Autenticación, rol **Solicitante** y permisos sobre el centro.
 
-## 8. Metadatos
+## 9. Metadatos
 
 - **Prioridad**: Alta
 - **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `ModificarSolicitudDeCompra`

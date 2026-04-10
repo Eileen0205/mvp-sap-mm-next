@@ -29,7 +29,19 @@ Esta historia debe cumplir el DoR definido para el MVP y la **EPIC-01**. No se c
 - **RN11**: El sistema debe bloquear el acceso y mostrar un mensaje de error funcional si un usuario intenta acceder a una solicitud para la que no tiene permisos.
 - **RN12**: El sistema debe gestionar de forma controlada los intentos de acceso a solicitudes con identificadores inexistentes o con formato inválido, mostrando un mensaje claro (ej. "Solicitud no encontrada") sin exponer errores técnicos.
 
-## 4. Criterios de Aceptación y Escenarios (Gherkin)
+## 4. Criterios de Aceptación 
+
+- AC01a: Visibilidad de solicitud propia según estado
+- AC01b: Visibilidad de solicitud en ámbito Aprobador según estado
+- AC01c: Visibilidad de solicitud en ámbito Administrador según estado
+- AC02: Integridad de datos y visualización de campos mínimos (Material/Servicio)
+- AC03: Control de acceso y privacidad (usuario inactivo, no autenticado, ID ajeno, inexistente o formato inválido)
+- AC04: Restricción de acciones según estado final y rol (UI: botones de acción)
+- AC05: Manejo de solicitudes con datos inconsistentes o solicitante inexistente
+- AC06: Performance básico (< 2s)
+- AC07: Consistencia de datos Backend vs UI
+
+## 5. Escenarios (Gherkin)
 
 ```gherkin
 
@@ -129,7 +141,15 @@ And está marcado como "Activo"
             | PR-2026-0003 | Administrador Técnico/Funcional | Aprobada     |
             | PR-2026-0004 | Administrador Técnico/Funcional | Rechazada    |
 
+      @US-03 @seguridad @vulnerabilidad
+      Scenario: Intento de manipulación técnica para editar solicitudes cerradas
 
+            Given el usuario tiene rol "Solicitante"
+            And existe una la solicitud en estado distintos de "Creada"
+            When el usuario intenta forzar la edición mediante acceso directo a la URL o vía API (Postman)
+            Then el sistema bloquea la acción
+            And no se modifican los datos en la base de datos
+      
       @US-03 @edge_case @usuario_solicitante_inexistente
       Scenario: Visualización de solicitud con datos de usuario inconsistentes
       
@@ -160,7 +180,7 @@ And está marcado como "Activo"
             | Aprobador   | PR-2026-0005 |
 
 ```
-## 5. Consideraciones de QA
+## 6. Consideraciones de QA
 
 Además de las Consideraciones Generales QA definidas para EPIC-01, se deberá tener en cuenta:
 - La validación de permisos por rol y Centro asignado debe realizarse en backend, no solo en la interfaz.
@@ -168,7 +188,7 @@ Además de las Consideraciones Generales QA definidas para EPIC-01, se deberá t
 - El detalle mostrado debe reflejar fielmente los datos persistidos.
 - El sistema debe manejar correctamente accesos no autorizados o IDs inexistentes sin exponer información técnica.
 
-## 6. DoD (Definition of Done)
+## 7. DoD (Definition of Done)
 
 - Esta historia debe cumplir el DoD definido para el MVP (ver EPIC-01) y US-01 (Creación).
 
@@ -177,7 +197,7 @@ Además específicamente para la US:
 - Confirmación de que el estado mostrado corresponde con el registrado en la BD.
 - Confirmación de que desde la pantalla de visualización no se podrán editar campos y que el acceso a las distintas acciones sobre la solicitud (Modificar Solicitud, Enviar a Revisión, Aprobar y Rechazar) serán visibles respetando roles y estado de la solicitud.
 
-## 7. Dependencias
+## 8. Dependencias
 
 **Épicas:**
 
@@ -193,6 +213,6 @@ Además específicamente para la US:
 - Inicio de Sesión.
 - Control de Acceso por Rol.
 
-## 8. Metadatos
+## 9. Metadatos
 - **Prioridad**: Alta
 - **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `VisualizarSolicitudDeCompra`

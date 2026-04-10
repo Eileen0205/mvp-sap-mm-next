@@ -1,0 +1,3203 @@
+{
+  "info": {
+    "_postman_id": "b59c4608-a982-4be9-bc5b-3d6378378d95",
+    "name": "MGDC | PR Flow",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "53138874",
+    "_collection_link": "https://go.postman.co/collection/53138874-b59c4608-a982-4be9-bc5b-3d6378378d95?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "00 | Setup & Health | Smoke Testing",
+      "item": [
+        {
+          "name": "01 | Validando catálogos de datos maestros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar Status Code y Performance básico - Health Response",
+                  "pm.test(\"Status Code correcto. Catálogos existentes\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"El tiempo de respuesta es menor a 2000ms\", function () {",
+                  "     pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});    ",
+                  "",
+                  "// Validar que cada catalogo tiene una estructura correcta (SCHEMA)",
+                  "const response = pm.response.json();",
+                  "const catalogos = [\"centros\", \"almacenes\", \"materiales\", \"servicios\", \"unidadesMedida\"];",
+                  "",
+                  "    catalogos.forEach(seed => { pm.test(\"El catalogo \" + seed + \" tiene una estructura correcta\", function () {",
+                  "        //Validar que existe",
+                  "        pm.expect(response.data).to.have.property(seed); ",
+                  "        //Validar que es un array",
+                  "        pm.expect(response.data[seed]).to.be.an(\"array\");",
+                  "        //Validar que el array is not Empty",
+                  "        pm.expect(response.data[seed]).to.not.be.empty;",
+                  "        }); ",
+                  "    });",
+                  "",
+                  "    //Validaciones de Negocio",
+                  "    //Centro1000",
+                  "    pm.test(\"El catalogo de Centros principal está cargado y es correcto\", function () {",
+                  "       //Buscando el Centro1000",
+                  "            const centro = response.data.centros.find(c => c.id === \"1000\");",
+                  "       //Verificando si lo encontró en el catalogo",
+                  "             pm.expect(centro,\"El centro con id 1000 no existe\").to.exist;",
+                  "       //Verificando que el nombre del centro es correcto",
+                  "             pm.expect(centro.nombre).to.include(\"Logístico Central\");",
+                  "        });",
+                  "    //Almacen pertenece a Centro1000",
+                  "    pm.test(\"El Almacen pertenece al centro principal, está cargado y es correcto\", function () {",
+                  "        //Buscar el almacen ALM1",
+                  "        const almacen = response.data.almacenes.find(a => a.id === \"ALM1\");",
+                  "        //Verificar si lo encontró",
+                  "        pm.expect(almacen, \"No se encontró almacen en el centro 1000\").to.exist;",
+                  "        //Verificar que el nombre del almacen es correcto",
+                  "        pm.expect(almacen.nombre, \"El nombre del almacen no es correcto\").to.include(\"Materia Prima\");",
+                  "        //Verificar que el ALM1 pertence al Centro1000",
+                  "        pm.expect(almacen.centroId, \"El almacen no pertenece al centro 1000\").to.equal(\"1000\");",
+                  "    });",
+                  "",
+                  "    //Validar que existe MAT-0001",
+                  "    pm.test(\"El material MAT-0001 existe en el catalogo\", function () {",
+                  "        const material = response.data.materiales.find(m => m.id === \"MAT-0001\");",
+                  "        pm.expect(material, \"No se encontró el material MAT-0001\").to.exist;",
+                  "        //Validar nombre de MAT-0001",
+                  "        pm.expect(material.nombre, \"El nombre del material MAT-0001 es incorrecto\").to.equal(\"Tornillos de Acero 1/2\");",
+                  "        });",
+                  "    //Validar que existe SRV-0001",
+                  "    pm.test(\"El servicio SRV-0001 existe en el catalogo\", function () {",
+                  "        const servicio = response.data.servicios.find(s => s.id === \"SRV-0001\");",
+                  "        pm.expect(servicio, \"No se encontró el servicio SRV-0001\").to.exist;",
+                  "        //Validar nombre de SRV-0001",
+                  "        pm.expect(servicio.nombre, \"El nombre del servicio SRV-0001 es incorrecto\").to.equal(\"Mantenimiento Preventivo Aire\");",
+                  "        }); ",
+                  "    //Validar que existe al menos una unidad de unidadesMedida",
+                  "    pm.test(\"El unidad de medida KG está cargada y es correcta\", function () {",
+                  "        const unidadesMedida = response.data.unidadesMedida;",
+                  "        pm.expect(unidadesMedida.length, \"El catalogo unidadesMedida no tiene ninguna unidad\").to.be.above(0);",
+                  "        //Validar UM-KG",
+                  "        pm.expect(unidadesMedida.some(um => um.id === \"KG\" && um.nombre === \"Kilogramos\"), \"La unidad de medida KG no existe\").to.be.true;",
+                  "    });",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "    ",
+                  "    ",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true,
+            "disabledSystemHeaders": {
+              "content-type": true
+            }
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/catalogos",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "catalogos"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "02 | Solicitud de compra de materiales (SMOKE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar Status Code\r",
+                  "pm.test(\"Solicitud de material creada exitosamente\", function () {\r",
+                  "    pm.response.to.have.status(201);\r",
+                  "});\r",
+                  "// Validar Performance Básico\r",
+                  "pm.test(\"Tiempo de respuesta menor a 2000ms\", function () {\r",
+                  "     pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                  "});\r",
+                  "\r",
+                  "// Vaalidar SCHEMA json\r",
+                  "const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\"));\r",
+                  "pm.test(\"El SCHEMA cumple con el contrato definido\", function () {\r",
+                  "     pm.response.to.have.jsonSchema(schema);\r",
+                  "     });\r",
+                  "\r",
+                  "//Validar Persistencia\r",
+                  "const jsonData = pm.response.json();\r",
+                  "pm.test(\"Se ha creado la solicitud con éxito\", function () {\r",
+                  " pm.expect(jsonData.success).to.be.true;\r",
+                  " pm.expect(jsonData.data.id).to.exist;\r",
+                  "if(jsonData.success){\r",
+                  "    pm.collectionVariables.set(\"idSolicitudSmoke\", jsonData.data.id);\r",
+                  "}\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generamos la fecha dinámica\r",
+                  "let fecha = new Date();\r",
+                  "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                  "\r",
+                  "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                  "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                  "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                  "let yyyy = fecha.getFullYear();\r",
+                  "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                  "\r",
+                  "//Generamos una descripción única para cada solicitud\r",
+                  "const descripcionUnica = \"Solicitud de Materiales desde API \" + Math.random().toString(36).substring(7);\r",
+                  "//Generamos una cantidad única para cada solicitud\r",
+                  "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                  "\r",
+                  "\r",
+                  "// Guardamos la variables\r",
+                  "pm.collectionVariables.set(\"tipo_material_Smoke\", \"MATERIAL\");\r",
+                  "pm.collectionVariables.set(\"itemComprableNombre_Smoke\", \"Tornillos de Acero 1/2\");\r",
+                  "pm.collectionVariables.set(\"descripcion_Smoke\", descripcionUnica);\r",
+                  "pm.collectionVariables.set(\"cantidad_Smoke\", cantidadUnica);\r",
+                  "pm.collectionVariables.set(\"fecha_futura_aleatoria_Smoke\", fechaLimpia);\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "content-type": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\"tipo\": \"{{tipo_material_Smoke}}\",\r\n\"itemComprableId\": \"{{mat_id_seed}}\",\r\n\"descripcion\": \"{{descripcion_Smoke}}\",\r\n\"cantidad\": {{cantidad_Smoke}},\r\n\"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\r\n\"fechaEntrega\": \"{{fecha_futura_aleatoria_Smoke}}\",\r\n\"centro\": \"{{centro_seed}}\",\r\n\"almacen\": \"{{almacen_seed}}\"\r\n}\r\n\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "03 | Solicitud de compra de servicios (SMOKE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar Status Code",
+                  "pm.test(\"Solicitud creada exitosamente\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "// Validar Performance Básico",
+                  "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                  "pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});",
+                  "",
+                  "//Validar SCHEMA json",
+                  "const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\"));",
+                  "pm.test(\"El SCHEMA de la respuesta coincide con el esperado\", function () {",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "});",
+                  "",
+                  "// Validar Persistencia",
+                  "const jsonData = pm.response.json();",
+                  "",
+                  "pm.test(\"La solicitud se ha guardado correctamente\", function () {",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.data.id).to.exist;",
+                  "    if (jsonData.success)",
+                  "    { pm.collectionVariables.set(\"idSolicitudSmoke\", jsonData.data.id); }",
+                  "});",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Generamos la fecha dinámica\r",
+                  "const fecha = new Date();\r",
+                  "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                  "\r",
+                  "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                  "\r",
+                  "const dd = String(fecha.getDate()).padStart(2, '0');\r",
+                  "const mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                  "const yyyy = fecha.getFullYear();\r",
+                  "const fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                  "const descripcionUnica = \"Solicitud de SERVICIO desde API \" + Math.random().toString(36).substring(7);\r",
+                  "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                  "\r",
+                  "// Guardamos la variables\r",
+                  "pm.collectionVariables.set(\"tipo_Servicio_Smoke\", \"SERVICIO\");\r",
+                  "pm.collectionVariables.set(\"itemComprableNombre_Servicio_Smoke\", \"Mantenimiento Preventivo Aire\");\r",
+                  "pm.collectionVariables.set(\"descripcion_Servicio_Smoke\", descripcionUnica);\r",
+                  "pm.collectionVariables.set(\"cantidad_Servicio_Smoke\", cantidadUnica);\r",
+                  "pm.collectionVariables.set(\"fecha_futura_aleatoria_Servicio_Smoke\", fechaLimpia);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n \"tipo\": \"{{tipo_Servicio_Smoke}}\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"itemComprableNombre\": \"{{itemComprableNombre_Servicio_Smoke}}\",\n \"descripcion\": \"{{descripcion_Servicio_Smoke}}\",\n \"cantidad\": \"{{cantidad_Servicio_Smoke}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria_Servicio_Smoke}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        },
+        {
+          "name": "04 | Obtener solicitud por ID (SMOKE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar Status Code",
+                  "pm.test(\"Validación de persistencia exitosa\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "// Validando performance Básico",
+                  "pm.test(\"Tiempo de respuesta menor a 2000ms\", function () {  ",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});",
+                  "",
+                  "//Validar SCHEMA",
+                  "const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\")); ",
+                  "pm.test(\"El SCHEMA de la respuesta es correcto\", function () {",
+                  "    pm.response.to.have.jsonSchema(schema);",
+                  "    });",
+                  "",
+                  "const solicitud = pm.response.json().data; // Obtener los datos de la respuesta",
+                  "",
+                  "// Valida que la solicitud existe",
+                  "pm.test(\"La solicitud existe\", function () {",
+                  "    pm.expect(solicitud).to.exist;",
+                  "});",
+                  "",
+                  "// Valida que el id de la solicitud es correcto",
+                  "",
+                  "const idEsperado = pm.collectionVariables.get(\"idSolicitudSmoke\"); ",
+                  "pm.test(\"El id de la solicitud es correcto\", function () {",
+                  "    pm.expect(idEsperado, \"El ID esperado está vacío\").to.exist;",
+                  "    pm.expect(solicitud.id).to.equal(idEsperado);",
+                  "});",
+                  "",
+                  "",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true,
+            "disabledSystemHeaders": {
+              "content-type": true
+            }
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes/{{idSolicitudSmoke}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes",
+                "{{idSolicitudSmoke}}"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "01 | Functional Flows",
+      "item": [
+        {
+          "name": "01 | EPIC-01 | Gestión de Solicitud de Compra",
+          "item": [
+            {
+              "name": "01 | US-01 | Crear Solicitud de Compra",
+              "item": [
+                {
+                  "name": "01 | Happy Path",
+                  "item": [
+                    {
+                      "name": "01 | Solicitud de compra de materiales",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// -------STATUS CODE - PERFORMANCE BÁSICO -------------------",
+                              "pm.test(\"Solicitud de materiales creada exitosamente\", function () {",
+                              "    pm.response.to.have.status(201);",
+                              "});",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000)",
+                              "});",
+                              "",
+                              "//------- CONTRATO GLOBAL (SCHEMA JSON)--------------------",
+                              "pm.test(\"El SCHEMA JSON cumple el contrato global\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "// -------ESTADO INICIAL AUTOMATICO DE LA SOLICITUD: \"Creada\"-------------------------",
+                              " ",
+                              "const jsonData = pm.response.json();",
+                              "pm.test(\"La solicitud se crea y se asigna automaticamente el estado Creada\", function () {",
+                              "    pm.expect(jsonData.data.estado).to.eql(\"Creada\");",
+                              "});",
+                              "",
+                              "// -------------CONSISTENCIA E INTEGRIDAD DEL NEGOCIO (Request & Response)-------------------",
+                              "",
+                              "pm.test(\"Los datos guardadon en la base de datos son consistentes con los datos enviados\", function () {",
+                              "    const tipo_esperado = pm.collectionVariables.get(\"tipo_material\");",
+                              "    const itemComprableIdMat_esperado = pm.collectionVariables.get(\"mat_id_seed\");",
+                              "    const descripcion_esperada = pm.collectionVariables.get(\"descripcion_material\");",
+                              "    const cantidad_esperada = Number(pm.collectionVariables.get(\"cantidad_material\")).toFixed(3);",
+                              "    const unidadMedida_esperada = pm.collectionVariables.get(\"unidad_medida_mat_seed\");",
+                              "    const fecha_esperada = pm.collectionVariables.get(\"fecha_futura_aleatoria_material\");",
+                              "    const centro_esperado = pm.collectionVariables.get(\"centro_seed\");",
+                              "    const almacen_esperado = pm.collectionVariables.get(\"almacen_seed\");",
+                              "",
+                              "    //----COMPARAMOS RESULTADO ESPERADO",
+                              "    pm.expect(jsonData.data.tipo).to.equal(tipo_esperado); ",
+                              "    pm.expect(jsonData.data.materialId).to.equal(itemComprableIdMat_esperado); ",
+                              "    pm.expect(jsonData.data.descripcion).to.equal(descripcion_esperada); ",
+                              "    pm.expect(Number(jsonData.data.cantidad).toFixed(3)).to.equal(cantidad_esperada); ",
+                              "    pm.expect(jsonData.data.unidadMedidaId).to.equal(unidadMedida_esperada);",
+                              "    pm.expect(jsonData.data.fecha).to.equal(fecha_esperada);",
+                              "    pm.expect(jsonData.data.centroId).to.equal(centro_esperado);",
+                              "    pm.expect(jsonData.data.almacenId).to.equal(almacen_esperado);",
+                              "});",
+                              "",
+                              "    // --------------------PERSISTENCIA------------------------------------",
+                              "",
+                              "pm.test(\"La solicitud persiste en la base de datos correctamente\", function () {",
+                              "    pm.expect(jsonData.success).to.be.true;",
+                              "    pm.expect(jsonData.data.id).to.exist.and.to.match(/^PR-2026-\\d{4}$/);",
+                              "    pm.collectionVariables.set(\"id_material_creado\", jsonData.data.id);",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generamos la fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "// Guardamos la variables\r",
+                              "pm.collectionVariables.set(\"tipo_material\", \"MATERIAL\");\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);\r",
+                              "pm.collectionVariables.set(\"cantidad_material\", cantidadUnica);\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria_material\", fechaLimpia);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "x-mock-response-name",
+                            "value": "Error  Técnico Code 500",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n\"tipo\": \"{{tipo_material}}\",\r\n\"itemComprableId\": \"{{mat_id_seed}}\",\r\n\"descripcion\": \"{{descripcion_material}}\",\r\n\"cantidad\": {{cantidad_material}},\r\n\"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\r\n\"fechaEntrega\": \"{{fecha_futura_aleatoria_material}}\",\r\n\"centro\": \"{{centro_seed}}\",\r\n\"almacen\": \"{{almacen_seed}}\"\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": [
+                        {
+                          "name": "Error500",
+                          "originalRequest": {
+                            "method": "POST",
+                            "header": [],
+                            "body": {
+                              "mode": "raw",
+                              "raw": "{\r\n\"tipo\": \"{{tipo_material}}\",\r\n\"itemComprableId\": \"{{mat_id_seed}}\",\r\n\"descripcion\": \"{{descripcion_material}}\",\r\n\"cantidad\": {{cantidad_material}},\r\n\"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\r\n\"fechaEntrega\": \"{{fecha_futura_aleatoria_material}}\",\r\n\"centro\": \"{{centro_seed}}\",\r\n\"almacen\": \"{{almacen_seed}}\"\r\n}",
+                              "options": {
+                                "raw": {
+                                  "language": "json"
+                                }
+                              }
+                            },
+                            "url": {
+                              "raw": "{{base_url}}/solicitudes",
+                              "host": [
+                                "{{base_url}}"
+                              ],
+                              "path": [
+                                "solicitudes"
+                              ]
+                            }
+                          },
+                          "code": 500,
+                          "_postman_previewlanguage": "",
+                          "header": [],
+                          "cookie": [
+                            {
+                              "expires": "Invalid Date",
+                              "domain": "",
+                              "path": ""
+                            }
+                          ],
+                          "body": "{\r\n    \"success\": false,\r\n    \"error\": \"Estamos experimentando problemas técnicos, intenta más tarde.\"\r\n}"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "02 | Solicitud de compra de servicios",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "//----------STATUS CODE Y PERFORMANCE BÁSICO",
+                              "pm.test(\"Solicitud creada exitosamente\", function () {",
+                              "    pm.response.to.have.status(201);",
+                              "});",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "// --------------CONTRATO GLOBAL (SCHEMA JSON)----------------------",
+                              "pm.test(\"El SCHEMA JSON de la respuesta coincide con el contrato global\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// -----------ESTADO INICIAL AUTOMATICO DE LA SOLICITUD: \"Creada\"-------------",
+                              "const jsonData = pm.response.json();",
+                              "pm.test(\"La solicitud se crea exitosamente y se asigna el estado 'Creada'\", function () {",
+                              "    pm.expect(jsonData.success).to.be.true;",
+                              "    pm.expect(jsonData.data.estado).to.eql(\"Creada\");",
+                              "});",
+                              "",
+                              "//-------------CONSISTENCIA E INTEGRIDAD DEL NEGOCIO (Request & Response)-------------------",
+                              "",
+                              "const tipo_esperado = pm.collectionVariables.get(\"tipo_servicio\");",
+                              "const itemComprableIdServ_esperado = pm.collectionVariables.get(\"srv_id_seed\");",
+                              "const descripcion_esperada = pm.collectionVariables.get(\"descripcion_Serv\");",
+                              "const cantidad_esperada = Number(pm.collectionVariables.get(\"cantidad_Serv\")).toFixed(3); ",
+                              "const unidadMedida_esperada = pm.collectionVariables.get(\"unidad_medida_srv_seed\"); ",
+                              "const fecha_esperada = pm.collectionVariables.get(\"fecha_futura_aleatoria_Serv\");",
+                              "const centro_esperado = pm.collectionVariables.get(\"centro_seed\"); ",
+                              "",
+                              "",
+                              "pm.test(\"Los datos enviados son válidos y coinciden con los esperados\", function () {",
+                              "    pm.expect(jsonData.data.tipo).to.eql(tipo_esperado);",
+                              "    pm.expect(jsonData.data.servicioId).to.eql(itemComprableIdServ_esperado);",
+                              "    pm.expect(jsonData.data.descripcion).to.eql(descripcion_esperada);",
+                              "    pm.expect(Number(jsonData.data.cantidad).toFixed(3)).to.eql(cantidad_esperada);",
+                              "    pm.expect(jsonData.data.unidadMedidaId).to.eql(unidadMedida_esperada);",
+                              "    pm.expect(jsonData.data.fechaEntrega).to.eql(fecha_esperada);",
+                              "    pm.expect(jsonData.data.centroId).to.eql(centro_esperado);",
+                              "    pm.expect(jsonData.data.almacenId).to.eql(null); // Almacen no debe estar definido",
+                              "});",
+                              "",
+                              " // --------------------PERSISTENCIA------------------------------------",
+                              " pm.test(\"Se persiste la solicitud en la base de datos con datos válidos\", function () {",
+                              "    pm.expect(jsonData.success).to.be.true;",
+                              "    pm.expect(jsonData.data.id).to.exist.and.to.match(/^PR-2026-\\d{4}$/);",
+                              "    pm.collectionVariables.set(\"id_servicio_creado\", jsonData.data.id);",
+                              " });",
+                              "",
+                              "",
+                              "",
+                              "",
+                              "",
+                              "",
+                              "",
+                              "",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "//Validamos la fecha dinámica\r",
+                              "const fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "\r",
+                              "const dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "const mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "const yyyy = fecha.getFullYear();\r",
+                              "const fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de SERVICIO desde API \" + Math.random().toString(36).substring(7);\r",
+                              "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "// Guardamos la variables\r",
+                              "pm.collectionVariables.set(\"tipo_servicio\", \"SERVICIO\");\r",
+                              "pm.collectionVariables.set(\"descripcion_Serv\", descripcionUnica);\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidadUnica);\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria_Serv\", fechaLimpia);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "cookie",
+                            "value": "{{cookie}}",
+                            "type": "text"
+                          },
+                          {
+                            "key": "Content-Type",
+                            "value": "application/json",
+                            "type": "text",
+                            "disabled": true
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"{{tipo_servicio}}\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"{{descripcion_Serv}}\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria_Serv}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "02 | Validaciones Reglas de Negocio",
+                  "item": [
+                    {
+                      "name": "03 | Solicitud de compra con campos obligatorios vacíos",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "//  --------STATUS CODE Y PERFORMANCE BÁSICO------------------",
+                              "pm.test(\"Solicitud no creada. Existen campos obligatorios vacíos\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//------- CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"La respuesta cumple con el contrato global (schema JSON)\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "//-------FEEDBACK Y NO PERSISTENCIA--------------------------------------",
+                              "",
+                              "pm.test(\"Feedback de error y no persistencia de la solicitud\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false; ",
+                              "    pm.expect(jsonData.error).to.include(\"campos obligatorios\"); ",
+                              "    //pm.expect(jsonData.data).to.be.null; ",
+                              "    });",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"\",\n \"cantidad\": \"\",\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"\",\n \"almacen\": \"{{almacen_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "04 | Crear solicitud Duplicada",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "//  --------STATUS CODE Y PERFORMANCE BÁSICO------------------",
+                              "pm.test(\"Solicitud ya existente\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//-----------CONTRATO GLOBAL (SCHEMA JSON ERROR)-------------------------",
+                              "pm.test(\"El Schema JSON de error es el esperado\", function(){",
+                              "    const schema = pm.collectionVariables.get(\"schema_error\");",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "",
+                              "//-------FEEDBACK Y NO PERSISTENCIA--------------------------------------",
+                              "",
+                              "pm.test(\"Feedback de error y no persistencia de la solicitud\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false; ",
+                              "    pm.expect(jsonData.error).to.include(\"Ya existe\"); ",
+                              "    //pm.expect(jsonData.data).to.be.null; ",
+                              "    });",
+                              "",
+                              "",
+                              "",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "cookie",
+                            "value": "{{cookie}}",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"SRV-0001\",\n \"descripcion\": \"Test de Duplicidad\",\n \"cantidad\": \"12\",\n \"unidadMedida\": \"HRS\",\n \"fechaEntrega\": \"22/04/2026\",\n \"centro\": \"1000\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "05 | Crear solicitud de Material sin Almacén",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// -------------STATUS CODE Y PERFORMANCE BÁSICO--------------------------------",
+                              "pm.test(\"Solicitud no puede ser creada porque no tiene Almacén\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(3000);",
+                              "});",
+                              "",
+                              "//-------------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------",
+                              "pm.test(\"El Shema Error recibido es el correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "//----------FEEDBACK Y NO PERSISTENCIA------------------------------------",
+                              "const jsonData = pm.response.json();",
+                              "pm.test(\"Feedback Correcto y data no persistida\", function () {",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"Error\");",
+                              "});",
+                              "    ",
+                              "",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generamos la fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"{{descripcion_material}}\",\n \"cantidad\": 50,\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\",\n \"almacen\": \"\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "06 | Solicitud de compra con Almacén no perteneciente al Centro",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// ----------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------- ",
+                              "pm.test(\"Solicitud no puede ser creada porque el Almacén no pertenece al Centro\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "// -----------CONTRATO GLOBAL (SCHEMA JSON ERROR)-----------",
+                              "pm.test(\"El Schema JSON de la respuesta es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// -----------FEEDBACK Y NO PERSISTENCIA",
+                              "pm.test(\"Feedback correcto y no persistencia en la base de datos\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"no pertenece al Centro\");",
+                              "    });",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generar fecha dinámica\r",
+                              "let fechaFuturaAleatoria = new Date();\r",
+                              "fechaFuturaAleatoria.setDate(fechaFuturaAleatoria.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "//Formatear Fecha DD/MM/YYYY\r",
+                              "let dd = String(fechaFuturaAleatoria.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fechaFuturaAleatoria.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fechaFuturaAleatoria.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "\r",
+                              "//Generar descripcion dinámica\r",
+                              "const descripcion_aleatoria = `Almacén no pertenece a Centro ${Math.floor(Math.random() * 1000)}`;\r",
+                              "//Generar cantidad dinámica\r",
+                              "const cantidad_aleatoria = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcion_aleatoria);\r",
+                              "pm.collectionVariables.set(\"cantidad_material\", cantidad_aleatoria);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n    \"tipo\": \"MATERIAL\",\n    \"itemComprableId\": \"{{mat_id_seed}}\",\n    \"descripcion\": \"{{descripcion_material}}\",\n    \"cantidad\": \"{{cantidad_material}}\",\n    \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n    \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n    \"centro\": \"{{centro_seed}}\",\n    \"almacen\": \"ALM3\"\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "07 | Crear Solicitud en Centro no Autorizado",
+                      "event": [
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generar fecha dinámica \r",
+                              "let fechaFuturaAleatoria = new Date();\r",
+                              "fechaFuturaAleatoria.setDate(fechaFuturaAleatoria.getDate() + Math.floor(Math.random() * 90) + 1); \r",
+                              "//Formatear fecha\r",
+                              "const dd = String(fechaFuturaAleatoria.getDate()).padStart(2, '0');\r",
+                              "const mm = String(fechaFuturaAleatoria.getMonth() + 1).padStart(2, '0');\r",
+                              "const yyyy = fechaFuturaAleatoria.getFullYear();\r",
+                              "const fecha_limpia = `${dd}/${mm}/${yyyy}`\r",
+                              "//Generar descripcion dinámica\r",
+                              "const descripcion = 'Centro no Autorizado' + Math.floor(Math.random() * 1000);\r",
+                              "//Generar cantidad dinámica\r",
+                              "const cantidad = Math.floor(Math.random() * 1000);\r",
+                              "\r",
+                              "//Guardar datos dinámicos \r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fecha_limpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcion);\r",
+                              "pm.collectionVariables.set(\"cantidad_material\", cantidad);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// -------STATUS CODE Y PERFORMANCE BÁSICO------------\r",
+                              "\r",
+                              "pm.test(\"Status code is 403\", function () {\r",
+                              "    pm.response.to.have.status(403);\r",
+                              "});\r",
+                              "\r",
+                              "pm.test(\"El tiempo de respuesta es aceptable\", function () {\r",
+                              "    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                              "});\r",
+                              "\r",
+                              "//-------------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------\r",
+                              "pm.test(\"El SCHEMA de la respuesta es correcto\", function () {\r",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));\r",
+                              "    pm.response.to.have.jsonSchema(schema);\r",
+                              "});\r",
+                              "\r",
+                              "//-------------FEEDBACK Y NO PERSISTENCIA-----------------------------\r",
+                              "pm.test(\"El Feedback es correcto y no hubo persistencia\", function () {\r",
+                              "    const jsonData = pm.response.json();\r",
+                              "    pm.expect(jsonData.success).to.be.false;\r",
+                              "    pm.expect(jsonData.error).to.include(\"Centro 3000\");\r",
+                              "\r",
+                              "});\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"{{{descripcion_material}}\",\n \"cantidad\": \"{{cantidad_material}}\",\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"3000\",\n \"almacen\": \"ALM4\" \n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        }
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "03 | Validaciones de Campo y Formato",
+                  "item": [
+                    {
+                      "name": "01 | Crear solicitud con Descripción fuera de límite (mínimo)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"10 y 40 caracteres\");",
+                              "});",
+                              "",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "//Generar fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const cantidad = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidad);\r",
+                              "//pm.variables.set(\"fecha_negative\", fechaLimpia);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"MTTO\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "02 | Crear solicitud con Descripción fuera de límite (máximo)",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- \r",
+                              "pm.test(\"Status Code 400\", function () {\r",
+                              "    pm.response.to.have.status(400);\r",
+                              "});\r",
+                              "\r",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {\r",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+                              "});\r",
+                              "\r",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------\r",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {\r",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));\r",
+                              "    pm.response.to.have.jsonSchema(schema);\r",
+                              "});\r",
+                              "\r",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------\r",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {\r",
+                              "    const jsonData = pm.response.json();\r",
+                              "    pm.expect(jsonData.success).to.be.false;\r",
+                              "    pm.expect(jsonData.error).to.include(\"10 y 40 caracteres\");\r",
+                              "});\r",
+                              "\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "//Generar fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const cantidad = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidad);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "cookie",
+                            "value": "{{cookie}}",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"Mantenimiento Industrial para el área Tec\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "03 | Crear solicitud con Descripción [datos basura]",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"caracteres no permitidos\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "//Generar fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const cantidad = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidad);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"Mkjhdjhk jdfi76\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "04 | Crear solicitud con Cantidad menor o igual a cero",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"número mayor\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"{{{descripcion_material}}\",\n \"cantidad\": -1111,\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\",\n \"almacen\": \"{{almacen_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "05 | Crear solicitud con Cantidad no numérica",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"alfanumérico\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"{{descripcion_material}}\",\n \"cantidad\": \"10A\",\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\",\n \"almacen\": \"{{almacen_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "06 | Crear solicitud con Cantidad con exceso de decimales",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"decimales\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "cookie",
+                            "value": "{{cookie}}",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"MATERIAL\",\n \"itemComprableId\": \"{{mat_id_seed}}\",\n \"descripcion\": \"{{descripcion_material}}\",\n \"cantidad\": \"10.4255\",\n \"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\",\n \"almacen\": \"{{almacen_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "07 | Cantidad excediendo límite de enteros",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"enteros\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de Servicio desde API \" + Math.random().toString(36).substring(7);\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria\", fechaLimpia);\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"{{descripcion_Serv}}\",\n \"cantidad\": \"12345678901\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"{{fecha_futura_aleatoria}}\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "08 | Crear solicitud con Fecha de Entrega en el pasado",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"anterior\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generar una descripcion dinámica\r",
+                              "const descripcionUnica = \"Solicitud de Servicio desde API \" + Math.random().toString(36).substring(7);\r",
+                              "// Generar cantidad dinámica\r",
+                              "const cantidadDinamica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidadDinamica);\r",
+                              "pm.collectionVariables.set(\"descripcion_Serv\", descripcionUnica);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"{{descripcion_Serv}}\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"25/02/2026\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    },
+                    {
+                      "name": "09 | Crear solicitud con Formato de Fecha inválido",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// --------------------STATUS CODE Y PERFORMANCE BÁSICO---------------------------------- ",
+                              "pm.test(\"Status Code 400\", function () {",
+                              "    pm.response.to.have.status(400);",
+                              "});",
+                              "",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000);",
+                              "});",
+                              "",
+                              "//---------CONTRATO GLOBAL (SCHEMA JSON ERROR)--------------------",
+                              "pm.test(\"El Schema JSON recibido es correcto\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_error\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "",
+                              "// ---------------FEEDBACK Y NO PERSISTENCIA--------------------------",
+                              "pm.test(\"El Feedback por error es correcto y no hubo persistencia\", function () {",
+                              "    const jsonData = pm.response.json();",
+                              "    pm.expect(jsonData.success).to.be.false;",
+                              "    pm.expect(jsonData.error).to.include(\"formato inválido\");",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generar una descripcion dinámica\r",
+                              "const descripcionUnica = \"Solicitud de Servicio desde API \" + Math.random().toString(36).substring(7);\r",
+                              "// Generar cantidad dinámica\r",
+                              "const cantidadDinamica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "pm.collectionVariables.set(\"cantidad_Serv\", cantidadDinamica);\r",
+                              "pm.collectionVariables.set(\"descripcion_Serv\", descripcionUnica);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "request": {
+                        "method": "POST",
+                        "header": [
+                          {
+                            "key": "cookie",
+                            "value": "{{cookie}}",
+                            "type": "text"
+                          }
+                        ],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\n \"tipo\": \"SERVICIO\",\n \"itemComprableId\": \"{{srv_id_seed}}\",\n \"descripcion\": \"{{descripcion_Serv}}\",\n \"cantidad\": \"{{cantidad_Serv}}\",\n \"unidadMedida\": \"{{unidad_medida_srv_seed}}\",\n \"fechaEntrega\": \"36/45/2026\",\n \"centro\": \"{{centro_seed}}\"\n }",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    }
+                  ]
+                },
+                {
+                  "name": "04 | Validaciones de Seguridad (RBAC)",
+                  "item": [
+                    {
+                      "name": "01 | Solicitud de compra de materiales con Rol Aprobador",
+                      "event": [
+                        {
+                          "listen": "test",
+                          "script": {
+                            "exec": [
+                              "// -------STATUS CODE - PERFORMANCE BÁSICO -------------------",
+                              "pm.test(\"Solicitud de materiales creada exitosamente\", function () {",
+                              "    pm.response.to.have.status(201);",
+                              "});",
+                              "pm.test(\"Tiempo de respuesta aceptable\", function () {",
+                              "pm.expect(pm.response.responseTime).to.be.below(2000)",
+                              "});",
+                              "",
+                              "//------- CONTRATO GLOBAL (SCHEMA JSON)--------------------",
+                              "pm.test(\"El SCHEMA JSON cumple el contrato global\", function () {",
+                              "    const schema = JSON.parse(pm.collectionVariables.get(\"schema_solicitud\"));",
+                              "    pm.response.to.have.jsonSchema(schema);",
+                              "});",
+                              "// -------ESTADO INICIAL AUTOMATICO DE LA SOLICITUD: \"Creada\"-------------------------",
+                              " ",
+                              "const jsonData = pm.response.json();",
+                              "pm.test(\"La solicitud se crea y se asigna automaticamente el estado Creada\", function () {",
+                              "    pm.expect(jsonData.data.estado).to.eql(\"Creada\");",
+                              "});",
+                              "",
+                              "// -------------CONSISTENCIA E INTEGRIDAD DEL NEGOCIO (Request & Response)-------------------",
+                              "",
+                              "pm.test(\"Los datos guardadon en la base de datos son consistentes con los datos enviados\", function () {",
+                              "    const tipo_esperado = pm.collectionVariables.get(\"tipo_material\");",
+                              "    const itemComprableIdMat_esperado = pm.collectionVariables.get(\"mat_id_seed\");",
+                              "    const descripcion_esperada = pm.collectionVariables.get(\"descripcion_material\");",
+                              "    const cantidad_esperada = Number(pm.collectionVariables.get(\"cantidad_material\")).toFixed(3);",
+                              "    const unidadMedida_esperada = pm.collectionVariables.get(\"unidad_medida_mat_seed\");",
+                              "    const fecha_esperada = pm.collectionVariables.get(\"fecha_futura_aleatoria_material\");",
+                              "    const centro_esperado = pm.collectionVariables.get(\"centro_seed\");",
+                              "    const almacen_esperado = pm.collectionVariables.get(\"almacen_seed\");",
+                              "",
+                              "    //----COMPARAMOS RESULTADO ESPERADO",
+                              "    pm.expect(jsonData.data.tipo).to.equal(tipo_esperado); ",
+                              "    pm.expect(jsonData.data.materialId).to.equal(itemComprableIdMat_esperado); ",
+                              "    pm.expect(jsonData.data.descripcion).to.equal(descripcion_esperada); ",
+                              "    pm.expect(Number(jsonData.data.cantidad).toFixed(3)).to.equal(cantidad_esperada); ",
+                              "    pm.expect(jsonData.data.unidadMedidaId).to.equal(unidadMedida_esperada);",
+                              "    pm.expect(jsonData.data.fecha).to.equal(fecha_esperada);",
+                              "    pm.expect(jsonData.data.centroId).to.equal(centro_esperado);",
+                              "    pm.expect(jsonData.data.almacenId).to.equal(almacen_esperado);",
+                              "});",
+                              "",
+                              "    // --------------------PERSISTENCIA------------------------------------",
+                              "",
+                              "pm.test(\"La solicitud persiste en la base de datos correctamente\", function () {",
+                              "    pm.expect(jsonData.success).to.be.true;",
+                              "    pm.expect(jsonData.data.id).to.exist.and.to.match(/^PR-2026-\\d{4}$/);",
+                              "    pm.collectionVariables.set(\"id_material_creado\", jsonData.data.id);",
+                              "});"
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        },
+                        {
+                          "listen": "prerequest",
+                          "script": {
+                            "exec": [
+                              "// Generamos la fecha dinámica\r",
+                              "let fecha = new Date();\r",
+                              "fecha.setDate(fecha.getDate() + Math.floor(Math.random() * 90) + 1);\r",
+                              "\r",
+                              "// Formateamos a DD/MM/YYYY antes de enviar\r",
+                              "let dd = String(fecha.getDate()).padStart(2, '0');\r",
+                              "let mm = String(fecha.getMonth() + 1).padStart(2, '0');\r",
+                              "let yyyy = fecha.getFullYear();\r",
+                              "let fechaLimpia = `${dd}/${mm}/${yyyy}`;\r",
+                              "const descripcionUnica = \"Solicitud de MATERIAL desde API \" + Math.random().toString(36).substring(7);\r",
+                              "const cantidadUnica = Math.floor(Math.random() * 1000) + 1;\r",
+                              "\r",
+                              "// Guardamos la variables\r",
+                              "pm.collectionVariables.set(\"tipo_material\", \"MATERIAL\");\r",
+                              "pm.collectionVariables.set(\"descripcion_material\", descripcionUnica);\r",
+                              "pm.collectionVariables.set(\"cantidad_material\", cantidadUnica);\r",
+                              "pm.collectionVariables.set(\"fecha_futura_aleatoria_material\", fechaLimpia);\r",
+                              ""
+                            ],
+                            "type": "text/javascript",
+                            "packages": {},
+                            "requests": {}
+                          }
+                        }
+                      ],
+                      "protocolProfileBehavior": {
+                        "disabledSystemHeaders": {
+                          "content-type": true
+                        }
+                      },
+                      "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                          "mode": "raw",
+                          "raw": "{\r\n\"tipo\": \"{{tipo_material}}\",\r\n\"itemComprableId\": \"{{mat_id_seed}}\",\r\n\"descripcion\": \"{{descripcion_material}}\",\r\n\"cantidad\": {{cantidad_material}},\r\n\"unidadMedida\": \"{{unidad_medida_mat_seed}}\",\r\n\"fechaEntrega\": \"{{fecha_futura_aleatoria_material}}\",\r\n\"centro\": \"{{centro_seed}}\",\r\n\"almacen\": \"{{almacen_seed}}\"\r\n}",
+                          "options": {
+                            "raw": {
+                              "language": "json"
+                            }
+                          }
+                        },
+                        "url": {
+                          "raw": "{{base_url}}/solicitudes",
+                          "host": [
+                            "{{base_url}}"
+                          ],
+                          "path": [
+                            "solicitudes"
+                          ]
+                        },
+                        "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                      },
+                      "response": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "02 | US-04 | Listar Solicitudes",
+              "item": [
+                {
+                  "name": "Obtener de solicitud de Materiales",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Validar Status Code. El recurso existe en la BD",
+                          "pm.test(\"Validación de persistencia exitosa\", function () {",
+                          "    pm.response.to.have.status(200);",
+                          "});",
+                          "",
+                          "const solicitudPersistida = pm.response.json().data; // Obtener los datos de la respuesta",
+                          "",
+                          "// Valida que la solicitud existe",
+                          "pm.test(\"La solicitud existe\", function () {",
+                          "    pm.expect(solicitudPersistida).to.be.an(\"object\");",
+                          "});",
+                          "",
+                          "// valida que el ID coincide con el esperado",
+                          "",
+                          "const id_actual = pm.collectionVariables.get(\"id_material\"); // Obtener el ID actual de la colección",
+                          "",
+                          "pm.test(\"El ID coincide con el esperado\", function () {",
+                          "    pm.expect(solicitudPersistida.id).to.eql(id_actual);",
+                          "});",
+                          "",
+                          "// Validar integridad de datos persistidos",
+                          "pm.test(\"Los valores recuperados coinciden con los enviados\", function () {",
+                          "    pm.expect(solicitudPersistida.id).to.eql(pm.collectionVariables.get(\"id_material\"));",
+                          "    pm.expect(solicitudPersistida.tipo).to.eql(pm.collectionVariables.get(\"tipo_material\"));",
+                          "    pm.expect(solicitudPersistida.itemComprableId).to.eql(pm.collectionVariables.get(\"itemComprableIdMat\"));",
+                          "    pm.expect(solicitudPersistida.itemComprableNombre).to.eql(pm.collectionVariables.get(\"itemComprableNombreMat\"));",
+                          "    pm.expect(solicitudPersistida.descripcion).to.eql(pm.collectionVariables.get(\"descripcion_material\"));",
+                          "    pm.expect(solicitudPersistida.cantidad).to.eql(pm.collectionVariables.get(\"cantidad_material\"));",
+                          "    pm.expect(solicitudPersistida.unidadMedida).to.eql(pm.collectionVariables.get(\"unidadMedida_material\"));",
+                          "    pm.expect(solicitudPersistida.fechaEntrega).to.eql(pm.collectionVariables.get(\"fecha_futura_aleatoria_material\"));",
+                          "    pm.expect(solicitudPersistida.centro).to.eql(pm.collectionVariables.get(\"centro_material\"));",
+                          "    pm.expect(solicitudPersistida.almacen).to.eql(pm.collectionVariables.get(\"almacen\"));",
+                          "    pm.expect(solicitudPersistida.estado).to.eql(\"Creada\");",
+                          "});",
+                          "",
+                          "  "
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "noauth"
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Cookie",
+                        "value": "{{cookie}}",
+                        "type": "text",
+                        "disabled": true
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/solicitudes/{{id_material}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "solicitudes",
+                        "{{id_material}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "",
+                          "value": "",
+                          "type": "text",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Obtener solicitud de Servicios",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Validar Status Code. El recurso existe en la BD",
+                          "pm.test(\"Validación de persistencia exitosa\", function () {",
+                          "    pm.response.to.have.status(200);",
+                          "});",
+                          "",
+                          "const solicitudPersistida = pm.response.json().data; // Obtener los datos de la respuesta",
+                          "",
+                          "// Valida que la solicitud existe",
+                          "pm.test(\"La solicitud existe\", function () {",
+                          "    pm.expect(solicitudPersistida).to.be.an(\"object\");",
+                          "});",
+                          "",
+                          "// valida que el ID coincide con el esperado",
+                          "",
+                          "const id_actual = pm.collectionVariables.get(\"id_servicio\"); // Obtener el ID actual de la colección",
+                          "",
+                          "pm.test(\"El ID coincide con el esperado\", function () {",
+                          "    pm.expect(solicitudPersistida.id).to.eql(id_actual);",
+                          "});",
+                          "",
+                          "// Validar integridad de datos persistidos",
+                          "pm.test(\"Los valores recuperados coinciden con los enviados\", function () {",
+                          "             pm.expect(solicitudPersistida.id).to.eql(pm.collectionVariables.get(\"id_servicio\"));",
+                          "             pm.expect(solicitudPersistida.tipo).to.eql(pm.collectionVariables.get(\"tipo_servicio\"));",
+                          "             pm.expect(solicitudPersistida.itemComprableId).to.eql(pm.collectionVariables.get(\"itemComprableId_Serv\"));",
+                          "             pm.expect(solicitudPersistida.itemComprableNombre).to.eql(pm.collectionVariables.get(\"itemComprableNombre_Serv\"));",
+                          "             pm.expect(solicitudPersistida.descripcion).to.eql(pm.collectionVariables.get(\"descripcion_Serv\"));",
+                          "             pm.expect(solicitudPersistida.cantidad).to.eql(pm.collectionVariables.get(\"cantidad_Serv\"));",
+                          "             pm.expect(solicitudPersistida.unidadMedida).to.eql(pm.collectionVariables.get(\"unidadMedida_Serv\"));",
+                          "             pm.expect(solicitudPersistida.fechaEntrega).to.eql(pm.collectionVariables.get(\"fecha_futura_aleatoria_Serv\"));",
+                          "             pm.expect(solicitudPersistida.centro).to.eql(pm.collectionVariables.get(\"centro_Serv\"));",
+                          "             pm.expect(solicitudPersistida.almacen).to.be.oneOf([null, undefined]);",
+                          "             pm.expect(solicitudPersistida.estado).to.eql(\"Creada\");",
+                          "        });",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Cookie",
+                        "value": "{{cookie}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/solicitudes/{{id_servicio_creado}}",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "solicitudes",
+                        "{{id_servicio_creado}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "",
+                          "value": "",
+                          "type": "text",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Obtener listado de solicitudes luego de Error Técnico",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "// Validar Status Code",
+                          "pm.test(\"Status code is 200\", function () {",
+                          "    pm.response.to.have.status(200);",
+                          "    });",
+                          "",
+                          "const response = pm.response.json();     ",
+                          "// Validar estrcutura",
+                          "pm.test(\"La respuesta contiene el listado de silicitudes\", function () { ",
+                          "    pm.expect(response).to.have.property(\"data\");",
+                          "    pm.expect(response.data).to.be.an(\"array\");",
+                          "});",
+                          "",
+                          "pm.test(\"No se creó ninguna solicitud tras fallo técnico (timeout)\", function () {",
+                          "    const descripcion = pm.collectionVariables.get(\"descTimeOut\");",
+                          "    const existe = response.data.some(s => s.descripcion === descripcion);",
+                          "    pm.expect(existe).to.be.false;",
+                          "",
+                          "});",
+                          "",
+                          "// Validar que el sistema continua funcionando correctamente  ",
+                          "pm.test(\"Disponibilidad: El listado es accesible tras el fallo técnico (TimeOut)\", function () {",
+                          "      ",
+                          "    pm.expect(response.data).to.be.an(\"array\");",
+                          "    pm.expect(response.data.length).to.be.to.least(0);",
+                          "});",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Cookie",
+                        "value": "{{cookie}}",
+                        "type": "text"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/solicitudes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "solicitudes"
+                      ],
+                      "query": [
+                        {
+                          "key": "",
+                          "value": "",
+                          "type": "text",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Obtener listado de solicitudes",
+                  "event": [
+                    {
+                      "listen": "test",
+                      "script": {
+                        "exec": [
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          "",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    },
+                    {
+                      "listen": "prerequest",
+                      "script": {
+                        "exec": [
+                          "\r",
+                          ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                      }
+                    }
+                  ],
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "method": "GET",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n\t\"name\": \"Add your name in the body\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{base_url}}/solicitudes",
+                      "host": [
+                        "{{base_url}}"
+                      ],
+                      "path": [
+                        "solicitudes"
+                      ],
+                      "query": [
+                        {
+                          "key": "",
+                          "value": "",
+                          "type": "text",
+                          "disabled": true
+                        }
+                      ]
+                    },
+                    "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "03 | US-03 | Visualizar Solicitud",
+              "item": []
+            },
+            {
+              "name": "04 | US-02 | Modificar Solicitud",
+              "item": []
+            }
+          ]
+        },
+        {
+          "name": "02 | EPIC-02 | Gestión de Estados",
+          "item": []
+        },
+        {
+          "name": "03 | EPIC-03 | Autenticación y Seguridad",
+          "item": []
+        }
+      ]
+    },
+    {
+      "name": "90 | Regression / Edge Cases",
+      "item": [
+        {
+          "name": "Validando Robustez (Body vacío)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Validar Status Code\r",
+                  "\r",
+                  "pm.test(\"Status code es 400 - Bad Request\", function () {\r",
+                  "    pm.response.to.have.status(400);\r",
+                  "});\r",
+                  "\r",
+                  "const solicitud = pm.response.json();\r",
+                  "pm.test(\"No hay persistencia en la BD\", function () {\r",
+                  "    pm.expect(solicitud).to.have.property('success', false);\r",
+                  "});\r",
+                  "\r",
+                  "\r",
+                  "pm.test(\"Feedback es correcto\", function () {\r",
+                  "    pm.expect(solicitud).to.have.property(\"error\");\r",
+                  "    pm.expect(solicitud.error).to.include(\"El cuerpo de la petición está vacío o no es un JSON válido\");\r",
+                  "\r",
+                  "});    \r",
+                  "\r",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{cookie}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validando Error Técnico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "\r",
+                  "\r",
+                  "// Generamos descripcion única para la solicitud\r",
+                  "let descripUnica = \"Solicitud TimeOut\" + Date.now();\r",
+                  "pm.collectionVariables.set(\"descTimeOut\", descripUnica);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "x-mock-response-code",
+                "value": "500",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "    {\r\n        \"tipo\": \"MATERIAL\",\r\n        \"itemComprableId\": \"MAT-0001\",\r\n        \"descripcion\": \"{{descTimeOut}}\",\r\n        \"cantidad\": 100,\r\n        \"unidadMedida\": \"KG\",\r\n        \"fechaEntrega\": \"30/11/2026\",\r\n        \"centro\": \"1000\",\r\n        \"almacen\": \"ALM01\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Validando Error Técnico",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "    {\r\n        \"tipo\": \"MATERIAL\",\r\n        \"itemComprableId\": \"MAT-0001\",\r\n        \"descripcion\": \"{{descTimeOut}}\",\r\n        \"cantidad\": 100,\r\n        \"unidadMedida\": \"KG\",\r\n        \"fechaEntrega\": \"30/12/2026\",\r\n        \"centro\": \"1000\",\r\n        \"almacen\": \"ALM01\"\r\n    }",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{base_url}}/solicitudes",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "solicitudes"
+                  ],
+                  "query": [
+                    {
+                      "key": "",
+                      "value": "",
+                      "type": "text",
+                      "disabled": true
+                    }
+                  ]
+                }
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"success\": false,\r\n    \"error\": \"Estamos experimentando problemas técnicos. Por favor, intente más tarde.\"\r\n}"
+            }
+          ]
+        },
+        {
+          "name": "Validando Error Técnico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "\r",
+                  "\r",
+                  "// Generamos descripcion única para la solicitud\r",
+                  "let descripUnica = \"Solicitud TimeOut\" + Date.now();\r",
+                  "pm.collectionVariables.set(\"descTimeOut\", descripUnica);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "    {\r\n        \"tipo\": \"MATERIAL\",\r\n        \"itemComprableId\": \"MAT-0001\",\r\n        \"descripcion\": \"{{descTimeOut}}\",\r\n        \"cantidad\": 100,\r\n        \"unidadMedida\": \"KG\",\r\n        \"fechaEntrega\": \"30/12/2026\",\r\n        \"centro\": \"1000\",\r\n        \"almacen\": \"ALM01\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Validando Error Técnico",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "\r",
+                  "\r",
+                  "// Generamos descripcion única para la solicitud\r",
+                  "let descripUnica = \"Solicitud TimeOut\" + Date.now();\r",
+                  "pm.collectionVariables.set(\"descTimeOut\", descripUnica);"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "    {\r\n        \"tipo\": \"MATERIAL\",\r\n        \"itemComprableId\": \"MAT-0001\",\r\n        \"descripcion\": \"{{descTimeOut}}\",\r\n        \"cantidad\": 100,\r\n        \"unidadMedida\": \"KG\",\r\n        \"fechaEntrega\": \"30/12/2026\",\r\n        \"centro\": \"1000\",\r\n        \"almacen\": \"ALM01\"\r\n    }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/solicitudes",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "solicitudes"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "",
+                  "value": "",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "99 | Teardown",
+      "item": []
+    },
+    {
+      "name": "New Request",
+      "request": {
+        "method": "DELETE",
+        "header": []
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          "// --- MOTOR CENTRAL DE HEADERS (QA FRAMEWORK) ---\r",
+          "\r",
+          "// 1. Inyectar la Identidad del Usuario dinámicamente\r",
+          "// Toma el valor de la variable 'current_user_id' que definiste en la colección\r",
+          "\r",
+          "const userId = pm.variables.replaceIn(pm.collectionVariables.get('current_user_id'));\r",
+          "\r",
+          "if(userId)\r",
+          "{\r",
+          "    pm.request.headers.add({\r",
+          "        key: \"x-user-id\",\r",
+          "        value: userId\r",
+          "\r",
+          "    });\r",
+          "}\r",
+          "\r",
+          "// 2. Fuerza el Content-Type para todas las peticiones JSON\r",
+          "\r",
+          "pm.request.headers.add({\r",
+          "        key: 'Content-Type',\r",
+          "        value: 'application/json'\r",
+          "});\r",
+          "\r",
+          "// Mensaje en consola para debug\r",
+          "console.log(\"Header x-user-id inyectado con valor:\", userId);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "user_solic",
+      "value": "b7641ae3-52db-4ac6-abe1-ccc3e09c9b0b"
+    },
+    {
+      "key": "user_aprob",
+      "value": "83eb1965-b575-4812-9c48-c0fcb8aba9c8"
+    },
+    {
+      "key": "current_user_id",
+      "value": ""
+    },
+    {
+      "key": "mat_id_seed",
+      "value": ""
+    },
+    {
+      "key": "srv_id_seed",
+      "value": ""
+    },
+    {
+      "key": "centro_seed",
+      "value": ""
+    },
+    {
+      "key": "almacen_seed",
+      "value": ""
+    },
+    {
+      "key": "unidad_medida_mat_seed",
+      "value": ""
+    },
+    {
+      "key": "unidad_medida_srv_seed",
+      "value": ""
+    },
+    {
+      "key": "tipo_material_Smoke",
+      "value": ""
+    },
+    {
+      "key": "itemComprableId_Smoke",
+      "value": ""
+    },
+    {
+      "key": "itemComprableNombre_Smoke",
+      "value": ""
+    },
+    {
+      "key": "descripcion_Smoke",
+      "value": ""
+    },
+    {
+      "key": "cantidad_Smoke",
+      "value": ""
+    },
+    {
+      "key": "unidadMedida_Smoke",
+      "value": ""
+    },
+    {
+      "key": "fecha_futura_aleatoria_Smoke",
+      "value": ""
+    },
+    {
+      "key": "centro_Smoke",
+      "value": ""
+    },
+    {
+      "key": "almacen_Smoke",
+      "value": ""
+    },
+    {
+      "key": "idSolicitudSmoke",
+      "value": ""
+    },
+    {
+      "key": "schema_solicitud",
+      "value": "{   \"type\": \"object\",\n    \"required\": [\"success\", \"data\", \"error\"],\n    \"properties\": {\n        \"success\": { \"type\": \"boolean\" },\n        \"error\" : { \"type\": [\"string\", \"null\"] },\n        \"data\": {\n            \"type\" : \"object\",\n            \"required\": [\"id\", \"tipo\", \"descripcion\", \"cantidad\", \"unidadMedidaId\", \"fechaEntrega\", \"centroId\", \"almacenId\"],\n             \"properties\" : {\n                \"id\": { \"type\": \"string\", \"pattern\": \"^PR-2026-\\\\d{4}$\"}, \n                \"tipo\": { \"type\": \"string\", \"enum\": [\"MATERIAL\", \"SERVICIO\"]}, \n                \"descripcion\": { \"type\": \"string\", \"minLength\": 10, \"maxLength\": 40}, \n                \"cantidad\": { \"type\": \"string\"}, \n                \"unidadMedidaId\": { \"type\": \"string\"}, \n                \"fechaEntrega\": { \"type\": \"string\", \"format\": \"date-time\"}, \n                \"centroId\": {\"type\": \"string\"},\n                \"almacenId\": {\"type\": [\"string\", \"null\"]}\n            } \n        }     \n    }    \n}"
+    },
+    {
+      "key": "tipo_Servicio_Smoke",
+      "value": ""
+    },
+    {
+      "key": "itemComprableNombre_Servicio_Smoke",
+      "value": ""
+    },
+    {
+      "key": "descripcion_Servicio_Smoke",
+      "value": ""
+    },
+    {
+      "key": "cantidad_Servicio_Smoke",
+      "value": ""
+    },
+    {
+      "key": "fecha_futura_aleatoria_Servicio_Smoke",
+      "value": ""
+    },
+    {
+      "key": "tipo_material",
+      "value": ""
+    },
+    {
+      "key": "itemComprableNombreMat",
+      "value": ""
+    },
+    {
+      "key": "descripcion_material",
+      "value": ""
+    },
+    {
+      "key": "cantidad_material",
+      "value": ""
+    },
+    {
+      "key": "fecha_futura_aleatoria_material",
+      "value": ""
+    },
+    {
+      "key": "id_material_creado",
+      "value": ""
+    },
+    {
+      "key": "tipo_servicio",
+      "value": ""
+    },
+    {
+      "key": "itemComprableNombre_Serv",
+      "value": ""
+    },
+    {
+      "key": "descripcion_Serv",
+      "value": ""
+    },
+    {
+      "key": "cantidad_Serv",
+      "value": ""
+    },
+    {
+      "key": "fecha_futura_aleatoria_Serv",
+      "value": ""
+    },
+    {
+      "key": "id_servicio_creado",
+      "value": ""
+    },
+    {
+      "key": "schema_error",
+      "value": "{   \"type\": \"object\",\n    \"required\": [\"success\", \"error\"],\n    \"properties\": {\n        \"success\": { \"type\": \"boolean\", \"enum\": [false] },\n        \"data\": { \"type\": [ \"null\", \"object\" ]},\n        \"error\" : { \"type\": \"string\" }      \n    }    \n}"
+    },
+    {
+      "key": "itemComprableId",
+      "value": ""
+    },
+    {
+      "key": "itemComprableNombre",
+      "value": ""
+    },
+    {
+      "key": "descripcion",
+      "value": ""
+    },
+    {
+      "key": "cantidad",
+      "value": ""
+    },
+    {
+      "key": "unidadMedida",
+      "value": ""
+    },
+    {
+      "key": "fecha_futura_aleatoria",
+      "value": ""
+    },
+    {
+      "key": "centro",
+      "value": ""
+    }
+  ]
+}

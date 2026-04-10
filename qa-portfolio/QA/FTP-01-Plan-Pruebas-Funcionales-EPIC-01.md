@@ -11,61 +11,108 @@ Este módulo constituye el núcleo funcional del sistema y comprende las funcion
 Definir la estrategia, alcance, tipos y técnicas de pruebas que permitan verificar que el módulo cumple con:
 *   Los requisitos funcionales definidos.
 *   Las reglas de negocio establecidas.
-*   Las restricciones de seguridad y control de acceso al sistema.
+*   Las restricciones de seguridad funcional y control de acceso por centro y rol.
 
 ## 3. Alcance de las Pruebas (Scope)
 
 ### ✅ Incluido
 *   Validación funcional completa del módulo (UI).
-*   Validación de la Capa de API (Backend): Pruebas de integración para asegurar que las reglas de negocio se cumplen en el servidor
-*   Validación de Persistencia Real: Verificación de que los datos se guardan correctamente en PostgreSQL Serverless.
-*   Validación de reglas de negocio y seguridad funcional básica.
-*   Escenarios positivos (Happy Path) y negativos.
-*   Pruebas de regresión y de humo (Smoke Tests).
-*   Pruebas de confirmación de defectos corregidos.
-*   Validación de tiempos de respuesta básicos (Performance MVP < 2 segundos).
+*   Validación de la Capa de API (Backend)
+*   Validación de persistencia en PostgreSQL Serverless
+*   Validación de reglas de negocio.
+*   Seguridad básica simulada
+*   Escenarios positivos y negativos.
+*   Pruebas de regresión y smoke.
+*   Pruebas de confirmación.
+*   Performance básico < 2 segundos.
 
 ### ❌ No Incluido
-*   Pruebas de carga, estrés o penetración avanzada.
-*   Integraciones con sistemas externos reales.
-*   Migraciones de datos o pruebas unitarias (fuera del rol QA Funcional).
+*   Pruebas de carga, estrés o pentesting.
+*   Integraciones externas reales.
+*   Migraciones de datos
+*   Pruebas unitarias.
+*   Infraestructura de Autenticación Real: Queda fuera del alcance de este ciclo de pruebas la validación del flujo de Login/Logout, gestión de tokens JWT y expiración de sesiones en el servidor, debido a que el módulo EPIC-03 (Autenticación y Roles) se encuentra actualmente en fase de desarrollo. Para esta etapa del MVP, se emplea un Mecanismo de Simulación de Identidad mediante selectores de usuario e inyección de headers (x-user-id).
 
 ## 4. Estrategias de Prueba
 
 ### 4.1. Enfoque General
 
-Se aplicará un enfoque de **pruebas de caja negra** y **pruebas de caja gris**, priorizando los flujos críticos (creación, modificación, visualización y listado).
+Se aplicará un enfoque combinado de:
 
-### 4.2. Técnicas de Diseño
+ * **Pruebas de caja negra**
+ * **Pruebas de caja gris**
+ * **Priorización basada en riesgo**
 
-* Partición de equivalencias y valores límite: Aplicado críticamente en los campos de **Cantidad** (formatos decimales) y Fecha de Entrega (hoy vs pasado) para asegurar la integridad de la solicitud.
-* Testing de API REST:
-    *   Validación de **HTTP Status Codes** (201 Created, 400 Bad Request, 404 Not Found).
-    *   Validación de **Estructura JSON** y tipos de datos en el payload.
-    *   Validación de **Mensajes de Error** específicos devueltos por el backend.
-* Data Integrity Testing:** Verificación directa en la base de datos PostgreSQL tras operaciones de creación o modificación.
-* Testing basado en estados: Vital para validar que una solicitud no se salte pasos (ej. de `Creada` a `Aprobada`) y que las restricciones de edición se activen correctamente según el ciclo de vida de la solicitud definida en el MVP.
-* Testing exploratorio: Para validar la experiencia de usuario (UX) y comportamientos no documentados.
+### 4.2. Pruebas Funcionales
+  - Creación de solicitudes
+  - Modificación
+  - Visualización
+  - Listado  
 
-### 4.3. Pruebas No Funcionales básicas
-*	Validación de tiempos de respuesta básicos para operaciones críticas (guardado y listado).
-*	Verificación manual en entorno controlado, comparando el comportamiento observado con los tiempos aceptables definidos para el MVP.
+### 4.3. Pruebas de Seguridad (Simuladas)
+  - Validación por rol
+  - Usuario inactivo
+  - Usuario no autenticado
+  - Acceso a recursos ajenos
 
-## 5. Ciclo de Vida de Pruebas
+### 4.4. Pruebas No Funcionales (Básicas)
+  - Validación de tiempos de respuesta
+  - Validación manual en entorno controlado
 
-El proceso de pruebas se ejecutará en ciclos iterativos siguiendo el siguiente orden:
+### 4.5. Técnicas de Diseño
 
-### 5.1.	Pruebas Smoke
+  - Partición de equivalencias
+  - Análisis de valores límite
+  - Testing basado en estados
+  - Testing de API REST (validación de contratos)
+  - Data Integrity Testing
+  - Testing exploratorio
 
-Al inicio de cada ciclo de pruebas se ejecutarán pruebas Smoke para validar la estabilidad básica del módulo. Se verificará que:
-*	El proceso de autenticación funciona correctamente.
-*	Los módulos cargan adecuadamente.
-*	Los catálogos y datos maestros requeridos se encuentran disponibles.
-*	La navegación básica entre funcionalidades es posible.
+## 5. Testing basado en Riesgo
+
+### 5.1. Clasificación de Riesgo
+
+**Alto Riesgo**
+- Creación de solicitudes (flujo principal)
+- Validación de duplicidad
+- Seguridad (roles, usuario inactivo, no autenticado, acceso por ID ajeno)
+- Persistencia
+
+**Riesgo Medio**
+- Modificación de solicitudes
+- Transiciones de estado
+
+**Bajo Riesgo**
+- Listado de solicitudes
+- Comportamiento visual de la UI
+- Mensajes informativos
+
+### Priorización de Ejecución
+
+ 1. Alto riesgo
+ 2. Riesgo medio
+ 3. Bajo riesgo
+
+## 6. Estrategia de Ejecución de Pruebas
+
+### 6.1. Flujo de Ejecución
+
+  - Ejecución priorizada por riesgo
+  - Validación incremental por capas
+
+### 6.2.	Pruebas Smoke
+
+Al inicio de cada ciclo de pruebas se ejecutarán pruebas Smoke para validar la estabilidad básica del módulo. Se verificará:
+
+* El sistema se encuentra disponible y operativo
+* El módulo carga adecuadamente.
+* Los catálogos y datos maestros requeridos se encuentran disponibles (seed).
+* El flujo de Creación de Solicitud (Happy Path) funciona adecuadamente.
+* El Mock de autenticación (Selector de Usuarios en la UI) está disponible y funciona adecuadamente
 
 Solo si estas pruebas son satisfactorias se continuará con la ejecución completa.
 
-### 5.2.	Pruebas Funcionales
+### 6.3.	Pruebas Funcionales
 
 Las pruebas funcionales se ejecutarán priorizando por riesgo e impacto en el negocio, siguiendo el siguiente orden:
 *	Flujos principales (Happy Path).
@@ -74,140 +121,227 @@ Las pruebas funcionales se ejecutarán priorizando por riesgo e impacto en el ne
 *	Escenarios negativos.
 *	Validaciones de límites y valores extremos.
 
-### 5.3.	Testing Exploratorio
+### 6.4. Testing Exploratorio
+
 Se realizará testing exploratorio con el objetivo de identificar:
 *	Inconsistencias en la experiencia de usuario.
 *	Mensajes incorrectos o poco claros.
-*	Comportamientos intermitentes.
+*	Comportamientos no previstos.
 *	Desviaciones no contempladas en los escenarios formales.
-* Tiempos de respuesta básicos en funcionalidades críticas.
+*   Tiempos de respuesta básicos en funcionalidades críticas.   
 
-### 5.4.	Gestión de Defectos
+### 6.5. Consideraciones sobre funcionalidades no implementadas
+
+Los Módulos de Seguridad (autenticación real) y Gestión de Estados no se encuentran  implementados en este fase. Sin embargo, se consideran de **alto riesgo**, por lo que:
+
+- Se validarán mediante mecanismos de simulación (mock de usuario, headers x-user-id)
+- Se ejecutarán pruebas parciales enfocadas en la lógica de autorización y restricciones actuales
+- Se identifican como áreas críticas para validación futura en fases posteriores
+
+# 7. Niveles de Prueba
+
+## 7.2 UI Testing:
+   - Validación de interacción del usuario
+   - Navegación
+   - Mensajes
+
+## 7.3 API Testing
+   - Endpoints (GET, POST, PATCH)
+   - Status codes
+   - Validación de contratos
+   - Consistencia request/response
+
+## 7.4 Database Testing
+   - Validación de constraints
+   - Integridad referencial
+   - Persistencia
+   - Reglas de negocio en DB
+
+# 8. Estrategia de datos de prueba
+
+## 8.1. Usuarios
+
+| Rol         | Estado          | Centro           |
+| ----------- | --------------- | ---------------- |
+| Solicitante | Activo/Inactivo | Con/Sin permisos |
+| Aprobador   | Activo/Inactivo | Con/Sin permisos |
+| Admin       | Activo/Inactivo | Global           |
+| Invitado    | -               | Sin acceso       |
+
+## 8.2. Datos de Negocio
+
+  - Estados: Creada, En Revisión, Rechazada, Aprobada
+  - Centros y almacenes
+  - Duplicidad (Item + Centro + Fecha, estado ≠ Rechazada)
+
+## 8.3 Datos por Campo
+
+   - ID válido / inválido
+   - Descripción (límites)
+   - Cantidad (decimales, negativos, overflow)
+   - Fecha (pasado/futuro/formato)
+   - Unidad de medida
+   - Tipo (Material vs Servicio)
+
+## 8.4. Datos para pruebas no funcionales
+
+   - Dataset mínimo
+   - Dataset moderado   
+
+# 9. Cobertura de Pruebas API (Endpoints)
+
+| Endpoint              | Método | Escenario      | Status  |
+| --------------------- | ------ | -------------- | ------- |
+| /api/solicitudes      | POST   | Happy Path     | 201     |
+| /api/solicitudes      | POST   | Validaciones   | 400     |
+| /api/solicitudes      | POST   | Duplicidad     | 400     |
+| /api/solicitudes      | POST   | Seguridad      | 401/403 |
+| /api/solicitudes/[id] | GET    | Consulta       | 200/404 |
+| /api/solicitudes/[id] | PATCH  | Modificación   | 200/400 |
+| /api/catalogos        | GET    | Datos maestros | 200     |
+
+# 10. Matriz de Trazabilidad
+
+| US    | AC    | Escenario                                                                      | TC   | Tipo de Prueba |
+| ----- | ----- | ------------------------------------------------------------------------------ | ---- | -------------- |
+| US-01 | AC01  | Crear solicitud de Material exitosamente con almacén y estado inicial “Creada” | TC01 | FUNCIONAL      |
+| US-01 | AC02  | Crear solicitud de Servicio exitosamente sin almacén y estado inicial “Creada” | TC02 | FUNCIONAL      |
+| US-01 | AC01  | Intento de creación de Material sin Almacén                                    | TC03 | FUNCIONAL      |
+| US-01 | AC03  | Crear solicitud con campos obligatorios vacíos                                 | TC04 | FUNCIONAL      |
+| US-01 | AC04a | Validación de Descripción fuera de límite (mínimo)                             | TC05 | FUNCIONAL      |
+| US-01 | AC04a | Validación de Descripción fuera de límite (máximo)                             | TC06 | FUNCIONAL      |
+| US-01 | AC04a | Validación de Descripción con datos inválidos (basura)                         | TC07 | FUNCIONAL      |
+| US-01 | AC04b | Validación de Cantidad ≤ 0                                                     | TC08 | FUNCIONAL      |
+| US-01 | AC04b | Validación de Cantidad no numérica                                             | TC09 | FUNCIONAL      |
+| US-01 | AC04b | Validación de Cantidad con exceso de decimales                                 | TC10 | FUNCIONAL      |
+| US-01 | AC04b | Validación de Cantidad excediendo límite de enteros                            | TC11 | FUNCIONAL      |
+| US-01 | AC04c | Validación de Fecha de Entrega en el pasado                                    | TC12 | FUNCIONAL      |
+| US-01 | AC04c | Validación de Formato de Fecha inválido                                        | TC13 | FUNCIONAL      |
+| US-01 | AC06a | Intento de creación con usuario sin rol "Solicitante"                          | TC14 | SEGURIDAD      |
+| US-01 | AC06a | Intento de creación para Centro no autorizado                                  | TC15 | SEGURIDAD      |
+| US-01 | AC05  | Crear solicitud con Almacén no perteneciente al Centro                         | TC16 | FUNCIONAL      |
+| US-01 | AC05  | Validación de duplicidad (Ítem + Centro + Fecha, estado ≠ Rechazada)           | TC17 | FUNCIONAL      |
+| US-01 | AC06b | Intento de creación con usuario INACTIVO                                       | TC18 | SEGURIDAD      |
+| US-01 | AC06b | Intento de creación con usuario NO autenticado                                 | TC19 | SEGURIDAD      |
+| US-01 | AC07a | Concurrencia en el guardado (doble intento)                                    | TC20 | NO FUNCIONAL   |
+| US-01 | AC06b | Intento de creación con sesión expirada                                        | TC21 | SEGURIDAD      |
+| US-01 | AC07a | Error técnico inesperado durante la creación                                   | TC22 | NO FUNCIONAL   |
+| US-01 | AC07b | Verificación de tiempo de respuesta (< 2s) y feedback de guardado              | TC23 | NO FUNCIONAL   |
+
+| US    | AC    | Escenario                                                       | TC   | Tipo de Prueba |
+| ----- | ----- | --------------------------------------------------------------- | ---- | -------------- |
+| US-02 | AC01  | Modificar solicitud exitosamente (Happy Path)                   | TC01 | FUNCIONAL      |
+| US-02 | AC02a | Intentar modificar con rol no autorizado (Aprobador/Admin)      | TC02 | SEGURIDAD      |
+| US-02 | AC03a | Modificar solicitud con campos obligatorios vacíos              | TC03 | FUNCIONAL      |
+| US-02 | AC03b | Validación de descripción fuera de límite (mínimo)              | TC04 | FUNCIONAL      |
+| US-02 | AC03b | Validación de descripción fuera de límite (máximo)              | TC05 | FUNCIONAL      |
+| US-02 | AC03c | Validación de cantidad menor o igual a cero                     | TC06 | FUNCIONAL      |
+| US-02 | AC03c | Validación de cantidad con formato no numérico                  | TC07 | FUNCIONAL      |
+| US-02 | AC03c | Validación de cantidad con exceso de decimales (>3)             | TC08 | FUNCIONAL      |
+| US-02 | AC03c | Validación de cantidad excediendo límite de enteros             | TC09 | FUNCIONAL      |
+| US-02 | AC03d | Validación de fecha de entrega en el pasado                     | TC10 | FUNCIONAL      |
+| US-02 | AC03d | Validación de formato de fecha inválido                         | TC11 | FUNCIONAL      |
+| US-02 | AC04  | Verificar inmutabilidad de campos clave (ítem, centro, almacén) | TC12 | FUNCIONAL      |
+| US-02 | AC05  | Intentar modificar solicitud con ID inexistente                 | TC13 | SEGURIDAD      |
+| US-02 | AC02b | Intentar modificar solicitud perteneciente a otro usuario       | TC14 | SEGURIDAD      |
+| US-02 | AC02c | Intentar modificar sin autenticación activa                     | TC15 | SEGURIDAD      |
+| US-02 | AC02c | Intentar modificar con usuario en estado inactivo               | TC16 | SEGURIDAD      |
+| US-02 | AC07  | Validar bloqueo por duplicidad tras modificación                | TC17 | FUNCIONAL      |
+| US-02 | AC08a | Verificar restricción de edición por estado en la interfaz (UI) | TC18 | FUNCIONAL      |
+| US-02 | AC08b | Verificar bloqueo de acceso directo por URL por estado          | TC19 | SEGURIDAD      |
+| US-02 | AC09  | Manejo de error inesperado durante la persistencia              | TC20 | NO FUNCIONAL   |
+| US-02 | AC09  | Verificación de tiempo de respuesta (Performance < 2s)          | TC21 | NO FUNCIONAL   |
+
+| US    | AC    | Escenario                                                   | TC   | Tipo de Prueba |
+| ----- | ----- | ----------------------------------------------------------- | ---- | -------------- |
+| US-03 | AC01a | Visualizar solicitud propia (Creada)                        | TC01 | FUNCIONAL      |
+| US-03 | AC01a | Visualizar solicitud propia (Estados finales)               | TC02 | FUNCIONAL      |
+| US-03 | AC01b | Visualizar solicitud ámbito Aprobador (Revisión)            | TC03 | FUNCIONAL      |
+| US-03 | AC01b | Visualizar solicitud ámbito Aprobador (Estados finales)     | TC04 | FUNCIONAL      |
+| US-03 | AC01c | Visualizar solicitud como Administrador                     | TC05 | FUNCIONAL      |
+| US-03 | AC02  | Detalle tipo Material (Campos mínimos)                      | TC06 | FUNCIONAL      |
+| US-03 | AC02  | Detalle tipo Servicio (Sin Almacén)                         | TC07 | FUNCIONAL      |
+| US-03 | AC04  | Visibilidad Dinámica de Botones de Acción (Estados Finales) | TC08 | SEGURIDAD      |
+| US-03 | AC05  | Intento visualización solicitante inexistente               | TC09 | FUNCIONAL      |
+| US-03 | AC03  | Intento visualización Usuario Inactivo                      | TC10 | SEGURIDAD      |
+| US-03 | AC03  | Intento visualización sin autenticación (URL)               | TC11 | SEGURIDAD      |
+| US-03 | AC03  | Intento visualización sin autenticación (API)               | TC12 | SEGURIDAD      |
+| US-03 | AC03  | Intento visualización ID ajeno (Privacidad)                 | TC13 | SEGURIDAD      |
+| US-03 | AC03  | Intento con ID formato inválido                             | TC14 | SEGURIDAD      |
+| US-03 | AC03  | Intento con ID inexistente                                  | TC15 | SEGURIDAD      |
+| US-03 | AC06  | Verificación de Performance (< 2s)                          | TC16 | NO FUNCIONAL   |
+| US-03 | AC07  | Consistencia de datos Backend vs UI                         | TC17 | NO FUNCIONAL   |
+
+| US    | AC    | Escenario                                                         | TC   | Tipo de Prueba |
+| ----- | ----- | ----------------------------------------------------------------- | ---- | -------------- |
+| US-04 | AC01a | Listar solicitudes propias como Solicitante                       | TC01 | FUNCIONAL      |
+| US-04 | AC01b | Listar solicitudes en ámbito como Aprobador                       | TC02 | FUNCIONAL      |
+| US-04 | AC01c | Listar todas las solicitudes como Administrador Técnico/Funcional | TC03 | FUNCIONAL      |
+| US-04 | AC02  | Visualizar mensaje de listado vacío                               | TC04 | FUNCIONAL      |
+| US-04 | AC03  | Verificar ordenamiento por defecto del listado                    | TC05 | FUNCIONAL      |
+| US-04 | AC03  | Verificar paginación correcta del listado                         | TC06 | FUNCIONAL      |
+| US-04 | AC04  | Acceder al detalle de una solicitud desde el listado              | TC07 | FUNCIONAL      |
+| US-04 | AC05  | Listado de solicitudes con campos mínimos                         | TC08 | FUNCIONAL      |
+| US-04 | AC06  | Intentar acceder al listado con usuario no autorizado (API)       | TC09 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con usuario no autenticado (API)      | TC10 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con usuario Inactivo (API)            | TC11 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con Sesión Expirada (API)             | TC12 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con usuario no autorizado (UI)        | TC13 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con usuario Inactivo (UI)             | TC14 | SEGURIDAD      |
+| US-04 | AC06  | Intentar acceder al listado con Sesión Expirada (UI)              | TC15 | SEGURIDAD      |
+| US-04 | AC07  | Validar tiempo de respuesta al cargar el listado                  | TC16 | NO FUNCIONAL   |
+| US-04 | AC08  | Verificar truncamiento de descripciones largas en el listado      | TC17 | NO FUNCIONAL   |
+| US-04 | AC08  | Validar consistencia del estado visualizado                       | TC18 | NO FUNCIONAL   |
+
+# 11. Criterios de Entrada
+
+*	Módulo disponible.
+*	Los requisitos funcionales y reglas de negocio definidos y aprobados.
+*	El ambiente de pruebas disponible y configurado.
+*	Los datos de prueba necesarios han sido preparados.
+*	Los casos de prueba han sido diseñados y revisados.
+*	La herramienta de gestión de defectos se encuentra disponible.
+
+
+# 12.  Criterios de Salida
+*   **90%** de casos ejecutados.
+*   **0** defectos críticos o bloqueantes abiertos.
+*   Defectos de severidad media o baja se encuentren corregidos, diferidos o aceptados formalmente.
+*	Se hayan ejecutado pruebas de confirmación y regresión asociadas a los defectos corregidos.
+*   Informe final aprobado.
+
+# 13. Gestión de Defectos
+
 En caso de detectarse defectos críticos bloqueantes, se suspenderá la ejecución de pruebas sobre la funcionalidad afectada hasta su corrección. Posteriormente se ejecutarán pruebas de confirmación y regresión asociadas.
 
-#### 5.4.1  Clasificación de Defectos
+## 13.1 Clasificación de Defectos
 
 **Severidad**
 
-- **S1/Crítica:** El sistema no cumple su función principal y no existe un workaruond para continuar (ej: No se crea la solicitud cuando presionas Guardar)
+- **S1/Crítica:** El sistema no cumple su función principal y no existe un workaround para continuar (ej: No se crea la solicitud cuando presionas Guardar)
 - **S2/Mayor:** Fallo en una funcionalidad crítica del sistema y aún asi continúa estable (ej: Fallo en regla de negocio de duplicidad y aún asi crea la solicitud).
-- **S3/Menor:** Errores visuales, pero en el backend persiste todo correctamente (ej:variación de colores, aliniación desalineada, fuentes incosistentes). 
-- **S4/Trivial:** El sistema funciona correctamente y existen aquellos detalles casi "Nulos" que podrían pasar desapercibidos, pues no generan incomodidad al usuario.
+- **S3/Menor:** Errores visuales, pero en el backend persiste todo correctamente (ej:variación de colores, desalineamiento de textos, fuentes incosistentes). 
+- **S4/Trivial:** El sistema funciona correctamente y existen detalles casi "Nulos" que podrían pasar desapercibidos, pues no generan incomodidad al usuario.
 
 **Prioridad**
 
 - **P1-Inmediata:** Si el defecto compromete la entrega o bloquea la ejecución de las pruebas, debe solucionarse de inmediato.
 - **P2-Alta** El defecto se encuentra en una funcionalidad crítica, debe solucionarse antes de terminar el Sprint.
 - **P3-Media** El defecto no afecta funcionalidades o reglas de negocio críticas, no bloquea pruebas ni compromete la entrega, puede planificarse para el próximo sprint.
-- **P4-Baja** El defecto entonces puede transferirse pues funcionalmente no compromete nada en el Sprint, puede solucionarse más adelante.
+- **P4-Baja** El defecto entonces puede transferirse pues funcionalmente no compromete nada en el Sprint, puede solucionarse más adelante
 
-### 5.5.	Pruebas de Regresión
-•	Se ejecutará regresión parcial al finalizar cada sprint o iteración.
-•	Se ejecutará regresión completa antes de la liberación final del módulo.
+# 14.  Riesgos
 
-### 5.6 Criterios de Suspensión
-La ejecución de pruebas se suspenderá si se cumple alguna de las siguientes condiciones:
+## 14.1 Riesgos de Requerimientos
 
-* Fallo crítico en el **Smoke Test** (ej. no se puede iniciar sesión).
-* Detección de un defecto **Bloqueante** en el flujo principal (ej. no se puede guardar ninguna solicitud).
-* Inestabilidad del ambiente de pruebas que impida la navegación fluida.
-
-### 5.7 Criterios de Reanudación
-Las pruebas se retomarán una vez que:
-* El equipo de desarrollo confirme la corrección del defecto bloqueante o crítico.
-* Se verifique la estabilidad del ambiente mediante un nuevo **Smoke Test** exitoso.
-
-## 6. Ambiente de Pruebas
-Las pruebas del **módulo Gestión de Solicitudes de Compra** se ejecutarán en un entorno de desarrollo o simulación controlado.
-
-Dado que el MVP no contempla despliegues en múltiples ambientes, las validaciones se realizarán bajo las siguientes condiciones:
-*	Ejecución manual de pruebas de UI.
-*	Uso de API Client(Postman / Thunder Client) para pruebas de integración de backend.
-*	Navegador web moderno (por ejemplo, Chrome).
-*	Entorno local o simulado (Vercel Preview).
-*	Base de Datos: PostgreSQL Serverless (Vercel Postgres).
-*	Sin integración con sistemas externos.
-
-No se contemplan pruebas en ambientes productivos ni en entornos con múltiples usuarios concurrentes.
-
-## 7. Datos de Prueba
-
-### 7.1. Usuarios (Combinaciones de Roles y Estados y permisos sobre Centro)
-
-| Rol         | Estado            | Centro             |
-| :---        | :---              | :---               |
-| Solicitante | Activo / Inactivo | Con y Sin permisos |
-| Aprobador   | Activo / Inactivo | Con y Sin permisos |
-| Admin TF    | Activo / Inactivo | Global             |
-| Invitado    | -                 | Sin acceso         |
-
-> **Nota:** El rol "Invitado" se utiliza para validar el bloqueo de acceso a usuarios no autenticados.
-
-### 7.2. Solicitudes, Maestros y Duplicados
-
-*   **Estados:** Creada, En Revisión, Rechazada, Aprobada.
-*   **Maestros:** Centros válidos/inválidos, Almacenes asociados/no asociados, visibilidad dinámica según tipo.
-*   **Duplicados:** Variaciones para validar duplicidad (Mismo Item, Centro y Fecha en estados distintos de Rechazada).
-
-### 7.3. Estrategia de Datos por Campo
-
-Se utilizarán los siguientes criterios para la preparación de datos de prueba:
-
-| Campo                  | Pruebas de Valor (Equivalencia/Límites)                                                                         |
-| :---                   | :---                                                                                                            |
-| **Identificador (ID)** | Formato válido (PR-2026-0001), Inexistente, Formato inválido (ABC-123).                                         |
-| **Descripción**        | Mínimo (10 char), Máximo (40 char), Fuera de rango (<10 o >40), Solo espacios, DAtos basura (ej: "aaaghterplt") |
-| **Cantidad**           | Enteros (10), Decimales válidos (10.123), Exceso decimales (10.1234), Negativos, Cero                           |
-| **Fecha de Entrega**   | Hoy (Límite inferior), Futuro, Pasado (Ayer), Formato erróneo (32/13/2025).                                     |
-| **Unidad de Medida**   | Válidas (KG, HR, HR), Inválidas (AAAA), Vacío.                                                                  |
-| **Item Comprable**     | Material (requiere Almacén), Servicio (oculta Almacén).                                                         |
-
-
-### 7.4. Datos para pruebas no funcionales básicas
-*	Conjunto mínimo de solicitudes.
-*	Conjunto moderado de solicitudes (para evaluar tiempos de carga del listado).
-
-### 7.5. Estrategia de Pruebas de API (Matriz de Endpoints)
-
-| Endpoint | Método | Escenario de Prueba | Status Esperado | Validación de Negocio |
-| :--- | :--- | :--- | :--- | :--- |
-| `/api/solicitudes` | POST | Creación exitosa (Material + Almacén) | 201 Created | Registro persistido en DB |
-| `/api/solicitudes` | POST | Intento con descripción < 10 caracteres | 400 Bad Request | Mensaje: "Descripción demasiado breve" |
-| `/api/solicitudes` | POST | Intento con cantidad <= 0 | 400 Bad Request | Mensaje: "Cantidad debe ser mayor que 0" |
-| `/api/solicitudes` | POST | Intento de duplicado (RN10) | 400 Bad Request | Mensaje de error de duplicidad |
-| `/api/solicitudes` | POST | Servicio sin Almacén | 201 Created | Almacén guardado como NULL |
-| `/api/solicitudes/[id]` | GET | Consulta de solicitud existente | 200 OK | Datos coinciden con la DB |
-| `/api/solicitudes/[id]` | GET | Consulta de ID inexistente | 404 Not Found | Mensaje de error amigable |
-
-## 8. Criterios de Entrada
-
-*	Módulo liberado para validación.
-*	Los requisitos funcionales y reglas de negocio se encuentran definidos y aprobados.
-*	El ambiente de pruebas está disponible y configurado.
-*	Los datos de prueba necesarios han sido preparados.
-*	Los casos de prueba han sido diseñados y revisados.
-*	La herramienta de gestión de defectos se encuentra disponible.
-
-
-## 9.  Criterios de Salida
-*   **100%** de casos de prueba ejecutados.
-*   **0** defectos críticos o bloqueantes abiertos.
-*   Defectos de severidad media o baja se encuentren corregidos, diferidos o aceptados formalmente.
-*	  Se hayan ejecutado pruebas de confirmación y regresión asociadas a los defectos corregidos.
-*   Informe final de pruebas generado y aprobado.
-
-## 10. Riesgos
-
-### 10.1 Riesgos de Requerimientos
-
-#### Alcance No Controlado (Scope Creep)
+### Alcance No Controlado (Scope Creep)
 Cambios en reglas de negocio o funcionalidades sin actualización del plan de pruebas o cronograma, generando retrasos y retrabajo.
 
 **Mitigación:**
 - Validación y congelamiento del alcance antes de iniciar pruebas.
 - Actualización del Test Plan ante cambios aprobados.
 
-#### Ambigüedad en requisitos
+### Ambigüedad en requisitos
 Interpretación incorrecta de criterios de aceptación o reglas de negocio, especialmente en desarrollos generados por IA.
 
 **Mitigación:**
@@ -215,53 +349,73 @@ Interpretación incorrecta de criterios de aceptación o reglas de negocio, espe
 - Refinamiento continuo y validación temprana mediante pruebas exploratorias.
 - Validación de inconsistencias documentales.
 
-### 10.2 Riesgos Técnicos
+## 14.2 Riesgos Técnicos
 
-#### Rendimiento insuficiente
+### Rendimiento insuficiente
 El sistema puede presentar degradación en tiempos de respuesta al aumentar el volumen de datos.
 
 **Mitigación:**
 - Validación temprana de tiempos de respuesta básicos.
 - Pruebas con volúmenes moderados de datos simulados.
 
-#### Calidad del código generado por IA
+### Calidad del código generado por IA
 Código difícil de mantener o propenso a errores no detectados.
 
 **Mitigación:**
 - Pruebas funcionales exhaustivas.
 - Regresión frecuente tras modificaciones.
 
-#### Incompatibilidad futura con integraciones externas
+### Incompatibilidad futura con integraciones externas
 Posible dificultad al integrar el módulo con APIs o sistemas externos.
 
 **Mitigación:**
 - Documentación clara de reglas y estructuras actuales.
 - Validación de consistencia de datos.
 
-### 10.3 Riesgos de Seguridad
+### Inconsistencia en los Datos Maestros (Seed): 
+Sin un entorno estable, los datos de prueba (Materiales/Servicios/Centros//Almacenes/Unidades de Medida) podrían cambiar durante el desarrollo, invalidando los casos de prueba ya diseñados.
 
-#### Configuración incorrecta de permisos
+**Mitigación:**
+- Congelamiento de los scripts de seed al inicio de cada ciclo de pruebas.
+
+## 14.3 Riesgos de Seguridad
+
+### Configuración incorrecta de permisos
 Usuarios podrían acceder a funcionalidades no autorizadas.
 
 **Mitigación:**
 - Pruebas exhaustivas por rol y estado.
 - Validación cruzada de restricciones backend y frontend.
 
-#### Transiciones de estado no autorizadas
+### Transiciones de estado no autorizadas
 Modificación indebida del estado inicial o transición incorrecta entre estados.
 
 **Mitigación:**
 - Testing basado en estados.
 - Validación negativa de transiciones inválidas.
 
-#### Exposición de datos sensibles
+### Exposición de datos sensibles
 Visualización indebida de solicitudes de otros usuarios.
 
 **Mitigación:**
 - Pruebas de acceso cruzado entre roles.
 - Validación de filtros por centro y propietario.
 
-## 11. Roles y Responsabilidades
+### Brecha de Seguridad por Simulación:
+El uso de un selector de usuarios para simular roles podría ocultar fallos de lógica que solo aparecerían con un sistema de autenticación real.
+
+**Mitigación:** 
+- Validar manualmente la consistencia del header x-user-id en todas las capas (UI -> API -> DB).
+
+# 15. Ambiente de Pruebas
+
+  - UI: Navegador
+  - API: Postman
+  - Infraestructura: Vercel
+  - DB: Prisma Studio
+  - Mock: Postman + selector de usuario
+
+# 16. Roles y Responsabilidades
 
 ### Líder QA
 - Definir y aprobar la Estrategia y el Plan de Pruebas.
@@ -292,7 +446,7 @@ Visualización indebida de solicitudes de otros usuarios.
 
 > Es importante destacar que el MVP se realizó por una misma persona acompañada de la IA, para agilizar, apoyar y revisar consistencia en el proceso de documentación y para la implementación de la UX. Pero se decidió reflejar los roles involucrados para ofrecer un matiz más orientado a proyectos reales.
 
-## 12. Entregables
+## 13. Entregables
 
 Como resultado del proceso de pruebas del módulo Gestión de Solicitudes de Compra se generarán los siguientes entregables:
 

@@ -18,11 +18,12 @@ En este documento se describe el **Modelo de Dominio** del módulo Gestión de S
   - Visualización y listado de solicitudes.
   - Roles funcionales involucrados (Solicitante, Aprobador, Administradror Técnico/Funcional).
   - Estados y transiciones de la solicitud.
+  - Integridad de Datos: Validación de la Tríada de Duplicidad (ItemComprable + Centro + Fecha), de solicitudes en estados distintas de "Rechazada" a nivel de base de datos.
+  - Gestión de Catálogos (Seed): Disponibilidad de datos maestros pre-cargados (Materiales, Servicios, Centros, Almacenes, UM).
 
 - Quedan fuera del alcance:
 
   - Detalles técnicos de implementación.
-  - Persistencia de datos y diseño de base de datos.
   - Interfaces de usuario y aspectos visuales.
 
 # Entidades del Dominio
@@ -45,6 +46,34 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 - Almacén (Entidad Almacén)
 - Id Usuario Solicitante
 
+## ItemComprable (Entidad Abstracta)
+
+   - Material
+   - Servicio
+
+## Material
+
+- Representa un bien físico que puede ser solicitado.
+- Cuando es solicitado, requiere la asignación de un Almacén en la Solicitud de Compra.
+- Dato Maestro del Sistema.
+
+### Atributos principales:
+
+- Identificador de material
+- Nombre
+- Descripción
+
+## Servicio
+
+- Representa un servicio que puede ser solicitado.
+- Dato Maestro del Sistema.
+
+### Atributos principales:
+
+- Identificador de servicio
+- Nombre
+- Descripción
+    
 ## Usuario
 
 Representa a una persona que interactúa con el sistema.
@@ -119,29 +148,6 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 - Identificador de almacén
 - Nombre
 
-## Material
-
-- Representa un bien físico que puede ser solicitado.
-- Cuando es solicitado, requiere la asignación de un Almacén en la Solicitud de Compra.
-- Dato Maestro del Sistema.
-
-### Atributos principales:
-
-- Identificador de material
-- Nombre
-- Descripción
-
-## Servicio
-
-- Representa un servicio que puede ser solicitado.
-- Dato Maestro del Sistema.
-
-### Atributos principales:
-
-- Identificador de servicio
-- Nombre
-- Descripción
-
 ## Estado de Solicitud
 
 Representa el estado actual de una solicitud dentro de su ciclo de vida.
@@ -193,16 +199,21 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 # Definición de Formatos de Solicitud de Compras
  
  - **Identificador de solicitud:** String, obligatorio, único
-    - Convención sugerida: prefijo identificador del tipo (ej: PR-2026-0001)
+    - Convención sugerida: prefijo identificador del tipo (ej: PR-2026-####)
  - **Descripción:** String, obligatorio, 10-40 caracteres
- - **Cantidad:** Decimal(13, 3), obligatorio, soporta hasta 10 enteros y 3 decimales,  mayor que 0
- - **Unidad de Medida:** Char(3), obligatorio (ej: KG, MTR, LB, LT, HR)
- - **Fecha de creación:** DateTime, obligatoria
- - **Fecha de entrega:** DateTime, obligatoria
+ - **Cantidad:** obligatorio
+      * Decimal(13, 3). El sistema debe garantizar la precisión de hasta 3 decimales sin redondeos automáticos no autorizados.
+      * Soporta hasta 10 enteros y 3 decimales
+      * Mayor que 0
+      * No acepta valores no numéricos.
+ - **Unidad de Medida:** VarChar, obligatorio (ej: KG, MTR, LB, LT, HR)
+ - **Fecha de creación:** ISO 8601, obligatoria
+ - **Fecha de entrega:** 
+       * Capa de Persistencia (DB): ISO 8601 (YYYY-MM-DDTHH:mm:ssZ). 
+       * Capa de Negocio/UI: DD/MM/YYYY.
  - **Id Usuario Solicitante**: UUID / String (Relación obligatoria con entidad Usuario)
- - **Nombre Usuario Solicitante**: String, obligatorio, 10-40 caracteres alfabéticos Atributo visual (se obtiene del Usuario relacionado).
+ - **Nombre Usuario Solicitante**: String, obligatorio, 10-40 caracteres alfabéticos.
  
-
 > Nota: Los IDs de Usuario, Centro, Almacen, Material y Servicio son Llaves Primarias (PK) inmutables.
 
 # Definición de Formatos de Datos Maestros
@@ -223,18 +234,18 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 
 ## Centro
 
-  - **id:** String, 4 caracteres numéricos, obligatorio
+  - **id:** String, 4 caracteres numéricos, obligatorio. (Ej: 1000, 2000, 3000)
 
 ## Almacén
 
-  - **id:** String, 3–5 caracteres alfanuméricos, obligatorio si ItemComprable es Material
+  - **id:** String, 3–5 caracteres alfanuméricos, obligatorio si ItemComprable es Material (Ej: ALM1, ALM2)
 
 # Ciclo de Vida de la Solicitud de Compra
 
 La Solicitud de Compra sigue un ciclo de vida controlado por su estado:
 
 - Creada → editable solo por el Solicitante.
-- En Revisión → no editable; decisión del Aprobador.
+- En Revisión → no editable; próxima transición a decisión del Aprobador.
 - Aprobada → estado final.
 - Rechazada → estado final.
 
