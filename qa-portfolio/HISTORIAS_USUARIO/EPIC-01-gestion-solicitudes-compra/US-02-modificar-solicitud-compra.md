@@ -19,7 +19,7 @@
 - **RN01:** Solo usuarios autenticados y con sesión activa pueden modificar solicitudes de compra.
 - **RN02:** Solo usuarios con rol Solicitante pueden acceder a la modificación de solicitudes propias.
 - **RN03:** Solo pueden modificarse los siguientes campos en una solicitud: Descripción, Cantidad, Fecha de Entrega, Unidad de Medida (UM).
-- **RN04:** Una vez creada la solicitud no puede modificarse: ItemComprableId, Centro, Almacén.
+- **RN04:** Una vez creada la solicitud no puede modificarse: ItemComprableID, Centro, Almacén.
 - **RN05:** La solicitud de compra a modificar debe existir en el sistema.
 - **RN06:** El usuario solicitante debe estar asignado al Centro asociado a la solicitud.
 - **RN07:** No se permiten fechas de entrega anteriores a la fecha del sistema. (US-01)
@@ -27,7 +27,7 @@
 - **RN09:** Solo se permite la modificación de solicitudes que se encuentren en estado inicial "Creada". Cualquier otro estado (En Revisión, Aprobada, Rechazada) el sistema debe:
   - Deshabilitar la opción "Modificar".
 - **RN10:** No se permite que, como resultado de una modificación, dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
-  - ItemComprableId
+  - ItemComprableID
   - Centro
   - Fecha de entrega.
 - **RN11:** Los cambios deben guardarse de forma consistente y reflejarse correctamente en:
@@ -48,12 +48,14 @@
 - AC03d: Validación de fecha (pasado/formato)
 - AC04: Inmutabilidad de campos clave (ítem, centro, almacén)
 - AC05: Control de modificación de solicitudes inexistentes
-- AC07: Control de duplicidad por modificación
-- AC08a: Restricción de edición por estado en interfaz (UI)
-- AC08b: Restricción de edición por estado vía URL/directa
-- AC09: Manejo de errores inesperados y performance
+- AC06: Control de duplicidad por modificación
+- AC07: Control en concurrencia en la modificación
+- AC08: Restricción de edición por estado de sesión (Expirada/No autenticado)
+- AC09: Restricción de edición por estados no autorizados para modificación 
+- AC10: Manejo de errores inesperados
+- AC11: Performance básico de peticiones <2s
 
-## 5. Escenarios y 
+## 5. Escenarios (Gherkin)
 
 > Nota: Algunos escenarios redefinen el contexto fuera del Background para cubrir casos negativos específicos.
 
@@ -63,25 +65,26 @@ Feature: Modificar Solicitud de Compra
 
 Background: 
   Given el usuario está autenticado en el sistema y tiene sesión "Activa"
-  And el usuario tiene rol de "Solicitante"
-  And existe una solicitud propia en estado inicial "Creada"
-  And tiene autorización sobre el centro
+  And tiene el rol "Solicitante"
+  And existe al menos una solicitud en estado inicial "Creada"
+  And tiene autorización sobre al menos un centro
 
-      @US-02 @happy @critico
+      @US-02 @ac01 @happy @critico
       Scenario: Modificar solicitud de compra con datos válidos (Happy Path)
 
             Given el usuario accede al formulario de modificación 
             When el usuario completa los campos permitidos con datos válidos
             And guarda los cambios realizados
-            Then el sistema guarda las modificaciones exitosamente
-            And los cambios se reflejan correctamente en la solicitud 
+            Then el sistema muestra un mensaje notificando que la operación fue exitosa
+            And los cambios se reflejan correctamente en la solicitud
+            And la data persiste correctamente en la base de datos
 
-      @US-02 @negative @rol_no_autorizado
+      @US-02 @ac02a @negative @rol_no_autorizado
       Scenario Outline: Intentar modificar una solicitud con un rol no autorizado
            
             Given el usuario tiene asignado el rol "<rol>"
             When intenta acceder a la funcionalidad "Modificar Solicitud"
-            Then el sistema bloquea el acceso a la funcionalidad
+            Then el sistema deshabilita la opción "Modificar"
             And muestra un mensaje "<mensaje>"
             And no se permite la modificación de la solicitud
            
@@ -91,92 +94,109 @@ Background:
             | Aprobador                       | Su rol no tiene permisos para realizar modificaciones |
             | Administrador Técnico Funcional | Su rol no tiene permisos para realizar modificaciones |
 
-       @US-02 @negative @datos_invalidos 
+      @US-02 @ac02b @negative @no_autorizada_usuario  
+      Scenario: Intentar modificar solicitud de compra no autorizada para el usuario
+
+            Given existe una solicitud en estado "Creada" no propia
+            When el usuario intenta acceder a la modificación directa de esta solicitud
+            Then el sistema bloquea la operación
+            And no expone información de la solicitud
+            And muestra un mensaje funcional "No tiene autorización para acceder a esta solicitud"
+      
+      @US-02 @ac02c @negative @usuario_inactivo
+      Scenario: Intento de modificación por usuario inactivo
+
+            Given el usuario está marcado en el sistema como "Inactivo" 
+            When el usuario intenta acceder a la modificación de la solicitud
+            Then el sistema bloquea la acción
+            And muestra un mensaje indicando que el usuario no está activo
+            And no se realiza ninguna acción sobre la solicitud
+
+      @US-02 @ac03a @negative @campos_obligatorios
+      Scenario: Intento de modificación de solicitud con campos obligatorios vacíos
+       
+            Given el usuario accede al formulario de modificación
+            And durante la edición deja un campo obligatorio sin completar
+            When el usuario intenta guardar la modificación de la solicitud
+            Then el sistema muestra un mensaje indicando que existen campos obligatorios vacíos
+            And deshabilita el botón "Guardar"
+            And no se guarda información parcial en la base datos
+
+       @US-02 @ac03b @ac03c @ac03d @negative @datos_invalidos 
        Scenario Outline: Intentar modificar solicitud de compra con datos inválidos en campos permitidos
                                 
             Given el usuario accede al formulario de modificación
             When ingresa el valor "<valor>" en los campos permitidos "<campos>"
             And intenta guardar la modificación de la solicitud
-            Then el sistema debe mostrar un mensaje de error "<mensaje_error>" indicando error de formato
-            And no se guarda la modificación de la solicitud
+            Then el sistema muestra un mensaje de error "<mensaje_error>" indicando error de formato
+            And se deshabilita el botón "Guardar"
+            And no persiste información parcial en la base de datos
 
               Examples:
               | campos        | valor      | mensaje_error                       |
               | :---          | :---       | :---                                |
               | Descripción   | MTTO       | Debe tener entre 10 y 40 caracteres | 
               | Cantidad      | -5         | Cantidad debe ser mayor que 0       |   
-              | Fecha Entrega | 32/05/2014 | Fecha Inexistente                   |
+              | Fecha Entrega | 32/05/2014 | Formato Inválido                    |
+              | Fecha Entrega | 12/01/2025 | Fecha pasada                        |
      
-      @US-02 @negative @fecha
-      Scenario: Intento de modificación de solicitud con una fecha en el pasado
-       
-            Given el usuario accede al formulario de modificación
-            And completa los campos permitidos con datos válidos
-            When ingresa una nueva fecha de entrega anterior a la fecha del sistema
-            And intenta guardar la modificación de la solicitud
-            Then el sistema muestra un mensaje indicando que la fecha de entrega no puede ser pasada                
-            And no se guarda la modificación de la solicitud
-      
-      @US-02 @negative @campos_claves
-      Scenario: Intentar modificar campos clave (ItemComprableId/Centro/Almacén) de una solicitud de compra
+      @US-02 @ac04 @negative @inmutabilidad
+      Scenario: Intentar modificar campos clave (ItemComprableID/Centro/Almacén) de una solicitud de compra
 
             Given el usuario accede al formulario de modificación 
-            When el usuario intenta modificar el ItemComprableId
+            When el usuario intenta modificar un campo clave (ItemComprableID, Centro o Almacén)
             Then el sistema muestra dichos campos en modo "solo lectura"
             And no permite hacer modificaciones
       
-      @US-02 @negative @solicitud_inexistente
+      @US-02 @ac05 @negative @solicitud_inexistente
       Scenario: Intentar modificar solicitud de compra inexistente
 
-            Given el usuario intenta modificar los datos de una solicitud con un ID inexistente
-            And la solicitud no existe en el sistema
+            Given el usuario intenta acceder a la modificación de una solicitud con un ID inexistente
             Then el sistema bloquea la operación 
-            And muestra un mensaje funcional indicando que la solicitud no existe en el sistema
+            And muestra un mensaje funcional indicando que la solicitud no existe en el sistema 
+      
+      @US-02 @ac06 @negative @duplicados
+      Scenario: Intentar modificar una solicitud para que quede duplicada de otra existente
 
-      @US-02 @negative @no_accesible_usuario    
-      Scenario: Intentar modificar solicitud de compra no accesible para el usuario
+            Given existe una solicitud de compra creada previamente con el mismo ItemComprable, centro y fecha de entrega
+            When el usuario modifica los campos permitidos de su solicitud
+            And  intenta guardar la modificación de forma que la combinación de ItemComprable, centro y fecha de entrega coincida con la de la otra solicitud         
+            Then el sistema bloquea la modificación de la solicitud
+            And muestra un mensaje indicando que ya existe una solicitud para el mismo ItemComprable, centro y fecha de entrega
+            And no se guarda la modificación de la solicitud
 
-            Given el usuario accede a una solicitud existente
-            When el usuario intenta modificar los datos de la solicitud 
-            And no tiene privilegios para acceder a la misma
-            Then el sistema bloquea la operación 
-            And muestra un mensaje funcional indicando que el usuario no tiene privilegios para acceder a la solicitud
+      
+      @US-02 @ac07 @negative @concurrencia_modificacion
+      Scenario: Intento de modificación por dos usuarios simultáneamente a la misma solicitud
 
-      @US-02 @negative @usuario_no_autenticado
+            Given dos usuarios tienen el rol "Solicitante"
+            And acceden al formulario de modificación 
+            And completan los campos permitidos con datos válidos
+            And guardan la solicitud casi simultaneamente
+            When se realizan las peticiones de guardado
+            Then el sistema procesa la primera solicitud de forma exitosa
+            And evita incosistencias en los datos
+            And muestra un mensaje funcional al segundo usuario que los datos han sido actualizados por un tercero
+            And no le permite guardar sus cambios
+            And los datos de la primera petición persisten correctamente en la base de datos
+      
+      @US-02 @ac08 @negative @usuario_no_autenticado
       Scenario: Intento de modificación por usuario no autenticado
 
-            Given el usuario no está autenticado en el sistema
+            Given el usuario tiene el rol "Solicitante" 
+            And no está autenticado en el sistema
             When intenta acceder a la modificación de la solicitud
             Then el sistema lo redirige al formulario de autenticación
             And no se presenta el formulario de modificación
             And no se realiza ninguna acción sobre la solicitud
-
-      @US-02 @negative @usuario_inactivo
-      Scenario: Intento de modificación por usuario inactivo
-
-            Given el usuario está marcado como "Inactivo"
-            When intenta acceder a la modificación de la solicitud
-            Then el sistema bloquea la acción
-            And muestra un mensaje indicando que el usuario no está activo
-            And no se realiza ninguna acción sobre la solicitud
-      
-       @US-02 @negative @duplicados
-       Scenario: Intentar modificar una solicitud para que quede duplicada de otra existente
-
-            Given existe una solicitud de compra creada previamente con el mismo material o servicio, centro y fecha de entrega
-            When el usuario modifica los campos permitidos de su solicitud
-            And  intenta guardar la modificación de forma que la combinación de material o servicio, centro y fecha de entrega coincida con la de la otra solicitud         
-            Then el sistema bloquea la modificación de la solicitud
-            And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha de entrega
-            And no se guarda la modificación de la solicitud
-
-        @US-02 @seguridad @gestion_estados
-        Scenario Outline: El sistema no permite el acceso desde esta pantalla a la funcionalidad de modificación en estados inválidos desde la UI
+          
+      @US-02 @ac09 @seguridad @gestion_estados
+      Scenario Outline: El sistema no permite el acceso desde esta pantalla a la funcionalidad de modificación en estados inválidos desde la UI
                            
-              Given existe una solicitud propia del usuario en estado inválido "<estado>"
-              And está situado en la pantalla de visualización de dicha solicitud
-              When el sistema visualiza la solicitud 
-              Then el botón de Modificar está deshabilitado
+            Given existe una solicitud propia del usuario en estado inválido "<estado>"
+            And está situado en la pantalla de visualización de dicha solicitud
+            When el sistema visualiza la solicitud 
+            Then el botón de Modificar está deshabilitado
               
                 Examples:
                 | estado      |
@@ -185,7 +205,7 @@ Background:
                 | Aprobada    |
                 | Rechazada   |
                 
-        @US-02 @seguridad @gestion_estados   
+        @US-02 @ac09 @seguridad @gestion_estados   
         Scenario Outline: El sistema bloquea el acceso directo a la modificación de solicitudes en estados inválidos
                      
               Given existe una solicitud propia con ID "<ID>" en estado <estado>
@@ -201,12 +221,12 @@ Background:
                 | PR-2026-0003 | Rechazada   | No puede modificarse en el estado actual |
 
 
-       @US-02 @disponibilidad
+       @US-02 @ac10 @manejo_errores
        Scenario: Manejo de interrupción durante el guardado
         
               Given el usuario intenta guardar la modificación de la solicitud
               When ocurre un error inesperado
-              Then el sistema notifica que los cambios no se guardaron
+              Then el sistema notifica que intente más tarde y que los cambios no fueron guardados
               And no persisten cambios en el sistema
 ```
 ## 6. Consideraciones de QA
@@ -216,7 +236,7 @@ Background:
 
 **Comportamiento de la Interfaz (UI/UX)**
 
-- Los campos claves (Centro/ItemComprableId/Almacén) en el momento de la modificación deben permanecer en Modo Lectura.
+- Los campos claves (Centro/ItemComprableID/Almacén) en el momento de la modificación deben permanecer en Modo Lectura.
 - Cuando una solicitud se encuentre en estado En Revisión, Aprobada, Rechazada el sistema debe mostrar el botón “Modificar Solicitud” deshabilitado.
 
 **Seguridad y Acceso**

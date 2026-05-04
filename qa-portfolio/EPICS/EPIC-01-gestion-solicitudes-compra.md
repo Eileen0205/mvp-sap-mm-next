@@ -2,11 +2,11 @@
 
 ## 1. Descripción
 
-Esta épica cubre el proceso central del MVP, permitiendo a los usuarios Crear, Modificar, Listar y Visualizar Solicitudes de Compra de materiales o servicios de forma controlada y trazable.
+Esta épica cubre el proceso central del MVP, permitiendo a los usuarios crear, listar, visualizar y modificar Solicitudes de Compra de materiales o servicios de forma controlada y trazable.
 
 ## 2. Objetivo
 
-Representar el inicio del proceso de compras, inspirado en el concepto de Purchase Requisition en SAP MM, garantizando que toda solicitud cuente con información mínima válida y esté correctamente registrada en el sistema.
+Representar el inicio del proceso de compras, inspirado en el concepto de **Purchase Requisition en SAP MM**, garantizando que toda solicitud cuente con información mínima válida y esté correctamente registrada en el sistema.
 
 Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan los flujos de estado (EPIC-02) y las reglas de autorización (EPIC-03).
 
@@ -17,18 +17,18 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
     * Si la solicitud se encuentra en estado "Creada".
     * Si la solicitud es propia del usuario con rol "Solicitante".
  - El Solicitante solo visualiza sus propias solicitudes.
- - El Aprobador visualiza solicitudes de los centros asignados, según reglas de autorización (EPIC-03).
+ - El Aprobador lista y visualiza solicitudes de los centros asignados, según reglas de autorización (EPIC-03).
  - El Administrador Técnico/Funcional puede listar y visualizar cualquier solicitud de compra siempre en modo "Solo Lectura".
  - Validar campos obligatorios definidos para la solicitud de compra.
- - Detectar solicitudes duplicadas de forma básica, considerando solicitudes en estados distintos de ¨Rechazada¨ y con la siguiente triada:
-    * Mismo ItemComprable (material o servicio).
-    * Mismo centro.
-    * Misma fecha de entrega.
+ - Detectar solicitudes duplicadas considerando solicitudes activas (estado distinto de "Rechazada") bajo la siguiente tríada:
+   * Mismo ItemComprable (material o servicio)
+   * Mismo centro
+   * Misma fecha de entrega
  - Consumo de datos maestros:
     * Centro (seleccionable)
     * Almacén (dependiente del Centro, si Tipo es Material)
     * Material
-    * Servicios
+    * Servicio
     * Asignaciones Usuario-Centro
  - Los datos maestros serán consumidos por la EPIC-01 como catálogos preexistentes al inicio del sistema.
 
@@ -46,11 +46,9 @@ Esta épica sienta las bases funcionales del sistema, sobre las cuales se apoyan
  - Sistemas externos.
 - Gestión de adjuntos o documentación asociada a la solicitud de compra.
 - Gestión de inventarios, stock o movimientos de mercancía.
-- Gestión de los datos maestros.
-   - La creación de nuevos datos maestros.
-   - La edición o desactivación de datos maestros.
-   - La creación o mantenimiento de datos maestros.
-   - Gestión de ciclo de vida del catálogo.
+- Gestión de datos maestros:
+   - Creación, edición, desactivación o mantenimiento.
+   - Gestión del ciclo de vida del catálogo.
 
 > Nota: Cualquier funcionalidad no mencionada explícitamente en este alcance se considera fuera del MVP.
 
@@ -70,7 +68,7 @@ Deberán existir:
 - Dependencias funcionales definidas (por ejemplo, con estados o seguridad).
 - Alcance alineado con el MVP (sin funcionalidades futuras o avanzadas).
 
-Si alguno de estos puntos no se cumple, la historias permanecen en estado **Refinamiento**.
+Si alguno de estos puntos no se cumple, la historia permanecen en estado **Refinamiento**.
 
 ## 7. DoD (Definition of Done)
 
@@ -104,7 +102,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 ### Rol Solicitante 
 
--Usuario que origina y gestiona la solicitud de compra
+- Usuario que origina y gestiona la solicitud de compra
 
 ### Rol Aprobador 
 
@@ -118,8 +116,8 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 - Toda solicitud de compra debe estar asociada a un usuario activo y autenticado.
 - La fecha de entrega de la solicitud no puede ser anterior a la fecha actual del sistema.
-- La detección de duplicados para el MVP se limita solicitudes activas (no rechazadas) con la misma combinación:
-  - ItemComprable (Material/servicio)
+- La detección de duplicados para el MVP se limita a solicitudes activas (no rechazadas) con la misma combinación:
+  - ItemComprable (Material/Servicio)
   - Mismo centro
   - Misma fecha de entrega.
 - Las acciones sobre solicitudes (crear, modificar, visualizar, listar) solo pueden ser realizadas por usuarios con rol y permisos correspondientes. (se conecta con EPIC-03).
@@ -134,7 +132,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
   - Historias de Usuario claras.
   - Criterios de aceptación sólidos.
   - Escenarios de testing funcional y negativo.
-- Refleja una simulación del proceso reale de SAP MM (ME51N – Purchase Requisition).
+- Refleja una simulación del proceso real de SAP MM (ME51N – Purchase Requisition).
 
 ## 9. Funcionalidades seleccionadas (Features)
 
@@ -142,9 +140,10 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 **Descripción**  
 
-- Permite registrar una nueva solicitud de material o servicio, con datos mínimos: itemComprable, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
-- El campo Almacén solo se requerirá si el Tipo es "Material".
-- Cuando se crea, EPIC-02 asigna el estado inicial `Creada`.
+- Permite registrar una nueva solicitud de material o servicio con datos mínimos:
+  - ItemComprable, descripción, cantidad, unidad de medida(UM), fecha de entrega, centro.
+  - El campo Almacén solo se requerirá si el Tipo es "Material".
+  - Cuando se crea, se asigna el estado inicial "Creada" (EPIC-02).
 
 **Justificación**
 
@@ -157,7 +156,7 @@ Centraliza y estandariza las solicitudes de compra, evitando errores de duplicid
 
 - Autenticación y Roles (EPIC-03).
 - Usuarios (simplificado) (EPIC-03).
-- Gestión de Estados (estado inicial `Creada`, EPIC-02).
+- Gestión de Estados (estado inicial "Creada", EPIC-02).
 
 ### 9.2. Modificar Solicitud de Compra
 
@@ -227,7 +226,7 @@ Given el usuario está autenticado
 And accede al formulario de creación  
 When completa los campos obligatorios con datos válidos  
 Then la solicitud se registra correctamente  
-And se asigna el estado inicial `Creada`.
+And se asigna el estado inicial "Creada".
 ```
 
 **Metadatos**  
@@ -243,10 +242,10 @@ And se asigna el estado inicial `Creada`.
 
 **Criterio de aceptación (escenario principal V1)**
 ```gherkin
-Given Existe una solicitud en estado "Creada" 
-And El usuario tiene permisos 
-When Modifica los datos permitidos 
-Then Los cambios se guardan correctamente
+Given existe una solicitud en estado "Creada" 
+And el usuario tiene permisos 
+When modifica los datos permitidos 
+Then los cambios se guardan correctamente
 ```
 
 **Metadatos**  
@@ -263,29 +262,29 @@ Then Los cambios se guardan correctamente
 **Criterio de aceptación (escenario principal V1)**
 
 ```gherkin
-Given Existe una solicitud registrada 
-When El usuario accede al detalle 
-Then El sistema muestra toda la información asociada
+Given existe una solicitud registrada 
+When el usuario accede al detalle 
+Then el sistema muestra toda la información asociada
 ```
 
 **Metadatos**
 - Prioridad: Alta    
 - Labels: `PRFlow`, `GestionDeSolicitudesDeCompra`, `VisualizarSolicitudDeCompra`
 
-### US-04 | PR-Flow | GSC | Listar solicitudes propias de compra
+### US-04 | PR-Flow | GSC | Listar solicitudes de compra
 
 **Descripción (Cómo, Quiero, Para)** 
 
 - Cómo: Usuario
-- Quiero: Listar solicitudes propias de compra 
+- Quiero: Listar solicitudes de compra 
 - Para: Tener una visión general de las solicitudes registradas
 
 **Criterio de aceptación (escenario principal V1)**
 
 ```gherkin
-Given El usuario está autenticado 
-When Accede al listado de solicitudes 
-Then El sistema muestra las solicitudes propias disponibles
+Given el usuario está autenticado 
+When accede al listado de solicitudes 
+Then el sistema muestra las solicitudes propias disponibles
 ```
 
 **Metadatos** 

@@ -18,7 +18,7 @@
 - **RN05:** Al crear la solicitud, el sistema asigna automáticamente el estado inicial `Creada`.
 - **RN06:** El usuario debe estar autorizado al Centro seleccionado según catálogo precargado.
 - **RN07:** Los campos mínimos obligatorios de la solicitud son:
-  - ItemComprableId (Material o Servicio) seleccionado desde catálogo
+  - ItemComprableID (Material o Servicio) seleccionado desde catálogo
   - Descripción
   - Cantidad
   - Unidad de medida (UM)
@@ -31,7 +31,7 @@
   - Seleccionable desde catálogo.
 - **RN09:** El almacén seleccionado debe pertenecer al centro seleccionado.
 - **RN10:** No se permite que, como resultado de una creación, dos solicitudes de compra activas en un estado distinto de "Rechazada" queden con la misma combinación de:
-  - Mismo ItemComprableId (Material/Servicio)
+  - Mismo ItemComprableID (Material/Servicio)
   - Mismo centro
   - Misma fecha de entrega
 
@@ -46,8 +46,9 @@
 - AC05: Integridad de Datos Maestros y control de duplicidad basado en Ítem, Centro y Fecha de Entrega (estados ≠ Rechazada)
 - AC06a: Roles y autorizaciones por Centro y tipo de usuario (sin rol, centro no autorizado)
 - AC06b: Roles y autorizaciones por estado de usuario (inactivo, no autenticado, sesión expirada)
-- AC07a: Manejo de errores inesperados y de concurrencia
-- AC07b: Feedback de guardado y performance < 2s
+- AC07: Concurrencia
+- AC08: Manejo de errores inesperados
+- AC09: Performance básico de peticiones < 2s
 
 ## 5. Escenarios(Gherkin)
 
@@ -65,10 +66,10 @@ Background:
   And tiene autorización a al menos un centro 
  
           @US-01 @ac01 @happy @critico
-          Scenario 1: Crear Solicitud de Compra con datos válidos
+          Scenario: Crear Solicitud de Compra con datos válidos
 
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el ItemComprableId "Material"  
+                When selecciona el ItemComprableID "Material"  
                 And completa los campos obligatorios
                 And selecciona el Centro y el Almacén (si corresponde) del catálogo
                 And guarda la solicitud
@@ -79,24 +80,24 @@ Background:
           Scenario: Creación de una solicitud de servicio
             
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el ItemComprableId "Servicio"
+                When selecciona el ItemComprableID "Servicio"
                 And completa los datos obligatorios y selecciona el Centro
                 Then el sistema no muestra el catálogo de almacenes
                 And permite crear la solicitud de compra exitosamente
                 And asigna automáticamente el estado inicial "Creada"
 
-          @US-01 ac01@negative @almacen @material
+          @US-01 @ac01 @negative @almacen @material
           Scenario: Intento de creación de una solicitud de material sin almacén informado
           
                 Given el usuario accede al formulario de creación de solicitud de compra
-                When selecciona el ItemComprableId "Material" del catálogo
+                When selecciona el ItemComprableID "Material" del catálogo
                 And completa los datos obligatorios sin seleccionar el Ítem "Almacén" del catálogo
                 And intenta guardar la solicitud
                 Then el sistema muestra un mensaje indicando que el Ítem "Almacén" es obligatorio para solicitudes de material
                 And no se crea la solicitud
 	
          @US-01 @ac03 @negative @campos_obligatorio
-          Scenario: Intento de creación con campos obligatorios vacíos
+         Scenario: Intento de creación con campos obligatorios vacíos
                        
                 Given el usuario accede al formulario de creación de solicitud de compra
                 When el usuario deja uno o más campos obligatorios vacíos
@@ -135,7 +136,7 @@ Background:
                 Then el sistema muestra un mensaje indicando que la fecha no puede ser pasada
                 And no se crea la solicitud de compra
       
-          @US-01 AC06a @negative @rol
+          @US-01 @ac06 @negative @rol
           Scenario: Usuario sin rol "Solicitante" intenta crear una solicitud
                         
                 Given el usuario no tiene asignado el rol “Solicitante”
@@ -173,13 +174,13 @@ Background:
                 And dicha solicitud se encuentra en estado distinto de "Rechazada"
                 When el usuario intenta crear una nueva solicitud de compra con los mismos datos
                 Then el sistema bloquea la creación de la nueva solicitud
-                And muestra un mensaje indicando que ya existe una solicitud para el mismo material o servicio, centro y fecha de entrega
+                And muestra un mensaje indicando que ya existe una solicitud para el mismo itemComprable, centro y fecha de entrega
                 And no se crea la nueva solicitud de compra
 
           @US-01 @ac07 @negative @concurrencia
           Scenario: Doble intento de guardado de la misma solicitud
           
-                Given accede al formulario de solicitud de compra
+                Given el usuario accede al formulario de solicitud de compra
                 When el usuario completa el formulario con datos válidos
                 And realiza pulsaciones repetidas en el botón "Guardar" 
                 Then el sistema crea una única solicitud de compra
@@ -203,7 +204,7 @@ Background:
                 And no se carga el formulario de creación de solicitud de compra
                 And no se crea la solicitud de compra
 
-            @US-01 @ac07 @negative @sesion_expirada
+            @US-01 @ac06b @negative @sesion_expirada
             Scenario: Intento de creación de la solicitud cuando expira la sesión 
                 
                 Given el usuario completa el formulario de solicitud con datos válidos
@@ -212,7 +213,7 @@ Background:
                 Then el sistema solicita al usuario su reautenticación
                 And no se crea la solicitud de compra
 
-            @US-01 @ac07 @error @tecnico
+            @US-01 @ac08 @error @tecnico
             Scenario: Manejo de interrupción durante la creación de la solicitud de compra
             
                 Given el usuario completa el formulario con datos válidos
@@ -226,10 +227,10 @@ Background:
 > Nota: Aplican las Consideraciones Generales QA definidas para EPIC-01
 > Los formatos y límites específicos de cada campo se detallan en Consideraciones Generales QA EPIC-01.
 
-**Tener en cuenta además qué:**
+**Tener en cuenta además que:**
 
 - Usuarios sin el rol Solicitante o en estados inválidos para creación de solicitudes (No Autenticado, Inactivo, Sesión Expirada)  no deben visualizar el botón "Crear Solicitud". Si intentan acceder por URL directa, el sistema debe redirigir al Home o Dashboard.
-- Si el usuario selecciona el ItemComprableId "Servicio" el catálogo de almacenes no deberá mostrarse en el formulario.
+- Si el usuario selecciona el ItemComprableID "Servicio" el catálogo de almacenes no deberá mostrarse en el formulario.
 
 ## 7. DoD (Definition of Done)
 
@@ -242,7 +243,7 @@ Además especificamente en la US:
 - Verificación de la no duplicidad luego de una creación según reglas definidas.
 - Confirmación que tras un fallo en la creación no queden registros basuras (datos parciales) en la BD. 
 - Los errores de servidor no rompen la interfaz y muestran un mensaje amigable al usuario.
-- Código revisado enfocado en la atomaticidad de la transacción.
+- Código revisado enfocado en la atomicidad de la transacción.
 - Los criterios de Usabilidad (UX) definidos están implementados (Feedback y Confirmación).
 
 ## 8. Dependencias
@@ -253,8 +254,8 @@ Además especificamente en la US:
   - Control del estado **activo/inactivo** del usuario, que condiciona la posibilidad de crear solicitudes.
 
 - **EPIC-02 – Gestión del Ciclo de Vida de las Solicitudes**
-  - Asignación automática del estado inicial `Creada` al crear la solicitud (US-05).
+  - Asignación automática del estado inicial "Creada" al crear la solicitud (US-05).
 
-## . 9
+## 9. Metadatos
 - **Prioridad**: Alta
 - **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `CrearSolicitudDeCompra`

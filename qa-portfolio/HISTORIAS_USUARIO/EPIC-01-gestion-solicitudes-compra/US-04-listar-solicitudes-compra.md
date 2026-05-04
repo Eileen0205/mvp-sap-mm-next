@@ -15,13 +15,13 @@
 ## 3. Reglas de negocio
 - **RN01**: El acceso al listado de solicitudes de compra requiere que el usuario se encuentre autenticado y activo en el sistema.
 - **RN02**: Solo los usuarios con rol Solicitante, Aprobador o Administrador Técnico/Funcional pueden acceder al listado de solicitudes.
-- **RN03**: El usuario con rol Solicitante solo puede ver en el listado las solicitudes que haya creado él mismo.
+- **RN03**: El usuario con rol Solicitante solo puede ver en el listado las solicitudes propias.
 - **RN04**: El usuario con rol Aprobador debe ver las solicitudes que se encuentren dentro de su ámbito según se define en EPIC-03.
 - **RN05**: El usuario con rol Administrador Técnico/Funcional puede listar todas las solicitudes de compra con fines de supervisión y soporte, siempre en modo solo lectura desde esta historia.
 - **RN06**: Cada fila del listado debe mostrar al menos: ID de la solicitud, descripción, fecha de creación, estado actual, centro, almacén y usuario solicitante. 
   - Para Ítems de tipo "Material": Se muestra el ID del almacén.
   - Para Ítems de tipo "Servicio": La celda de almacén se muestra vacía o con un guion ("-").
-- **RN07**: El listado de solicitudes debe ordenarse por defecto por fecha de creación en orden descendente (las solicitudes más recientes primero).
+- **RN07**: El listado de solicitudes debe ordenarse por defecto por ID en orden descendente (las solicitudes con el ID mayor primero).
 - **RN08**: Desde el listado el usuario debe poder acceder al detalle de una solicitud específica mediante una acción (por ejemplo, clic sobre la fila o un enlace), aplicándose las reglas de visibilidad definidas en la US-03.
 - **RN09**: Si no existen solicitudes que cumplan los criterios para el usuario (por ejemplo, un Solicitante sin solicitudes propias), el sistema debe mostrar un listado vacío acompañado de un mensaje que indique que no hay solicitudes disponibles.
 -  **RN10**: Si un usuario autenticado intenta acceder al listado y su rol no tiene permisos para esta funcionalidad, el sistema debe bloquear el acceso y mostrar un mensaje de falta de autorización.
@@ -35,8 +35,8 @@
 - AC02: Manejo de listados vacíos (mensaje informativo)
 - AC03: Paginación y ordenamiento del listado
 - AC04: Navegación al detalle de una solicitud desde el listado
-- AC05: Integridad de datos y campos mínimos en el listado
-- AC06: Control de acceso (usuario no autorizado, inactivo, no autenticado, sesión expirada; UI y API)
+- AC05: Visualización de campos mínimos en el listado
+- AC06: Control de acceso (usuario no autorizado, inactivo, no autenticado, sesión expirada)
 - AC07: Performance básico (tiempo de respuesta < 2s)
 - AC08: Calidad visual y consistencia del listado (truncamiento, estado mostrado)
 
@@ -47,9 +47,11 @@
 Feature: Listar solicitudes de compra
 
 Background:
-Given el usuario está "Activo" en el sistema
+Given el usuario está "Autenticado" y "Activo" en el sistema
+And tiene un rol que le permite listar solicitudes de compra
+And el usuario tiene permisos a al menos un centro
 
-      @US-04 @happy @ac01 @solicitante  
+      @US-04 @happy @ac01a @solicitante  
       Scenario: Listar solicitudes propias del usuario con rol "Solicitante"
             
             Given el usuario tiene el rol de "Solicitante"
@@ -58,7 +60,7 @@ Given el usuario está "Activo" en el sistema
             When accede al listado de solicitudes  
             Then el sistema muestra únicamente las solicitudes creadas por ese usuario.
             
-      @US-04 @happy @ac01 @aprobador 
+      @US-04 @happy @ac01b @aprobador 
       Scenario: Listar solicitudes en el ámbito del usuario con rol "Aprobador"
             
             Given el usuario tiene el rol de "Aprobador"
@@ -66,7 +68,7 @@ Given el usuario está "Activo" en el sistema
             When accede al listado de solicitudes  
             Then el sistema muestra las solicitudes que solamente corresponden a su ámbito 
 
-      @US-04 @happy @ac01 @administrador_tecnico_funcional 
+      @US-04 @happy @ac01c @administrador_tecnico_funcional 
       Scenario: Listar solicitudes del usuario con rol "Administrador Técnico/Funcional"  
 
             Given el usuario tiene el rol "Administrador Técnico/Funcional"
@@ -77,8 +79,7 @@ Given el usuario está "Activo" en el sistema
       @US-04 @ac02 @listado_vacio  
       Scenario: Listado vacío para usuario sin solicitudes  
             
-            Given el usuario tiene un rol que le permite listar solicitudes
-            And no existen solicitudes creadas por él o en su ámbito de aprobación
+            Given no existen solicitudes creadas por el usuario o en su ámbito de aprobación
             When accede al listado de solicitudes  
             Then el sistema muestra un listado vacío  
             And muestra un mensaje indicando que no existen solicitudes registradas o en el ámbito del usuario autenticado 
@@ -89,7 +90,7 @@ Given el usuario está "Activo" en el sistema
             Given el usuario tiene un rol que le permite listar solicitudes
             And existen solicitudes creadas por él o en su ámbito de aprobación
             When accede al listado de solicitudes
-            Then el sistema muestra las solicitudes ordenadas descendentemente por ID
+            Then el sistema muestra las solicitudes ordenadas por defecto descendentemente por ID
             And el primer registro del listado posee el ID más alto
       
       @US-04 @ac03 @paginacion
@@ -98,32 +99,20 @@ Given el usuario está "Activo" en el sistema
             Given el usuario tiene un rol que le permite listar solicitudes
             And existen solicitudes creadas por él o en su ámbito de aprobación
             When accede al listado de solicitudes
-            Then el sistema muestra los primeros N registros 
+            Then el sistema muestra los primeros 25 registros 
             And el sistema permite navegar a la siguiente página mediante la opción "Siguiente" y a la anterior mediante la opción "Anterior"
             And los registros de la nueva página son distintos a los de la página anterior.
             And el botón "Siguiente" se deshabilita al alcanzar la última página del listado.
 
       @US-04 @ac04 @navegacion_detalle
-      Scenario: Navegación al detalle y permisos de edición según rol y estado
+      Scenario: Navegación al detalle desde el listado de solicitudes
 
-            Given el usuario tiene un rol "<Rol>" que le permite listar solicitudes
+            Given el usuario tiene un rol que le permite listar solicitudes
             And existen solicitudes creadas por él o en su ámbito de aprobación
-            When selecciona el icono de "Ver detalle" de una solicitud
-            And la solicitud se encuentra en estado "<Estado_Solicitud>"
-            Then el sistema muestra un Modal con la información detallada
-            And los campos siguen el comportamiento "<Comportamiento_Esperado>" según los permisos del usuario
-            And los botones de acción se comportan "<Comportamiento_Botones>" según el rol y estado de la solicitud
-            
-      
-            Examples:
-            | Rol                             | Estado_Solicitud    | Comportamiento_Esperado           | Comportamiento_Botones           |
-            | Aprobador                       | Distinto de Creada  | Campos en modo "Solo Lectura"     | Aprobar y Rechazar Habilitados   |
-            | Aprobador                       | Creada              | Campos en modo "Solo Lectura"     | Aprobar y Rechazar Deshabilitados|
-            | Administrador Técnico/Funcional | Cualquier estado    | Campos en modo "Solo Lectura"     | Todos los botones deshabilitados |
-            | Solicitante                     | Creada              | Campos habilitados para edición   | Enviar a Revisión                |
-            | Solicitante                     | Distinto de Creada  | Campos en modo "Solo Lectura"     | Todos los botones deshabilitados |
-            
-      @US-04 @ac05 @integridad_datos
+            When selecciona el icono de "Ver detalle" de una solicitud de su listado
+            Then el sistema muestra la vista de detalle con la información detallada
+                    
+      @US-04 @ac05 @campos_mínimos_ui
       Scenario: Listado de solicitudes con campos mínimos
 
             Given el usuario tiene un rol que le permite listar solicitudes
@@ -131,7 +120,7 @@ Given el usuario está "Activo" en el sistema
             When accede al listado de solicitudes
             Then el sistema muestra por cada solicitud ID, ítem, descripción, cantidad, UM, centro, almacén (si es material) y usuario solicitante
                                          
-      @US-04 @ac05 @truncamiento
+      @US-04 @ac08 @truncamiento
       Scenario: Listado de solicitudes con descripciones truncadas
 
             Given el usuario tiene un rol que le permite listar solicitudes
@@ -202,4 +191,4 @@ Además específicamente para la US:
 
 ## 9. Metadatos
 - **Prioridad**: Alta
-- **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `ListarSolicitudDeCompra`
+- **Labels**: `PRFlow`, `GestionDeSolicitudesDeCompra`, `ListarSolicitudesDeCompra`

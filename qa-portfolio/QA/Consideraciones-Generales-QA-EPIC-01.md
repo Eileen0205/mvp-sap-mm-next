@@ -18,13 +18,8 @@ Estas consideraciones aplican a:
    
  * US-01: Crear Solicitud de Compra
  * US-02: Modificar Solicitud de Compra
- * US-03
- * US-04
- * Cualquier historia futura de la EPIC-01 que:
-     * Cree
-     * Modifique
-     * Valide
-     * Persista información de solicitudes de compra.
+ * US-03: Visualizar Solicitudes de Compra
+ * US-04: Listar Solicitudes de Compra
    
 ### Incluye:
    
@@ -49,36 +44,42 @@ Estas consideraciones aplican a:
 
 **Integridad de la Transacción (Validaciones Backend)**
 
-- Validación Atómica: Todas las reglas de negocio deben validarse en el servidor de forma prioritaria.
-- Rollback: Si cualquiera de las validaciones falla, el sistema no debe crear ningún registro parcial. La operación debe ser "todo o nada"
-- Validación de duplicados: El backend debe asegurar que un reintento de creación y/o modificación del usuario tras un fallo de red, no genere una solicitud duplicada.
+- Validación Backend: Todas las reglas de negocio deben validarse en el Backend, independientemente de la UI.
+- Atomicidad: Las operaciones de creación/modificación deben ejecutarse como una transacción atómica (todo o nada).
+- Rollback: Ante cualquier fallo, la operación debe ser completamente revertida (todo o nada).
+- Idempotencia / duplicidad: El backend debe evitar la creación de registros duplicados ante reintentos (ej. fallos de red, concurrencia).
 
 **Definición de Datos y Formatos (Casos de Borde)**
 
 - **Cantidad:**
 
-  - El sistema debe rechazar valores <= 0
-  - Formato numérico decimal mediante Regex ^\d{1,10}(.\d{1,3})?$. Soporta hasta 10 enteros y 3 decimales.
+  - El sistema debe rechazar valores <= 0.
+  - Formato numérico decimal validado mediante Regex ^\d{1,10}(\.\d{1,3})?$
+  - Soporta hasta 10 enteros y 3 decimales.
   - Bloqueo total de caracteres alfabéticos o especiales.
 
 - **Fecha de Entrega:**
-   
-  - El formato para la fecha debe ser ISO 8601 (YYYY-MM-DD)
+
+  - El formato para la fecha debe ser:
+    - Formato de entrada en UI: DD/MM/YYYY.
+    - Formato de persistencia y comunicación API: ISO 8601 (YYYY-MM-DD)
   - Hoy: Es un valor válido (se toma como fecha límite el cierre del día del sistema). 
   - Pasado: Cualquier fecha (ej. Ayer) debe ser rechazada. 
   - Las validaciones de fecha deben realizarse siempre tomando como referencia la hora del servidor.
-  - Se deben validar fechas con formatos inválidos y fechas válidas con lógica real.
+  - Validar tanto formato como lógica de fecha.
 
 - **Descripción:**
 
-  - Longitud: El campo debe validar un rango de [10 - 40] caracteres.
-  - El campo es obligatorio y no nulo.
+  - Longitud entre [10 - 40] caracteres.
+  - El campo es obligatorio
   - El sistema debe mostrar un contador de caracteres restante (ej: 15/40) para guiar al usuario.
 
 **Lógica de Duplicidad**
 
-- Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: Material/Servicio + Centro + Fecha de Entrega y para solicitudes activas en estados distinto de "Rechazada".
-- Si el usuario cambia al menos uno de estos tres valores (ej. mismo material y centro pero diferente fecha de entrega) y la solicitud no ha sido "Rechazada", el sistema debe procesarlo como una nueva solicitud válida.
+- Para que el sistema considere una solicitud como duplicada, debe existir una coincidencia exacta en la tríada: 
+   - ItemComprable + Centro + Fecha de Entrega
+   - Solicitudes activas en estados distinto de "Rechazada".
+- Una solicitud en estado "Rechazada" no bloquea la creación de una nueva solicitud con la misma combinación de datos
 
 **Comportamiento de la Interfaz (UI/UX)** 
 
@@ -100,8 +101,9 @@ Estas consideraciones aplican a:
 
 **Gestión de Errores**
 
-- Específicos: Los mensajes deben indicar claramente el campo afectado (Ej: "La fecha de entrega no puede ser anterior a hoy"). 
-- Persistencia: El mensaje de error debe permanecer visible hasta que el usuario corrija el dato o cierre la notificación.
+Ante un error inesperado o pérdida de conexión:
+- Los mensajes deben indicar claramente el campo afectado (Ej: "La fecha de entrega no puede ser anterior a hoy"). 
+- Los datos ingresados deben mantenerse en la interfaz (cliente) para permitir reintentos, sin persistirse en backend.
 
 **Seguridad y Acceso**
 

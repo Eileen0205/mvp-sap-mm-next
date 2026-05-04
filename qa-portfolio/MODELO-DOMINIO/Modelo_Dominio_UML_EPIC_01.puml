@@ -34,20 +34,20 @@ class SolicitudCompra {
   +unidadMedida: String
   +fechaCreacion: Date
   +fechaEntrega: Date
-  +usuario_solicitante
+  +usuario_solicitante: Usuario
   +estado: EstadoSolicitud
 }
 
 class Usuario {
-  +id: String
+  +id: UUID
   +nombre: String
   +email: String
   +estado: EstadoUsuario
 }
 
 abstract class ItemComprable {
-  +id: String
-  +nombre: String
+  +ItemComprableId: String
+  +ItemComprableNombre: String
   +descripcion: String
 }
 
@@ -87,18 +87,17 @@ ItemComprable <|-- Material
 ItemComprable <|-- Servicio
 
 ' 1. Una Solicitud se asocia a un Material o Servicio
-SolicitudCompra "1" -- "1" ItemComprable : contiene >
-
-ItemComprable "1" -- "0..*" SolicitudCompra
+SolicitudCompra "0..*" -- "1" ItemComprable : contiene >
 
 ' 2. Relación Usuario - Solicitud
 Usuario "1" -- "0..*" SolicitudCompra : crea >
 
-' 3. Relación Usuario - Rol (Muchos a Muchos)
-Usuario "1" -- "1..*" Rol : posee >
+' 3. Relación Usuario - Rol (1 a 1)
+Usuario "0..*" -- "1" Rol : posee >
 
 ' 4. Relación Usuario - Centro
 Usuario "*" -- "0..*" Centro : autorizado en >
+
 note on link
   * La autorización por Centro aplica para:
     - Creación (Solicitante)
@@ -126,6 +125,7 @@ note left of Almacen
   * Dato maestro dependiente de Centro.
   * Catálogo preexistente.
   * No gestionado en esta EPIC.
+  * Almacén Opcional. Solo si ItemComprable = Material
 end note
 
 ' =========================
@@ -135,14 +135,18 @@ end note
 note right of SolicitudCompra
   **Reglas Críticas:**
   * No editable si estado != CREADA.
-  * Centro y Almacén son datos maestros.
-  * Centro y Almacén seleccionables desde catálogo.
-  * Centro y Almacén no son editables tras creación.
-  * Material y Servicio son Datos Maestros.
-  * Material y Servicio seleccionables desde catálogo.
+  * Centro y Almacén:
+    * Datos maestros.
+    * Seleccionables desde catálogo.
+    * No editables tras creación.
+  * Material y Servicio:
+    * Datos Maestros.
+    * Seleccionables desde catálogo.
+    * No editables tras creación
   * Almacén obligatorio solo si Item es Material.
-  * Material y Servicio no son editables tras creación. 
-  * No duplicados por: Item + Centro + FechaEntrega.
+  * No duplicados para la Tríada: 
+     * ItemComprable + Centro + FechaEntrega.
+     * Estado <> Rechazada
 end note
 
 note right of Usuario

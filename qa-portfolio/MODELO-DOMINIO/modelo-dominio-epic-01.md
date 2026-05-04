@@ -1,7 +1,14 @@
 
 # Introducción
 
-En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. Enfocado en la representación de los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para análisis funcional, QA, desarrollo (Guiado por IA) y diseño.
+En este documento se describe el **Modelo de Dominio** del módulo Gestión de Solicitudes de Compra, correspondiente a la **EPIC-01**. 
+
+Enfocado en la representación de los conceptos clave del negocio, sus relaciones y reglas fundamentales, sirviendo como base común para:
+
+  * Análisis funcional.
+  * QA
+  * Desarrollo (Guiado por IA)
+  * Diseño del sistema
 
 # Objetivo
 
@@ -16,10 +23,18 @@ En este documento se describe el **Modelo de Dominio** del módulo Gestión de S
 
   - Creación y modificación de solicitudes de compra.
   - Visualización y listado de solicitudes.
-  - Roles funcionales involucrados (Solicitante, Aprobador, Administradror Técnico/Funcional).
+  - Roles funcionales involucrados: Solicitante, Aprobador, Administrador Técnico/Funcional.
   - Estados y transiciones de la solicitud.
-  - Integridad de Datos: Validación de la Tríada de Duplicidad (ItemComprable + Centro + Fecha), de solicitudes en estados distintas de "Rechazada" a nivel de base de datos.
-  - Gestión de Catálogos (Seed): Disponibilidad de datos maestros pre-cargados (Materiales, Servicios, Centros, Almacenes, UM).
+  - Integridad de Datos: 
+    - Validación de la **Tríada de Duplicidad**
+      - ItemComprable + Centro + Fecha
+      - Solicitudes en estados distintas de "Rechazada" a nivel de base de datos
+  - Gestión de Catálogos (Seed): 
+    * Materiales
+    * Servicios
+    * Centros
+    * Almacenes
+    * Unidades de Medida
 
 - Quedan fuera del alcance:
 
@@ -44,36 +59,25 @@ Representa la necesidad formal de un usuario de adquirir un material o servicio.
 - ItemComprable (Material o Servicio)
 - Centro (Entidad Centro)
 - Almacén (Entidad Almacén)
-- Id Usuario Solicitante
+- ID Usuario Solicitante
 
 ## ItemComprable (Entidad Abstracta)
 
-   - Material
-   - Servicio
+   - ItemComprableID
+   - ItemComprableNombre (Material o Servicio)
+   - Descripción
 
-## Material
+## Material (Entidad Hija)
 
 - Representa un bien físico que puede ser solicitado.
 - Cuando es solicitado, requiere la asignación de un Almacén en la Solicitud de Compra.
 - Dato Maestro del Sistema.
 
-### Atributos principales:
-
-- Identificador de material
-- Nombre
-- Descripción
-
-## Servicio
+## Servicio (Entidad Hija)
 
 - Representa un servicio que puede ser solicitado.
 - Dato Maestro del Sistema.
-
-### Atributos principales:
-
-- Identificador de servicio
-- Nombre
-- Descripción
-    
+   
 ## Usuario
 
 Representa a una persona que interactúa con el sistema.
@@ -93,14 +97,13 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
 
 *   **Solicitante**
     *   **Responsabilidades:**
-        *   Originar y gestionar la solicitud de compra propia.
         *   Crear solicitudes de compra.
         *   Modificar solicitudes propias únicamente en estado **"Creada"**.
         *   Visualizar y listar solicitudes propias.
         *   Enviar solicitud a estado **"En Revisión"**.
     *   **Restricciones:**
         *   No puede aprobar solicitudes.
-        *   No puede modificar solicitudes en estados finales ("Aprobada", "Rechazada").
+        *   No puede modificar solicitudes en estados "En Revisión", "Aprobada" o "Rechazada".
         *   No tiene permisos de gestión de usuarios.
 
 *   **Aprobador**
@@ -114,7 +117,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
     *   **Restricciones:**
         *   No puede crear solicitudes de compra.
         *   No puede visualizar solicitudes en estado **"Creada"**.
-        *   No puede modificar los datos maestros de la solicitud (Cantidad, Descripción, etc.).
+        *   No puede modificar datos de la solicitud (Cantidad, Descripción, etc.).
         *   No tiene permisos de gestión de usuarios.
 
 *   **Administrador Técnico / Funcional (ATF)**
@@ -126,7 +129,7 @@ Define las responsabilidades y permisos del usuario dentro del sistema.
     *   **Restricciones:**
         *   No participa en el flujo de creación de solicitudes.
         *   No tiene permisos para aprobar o rechazar solicitudes.
-        *   No gestiona el catálogo de Centros y Almacenes.
+        *   No gestiona catálogos seed .
 
 ## Centro
 
@@ -163,29 +166,29 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 
 - Un Usuario puede crear una o varias Solicitudes de Compra.
 - Cada Solicitud de Compra es creada por un único usuario.
-- Un Usuario puede tener uno o varios Roles.
-- Un Rol puede asociarse a diferentes usuarios.
+- Un Usuario puede tener un único Rol.
+- Un Rol puede asociarse a varios usuarios.
 - Un Usuario puede estar asignado a uno, ninguno o varios Centros.
 - Un centro puede tener asignados varios usuarios.
 - Un centro puede tener varias Solicitudes de Compra.
 - Una Solicitud de Compra pertenece a un único Centro.
 - Una Solicitud de Compra se asocia a uno de los siguientes: Material o Servicio (relación exclusiva).
-- Un material o un servicio pueden estar asociadas a varias Solicitudes de Compra.
+- Un material o un servicio puede estar asociado a varias Solicitudes de Compra.
 - Una Solicitud de Compra puede requerir un Almacén cuando el tipo es Material.
 - Un Almacén puede estar asociado a múltiples Solicitudes de Compra de tipo Material.
 - Cada almacén debe pertenecer a un único centro, y un centro puede contener múltiples almacenes.
-- Una Solicitud de Compra puede transicionar entre múltiples Estados a lo largo de su ciclo de vida, manteniendo un único estado activo en cada momento.
+- Una Solicitud de Compra puede transicionar entre múltiples estados a lo largo de su ciclo de vida, manteniendo un único estado activo en cada momento.
 
 # Reglas de Negocio del Dominio
 
-- Solo usuarios activos y autenticados pueden crear o modificar solicitudes.
+- Solo usuarios activos y autenticados pueden crear, listar, visualizar y modificar solicitudes.
 - Solo usuarios con rol Solicitante pueden crear y modificar solicitudes propias.
-- Una solicitud solo puede modificarse mientras esté en estado Creada.
+- Una solicitud solo puede modificarse mientras esté en estado "Creada".
 - Solo un usuario con rol Solicitante puede enviar una solicitud de compra de estado Creada a En Revisión.
 - Solo usuarios con rol Aprobador pueden cambiar el estado de En Revisión a Aprobada o Rechazada.
-- Un usuario solo puede crear, modificar o aprobar solicitudes dentro de los Centros asignados a su perfil.
+- Un usuario solo puede crear, listar, visualizar, modificar y cambiar estados de solicitudes dentro de los Centros asignados a su perfil.
 - No se permiten solicitudes activas duplicadas para la misma combinación de:
-  - Material o Servicio
+  - ItemComprableNombre(Material o Servicio)
   - Centro
   - Fecha de entrega
   - En estado distinto de Rechazada (Si una solicitud fue rechazada,el usuario debería poder crear una nueva con los mismos datos sin que el sistema lo bloquee).
@@ -194,7 +197,7 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
     - Cantidad
     - Fecha de entrega
     - Unidad de Medida (UM)
-- El tipo de solicitud, centro y almacén no pueden modificarse una vez creada la solicitud.
+- El tipo de solicitud, centro y almacén no pueden modificarse una vez creada la solicitud (Inmutables).
 
 # Definición de Formatos de Solicitud de Compras
  
@@ -211,8 +214,8 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
  - **Fecha de entrega:** 
        * Capa de Persistencia (DB): ISO 8601 (YYYY-MM-DDTHH:mm:ssZ). 
        * Capa de Negocio/UI: DD/MM/YYYY.
- - **Id Usuario Solicitante**: UUID / String (Relación obligatoria con entidad Usuario)
- - **Nombre Usuario Solicitante**: String, obligatorio, 10-40 caracteres alfabéticos.
+ - **ID Usuario Solicitante**: UUID / String (Relación obligatoria con entidad Usuario)
+ - **Nombre Usuario Solicitante**: String, obligatorio, 10-40 caracteres especiales permitidos.
  
 > Nota: Los IDs de Usuario, Centro, Almacen, Material y Servicio son Llaves Primarias (PK) inmutables.
 
@@ -220,25 +223,25 @@ Representa el estado actual de una solicitud dentro de su ciclo de vida.
 
 ## Material
 
-  - **id:** String, obligatorio, único, máx 10 caracteres
+  - **ID:** String, obligatorio, único, máx 10 caracteres
     - Convención sugerida: prefijo identificador del tipo (ej: MAT-####)
   - **nombre:** String, obligatorio, máx 100
   - **descripción:** String, opcional, máx 255
 
 ## Servicio
 
-  - **id:** String, obligatorio, único, máx 10 caracteres
+  - **ID:** String, obligatorio, único, máx 10 caracteres
     - Convención sugerida: prefijo identificador del tipo (ej: SRV-####)
   - **nombre:** String, obligatorio, máx 100
   - **descripción:** String, opcional, máx 255
 
 ## Centro
 
-  - **id:** String, 4 caracteres numéricos, obligatorio. (Ej: 1000, 2000, 3000)
+  - **ID:** String, 4 caracteres numéricos, obligatorio. (Ej: 1000, 2000, 3000)
 
 ## Almacén
 
-  - **id:** String, 3–5 caracteres alfanuméricos, obligatorio si ItemComprable es Material (Ej: ALM1, ALM2)
+  - **ID:** String, 3–5 caracteres alfanuméricos, obligatorio si ItemComprable es Material (Ej: ALM1, ALM2)
 
 # Ciclo de Vida de la Solicitud de Compra
 

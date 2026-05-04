@@ -38,11 +38,17 @@ export async function GET(request: Request) {
     const whereClause: any = {}
     
     if (!isAprobador) {
-      // Si es solo SOLICITANTE, solo ve las suyas
+      // Si es solo SOLICITANTE, solo ve las suyas (en cualquier estado)
       whereClause.usuarioId = usuario.id
     } else {
-      // Si es APROBADOR, ve todas las de sus centros autorizados
+      // Si es APROBADOR o ATF, ve las de sus centros autorizados
       whereClause.centroId = { in: centroIds }
+      
+      // REGLA DE NEGOCIO: El Aprobador no debe ver solicitudes en estado inicial 'Creada'
+      // ya que se consideran borradores del solicitante. Solo el ATF (Admin) puede ver todo.
+      if (usuario.roles.some(r => r.id === 'APROBADOR') && !usuario.roles.some(r => r.id === 'ATF')) {
+        whereClause.estado = { not: 'Creada' }
+      }
     }
 
     const solicitudes = await prisma.solicitud.findMany({

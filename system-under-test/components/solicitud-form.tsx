@@ -152,9 +152,6 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     editingSolicitud?.itemComprableNombre ||
     formData.itemComprableId
     : ""
-  const almacenNombre = isEditMode && formData.almacen
-    ? catalogs.almacenes.find((a) => a.id === formData.almacen)?.nombre || formData.almacen
-    : ""
 
   const validateField = useCallback(
     (name: string, value: string): string | undefined => {
@@ -264,16 +261,19 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
     try {
       const method = isEditMode ? "PUT" : "POST";
       const endpoint = isEditMode
-        ? `/api/solicitudes/${editingSolicitud?.id}`
-        : "/api/solicitudes";
+        ? `${API_BASE_URL}/api/solicitudes/${editingSolicitud?.id}`
+        : `${API_BASE_URL}/api/solicitudes`;
 
       // Enviar el usuario seleccionado en los headers (Simulando autenticacion)
       const res = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
-          "x-user-id": currentUser?.id || ""
+          "x-user-id": currentUser?.id || "",
+          //"x-mock-response-id": "53138874-57cb8b3c-3191-4b4a-8550-5d0f1bacb3b7"  Nota: Para prueba de sesión expirada
+
         },
+
         body: JSON.stringify({
           ...formData,
           fechaEntrega: formatDateForApi(formData.fechaEntrega),
@@ -291,7 +291,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
         setTouched({})
         onSuccess()
       } else {
-        setSubmitStatus({ type: "error", message: json.error || "Error al procesar la solicitud." })
+        const errorMessage = typeof json.error === 'string'
+          ? json.error
+          : (json.error?.message || JSON.stringify(json.error) || "Error al procesar la solicitud.");
+
+        setSubmitStatus({ type: "error", message: errorMessage })
       }
     } catch {
       setSubmitStatus({ type: "error", message: "Error inesperado de red." })
@@ -387,11 +391,11 @@ export function SolicitudForm({ catalogs, onSuccess, editingSolicitud, onCancelE
               <div className="grid grid-cols-1 gap-4 rounded-lg border border-border bg-muted/30 p-4 sm:grid-cols-2">
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-muted-foreground uppercase font-bold">Centro</Label>
-                  <p className="text-sm font-medium">{formData.centro} - {centroNombre}</p>
+                  <p className="text-sm font-medium">{formData.centro}</p>
                 </div>
                 <div className="flex flex-col gap-1">
                   <Label className="text-xs text-muted-foreground uppercase font-bold">Item Seleccionado</Label>
-                  <p className="text-sm font-medium">{formData.itemComprableId} - {itemNombre}</p>
+                  <p className="text-sm font-medium">{formData.itemComprableId}</p>
                 </div>
               </div>
             )}

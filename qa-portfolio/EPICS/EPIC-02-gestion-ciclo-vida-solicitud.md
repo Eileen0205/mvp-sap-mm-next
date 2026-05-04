@@ -2,7 +2,7 @@
 
 ## 1. Descripción
 
-Esta épica se enfoca en controlar el ciclo de vida de una Solicitud de Compra, gestionando sus distintos estados desde su creación hasta su cierre.
+Esta épica se enfoca en controlar el ciclo de vida de una Solicitud de Compra, gestionando sus estados a lo largo de todo su ciclo de vida.
 
 Asume la existencia de la Solicitud de Compra definida en **EPIC-01** y actúa sobre solicitudes ya creadas, aportando gobernanza al sistema y evitando inconsistencias de estado.
 
@@ -20,7 +20,7 @@ Incluye:
 - Cambio de estado de la solicitud según reglas y permisos.
 - Validación de transiciones permitidas y bloqueo de transiciones no permitidas.
 
-Excluye, de forma intencionada para el MVP:
+Excluye explícitamente para el MVP:
 
 - Workflows avanzados.
 - Múltiples aprobadores.
@@ -30,13 +30,12 @@ Excluye, de forma intencionada para el MVP:
 
 - Depende de:
   - **EPIC-01 | Gestión de Solicitudes de Compra (Core Funcional)**  
-    (opera sobre solicitudes ya creadas).
+    (para operar sobre solicitudes ya creadas).
   - **EPIC-03 | Gestión de Usuarios y Seguridad**  
-    (usa roles y autenticación para determinar quién puede cambiar estados).
+    (para permisos por roles y autenticación para determinar quién puede cambiar estados).
 
-- Soporta:
-  - EPIC-01, aportando el modelo de estados y las reglas de transición.
-  - EPIC-03, al definir qué significa “Usuario Autorizado” en el contexto de cambios de estado.
+- Complementa:
+  - **EPIC-01**, aportando el modelo de estados y las reglas de transición.
 
 ## 5. DoR (Definition of Ready)
 
@@ -57,9 +56,9 @@ Una Historia de Usuario de esta épica se considera **Done** cuando:
 
 - Las transiciones de estado están claramente definidas y controladas en la implementación.
 - Se bloquean transiciones no permitidas según las reglas del proceso.
-- Se respeta el flujo lógico del proceso definido para el MVP:
-  - `Creada → En Revisión → Aprobada`  
-  - `Creada → En Revisión → Rechazada`
+- Se respeta estrictamente el flujo de estados definido para el MVP:
+  - Creada → En Revisión → Aprobada  
+  - Creada → En Revisión → Rechazada
 - Las restricciones de edición por estado están correctamente aplicadas (no se editan solicitudes en estados finales).
 - Los criterios de aceptación cubren transiciones válidas e inválidas.
 - Existen escenarios Gherkin que validan el comportamiento del flujo (felices y negativos).
@@ -104,19 +103,19 @@ Controla el ciclo de vida de cada solicitud de compra, evitando cambios de estad
 
 ### 8.2. Transiciones PERMITIDAS (MVP)
 
-- `— → Creada`  
+- → Creada 
   - Acción: Crear solicitud  
   - Quién: Solicitante
 
-- `Creada → En Revisión`  
+- → Creada → En Revisión  
   - Acción: Enviar a revisión  
   - Quién: Solicitante
 
-- `En Revisión → Aprobada`  
+- En Revisión → Aprobada  
   - Acción: Aprobar  
   - Quién: Aprobador
 
-- `En Revisión → Rechazada`  
+- En Revisión → Rechazada  
   - Acción: Rechazar  
   - Quién: Aprobador
 
@@ -124,26 +123,34 @@ Controla el ciclo de vida de cada solicitud de compra, evitando cambios de estad
 
 Ejemplos:
 
-- `Creada → Aprobada`  
-  Motivo: Debe pasar por estado `En Revisión`.
+- Creada → Aprobada  
+  Motivo: Debe pasar por estado "En Revisión".
 
-- `Creada → Rechazada`  
-  Motivo: Debe pasar por estado `En Revisión`.
+- Creada → Rechazada  
+  Motivo: Debe pasar por estado "En Revisión".
 
-- `En Revisión → Creada`  
+- En Revisión → Creada  
   Motivo: Evita ciclos y regresiones no controladas.
 
-- `Aprobada → (cualquier otro estado)`  
-  Motivo: `Aprobada` es estado final.
+- Aprobada → (cualquier otro estado)  
+  Motivo: "Aprobada" es estado final.
 
-- `Rechazada → (cualquier otro estado)`  
-  Motivo: `Rechazada` es estado final.
+- Rechazada → (cualquier otro estado)  
+  Motivo: "Rechazada" es estado final.
 
-### 8.4. Acotaciones
+### 8.4. Reglas de Control de Estado
 
-- El **estado inicial** `Creada` se asigna automáticamente al crear la solicitud (coordinado con EPIC-01).
-- No se permiten transiciones desde estados finales (`Aprobada`, `Rechazada`).
-- Las restricciones de edición deben respetar estos estados (p. ej., no modificar solicitudes en estados finales).
+- Cada solicitud mantiene un único estado activo en todo momento.
+- Las transiciones deben ser atómicas (no parciales).
+- El sistema debe garantizar consistencia entre frontend, backend y persistencia.
+- Todas las validaciones de estado deben ejecutarse en backend (no confiar en frontend).
+
+### 8.5. Acotaciones
+
+- El **estado inicial** "Creada" se asigna automáticamente al crear la solicitud.
+- No se permiten transiciones desde estados finales ("Aprobada", "Rechazada").
+- Una solicitud solo puede ser modificada en estado "Creada".
+- En estados "En Revisión", "Aprobada" o "Rechazada", la solicitud es de solo lectura.
 
 Para más detalle sobre las acciones permitidas/no permitidas por rol, ver también **EPIC-03 | Gestión de Usuarios y Seguridad**.
 
@@ -152,7 +159,7 @@ Para más detalle sobre las acciones permitidas/no permitidas por rol, ver tambi
 ### 9.1. Asignación de Estado Inicial
 
 **Descripción**  
-Al crear una Solicitud de Compra, el sistema asigna automáticamente el estado inicial `Creada`.
+Al crear una solicitud , el sistema asigna automáticamente el estado inicial "Creada".
 
 **Justificación**
 
@@ -164,12 +171,10 @@ Al crear una Solicitud de Compra, el sistema asigna automáticamente el estado i
 
 - Gestión de Solicitudes de Compra (EPIC-01).
 
----
-
 ### 9.2. Cambio de Estado de la Solicitud
 
 **Descripción**  
-Permite gestionar los cambios de estado definidos en el MVP (`Creada`, `En Revisión`, `Aprobada`, `Rechazada`) según el rol del usuario (Solicitante y/o Aprobador).
+Permite gestionar los cambios de estado definidos en el MVP ("Creada", "En Revisión", "Aprobada", "Rechazada") según el rol del usuario (Solicitante y/o Aprobador).
 
 **Justificación**
 
@@ -182,8 +187,6 @@ Permite gestionar los cambios de estado definidos en el MVP (`Creada`, `En Revis
 - Autenticación y Roles (EPIC-03).
 - Gestión de Solicitudes de Compra (EPIC-01).
 
----
-
 ### 9.3. Validación de Transiciones de Estado
 
 **Descripción**  
@@ -191,7 +194,7 @@ Valida cada intento de cambio de estado y bloquea transiciones no permitidas seg
 
 **Justificación**
 
-- Genera reglas de negocio claras y auditables.
+- Permite definir y validar reglas de negocio de forma explícita y auditables.
 - Ideal para escenarios negativos y de borde.
 - Aporta madurez funcional al MVP sin complejidad técnica innecesaria.
 
@@ -217,8 +220,6 @@ Then se asigna automáticamente el estado `Creada`.
 - Prioridad: Alta  
 - Labels: `PRFlow`, `GestionDeEstados`, `AsignacionDeEstadoInicial`
 
----
-
 ### US-06 | PR-Flow | GE | Cambiar el estado de la solicitud
 
 **Descripción (Cómo, Quiero, Para)**  
@@ -235,8 +236,6 @@ Then el estado se actualiza correctamente.
 **Metadatos**  
 - Prioridad: Alta  
 - Labels: `PRFlow`, `GestionDeEstados`, `CambioDeEstado`
-
----
 
 ### US-07 | PR-Flow | GE | Validar las transiciones de estado
 

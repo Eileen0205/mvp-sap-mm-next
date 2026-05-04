@@ -2,9 +2,9 @@
 
 ## 1. Descripción
 
-Esta épica agrupa las funcionalidades necesarias para gestionar el acceso al sistema y proteger la interacción con el MVP, garantizando que únicamente usuarios autorizados puedan operar sobre las funcionalidades disponibles.
+Esta épica agrupa las funcionalidades necesarias para proteger el acceso y uso del sistema, garantizando que únicamente usuarios autenticados y autorizados puedan operar sobre las funcionalidades disponibles.
 
-Incluye una gestión simplificada de usuarios, autenticación básica y control de acceso por roles, suficiente para soportar las necesidades del MVP sin introducir complejidad innecesaria.
+Incluye una gestión simplificada de usuarios, autenticación básica y control de acceso por roles, suficiente para cubrir los requerimientos de seguridad del MVP
 
 ## 2. Objetivo
 
@@ -29,7 +29,7 @@ Excluye, para mantener el MVP enfocado:
 
 ## 4. Relación con otras épicas
 
-Esta épica soporta directamente:
+Esta épica complementa directamente:
 
 - **EPIC-01 | Gestión de Solicitudes de Compra (Core Funcional)**  
   Proveyendo autenticación y roles para controlar quién puede crear, modificar, visualizar y listar solicitudes.
@@ -58,7 +58,7 @@ Una Historia de Usuario de esta épica se considera **Done** cuando:
 - Los roles definidos están correctamente asignados y utilizados en el control de acceso.
 - El acceso a funcionalidades está restringido según el rol del usuario.
 - Se valida que un usuario no pueda ejecutar acciones no autorizadas.
-- La gestión de sesión funciona correctamente (usuario activo/inactivo).
+- La gestión de sesión garantiza acceso únicamente a usuarios autenticados con sesión activa.
 - Los criterios de aceptación contemplan escenarios de acceso permitido y denegado.
 - Existen escenarios funcionales que validan el control de acceso.
 - No se implementan reglas de seguridad fuera del alcance del MVP.
@@ -73,7 +73,7 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
 
 **Relación con otras épicas**
 
-- Soporta:
+- Complementa:
   - EPIC-01 (determinando quién puede operar sobre solicitudes).
   - EPIC-02 (determinando quién puede cambiar estados).
 
@@ -88,7 +88,6 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
  - El Aprobador solo puede visualizar y gestionar solicitudes de los **Centros asignados** a su usuario.
  - El Aprobador solo puede visualizar solicitudes en estado "En Revisión", "Aprobada" o "Rechazada". No puede visualizar solicitudes en estado "Creada".
  
-
 - **Administrador Técnico/Funcional**  
   - Usuario de soporte, responsable de la gestión básica de usuarios y roles (no participa directamente en el flujo de compras).
 
@@ -99,11 +98,16 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
 
 **Reglas de negocio clave**
 
-- Existen roles predefinidos: `Solicitante`, `Aprobador`, `Administrador Técnico/Funcional`.
+- Existen tres roles predefinidos: "Solicitante", "Aprobador", "Administrador Técnico/Funcional".
+- La autenticación valida la identidad del usuario (credenciales).
+- La autorización valida los permisos del usuario en función de su rol.
+- Todas las operaciones deben pasar ambas validaciones (autenticación + autorización).
 - Cada rol tiene permisos específicos sobre las funcionalidades:
-  - Ejemplo: el cambio de estado `Creada → En Revisión` puede realizarlo un usuario con rol `Solicitante`; la aprobación/rechazo, un `Aprobador`.
+  - El cambio de estado Creada → En Revisión puede realizarlo un usuario con rol "Solicitante";
+  - La aprobación/rechazo está a cargo de un usuario con rol "Aprobador".
 - Se requiere sesión activa para realizar cualquier operación en el sistema.
 - Los accesos a funcionalidades deben ser evaluados siempre en función del rol y estado de la sesión.
+- Todas las validaciones de acceso deben ejecutarse en backend, no solo en frontend.
 
 **Justificación para el MVP**
 
@@ -116,8 +120,6 @@ Controlar el acceso al sistema y la segregación de funciones mediante autentica
 - Inicio de sesión de usuario.
 - Control de acceso por rol.
 - Restricción de acceso a funcionalidades basada en sesión activa.
-
----
 
 ### 7.2. Gestión de Usuarios (Simplificado)
 
@@ -150,6 +152,25 @@ Permite mantener datos coherentes de los usuarios (identificación y contacto), 
 - Consulta de usuarios.
 - Edición básica de datos de usuario (nombre, rol).
 
+### 7.3 Reglas de Seguridad del Sistema
+
+- Todas las operaciones requieren:
+  - Usuario autenticado
+  - Usuario en estado ACTIVO
+  - Sesión activa válida
+
+- El control de acceso se basa en:
+  - Rol del usuario (RBAC)
+  - Ámbito organizacional (Centros asignados)
+
+- El sistema debe prevenir:
+  - Acceso a recursos de otros usuarios sin autorización
+  - Escalada de privilegios
+  - Manipulación directa de requests (API bypass)
+
+- Las validaciones de seguridad deben ejecutarse en backend.
+
+
 ## 8. Funcionalidades seleccionadas (Features)
 
 ### 8.1. Inicio de Sesión
@@ -167,8 +188,6 @@ Permite el acceso al sistema mediante credenciales básicas de usuario.
 
 - Gestión de Usuarios (Simplificado).
 
----
-
 ### 8.2. Control de Acceso por Rol
 
 **Descripción**  
@@ -184,12 +203,10 @@ Define qué acciones puede realizar cada tipo de usuario según su rol.
 
 - Inicio de Sesión.
 
----
-
 ### 8.3. Restricción de Acceso a Funcionalidades
 
 **Descripción**  
-Bloquea acciones no permitidas según el rol del usuario y el estado de su sesión.
+Bloquea la ejecución de acciones no autorizadas según rol y contexto del usuario.
 
 **Justificación**
 
@@ -199,8 +216,6 @@ Bloquea acciones no permitidas según el rol del usuario y el estado de su sesi�
 **Dependencias**
 
 - Control de Acceso por Rol.
-
----
 
 ### 8.4. Alta de Usuario
 
@@ -217,8 +232,6 @@ Registro básico de nuevos usuarios del sistema.
 
 - Ninguna (módulo base de usuarios).
 
----
-
 ### 8.5. Consulta de Usuarios
 
 **Descripción**  
@@ -232,8 +245,6 @@ Permite visualizar los usuarios registrados en el sistema.
 **Dependencias**
 
 - Alta de Usuario.
-
----
 
 ### 8.6. Edición Básica de Usuario
 
@@ -270,8 +281,6 @@ Then el sistema permite el acceso.
 - Prioridad: Alta  
 - Labels: `PRFlow`, `AutenticacionYRoles`, `InicioDeSesion`
 
----
-
 ### US-09 | PR-Flow | AR | Controlar el acceso por rol
 
 **Módulo**  
@@ -290,8 +299,6 @@ Then el sistema permite o bloquea el acceso según su rol.
 **Metadatos**  
 - Prioridad: Alta  
 - Labels: `PRFlow`, `AutenticacionYRoles`, `ControlDeAccesoPorRol`
-
----
 
 ### US-10 | PR-Flow | USER | Dar de alta un usuario
 
@@ -312,8 +319,6 @@ Then el usuario se crea correctamente.
 **Metadatos**  
 - Prioridad: Alta  
 - Labels: `PRFlow`, `UsuariosSimplificado`, `AltaDeUsuario`
-
----
 
 ### US-11 | PR-Flow | USER | Consultar usuarios registrados
 

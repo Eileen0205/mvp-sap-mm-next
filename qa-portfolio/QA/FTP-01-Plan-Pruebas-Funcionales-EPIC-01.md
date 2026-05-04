@@ -1,41 +1,47 @@
-# Plan de Pruebas Funcionales (FTP) - EPIC-01
-## Módulo: Gestión de Solicitudes de Compra (SAP MM MVP)
+# Módulo: Gestión de Solicitudes de Compra (SAP MM MVP)
 
-## 1. Introducción
+# 1. Introducción
 
-El presente documento describe el Plan de Pruebas para el MVP Gestión de Compras, específicamente del **Módulo Gestión de Solicitudes de Compras**.
+El presente documento describe el Plan de Pruebas para el MVP PR Flow, específicamente del **Módulo Gestión de Solicitudes de Compras**.
 
 Este módulo constituye el núcleo funcional del sistema y comprende las funcionalidades de creación, modificación, visualización y listado de solicitudes de compras, conforme a las reglas de negocio definidas en la **EPIC-01** y el modelo de dominio del proyecto. El plan establece el enfoque general y lineamientos que regirán el proceso de pruebas asociadas a este módulo.
 
-## 2. Objetivo
+# 2. Objetivo
+
 Definir la estrategia, alcance, tipos y técnicas de pruebas que permitan verificar que el módulo cumple con:
-*   Los requisitos funcionales definidos.
-*   Las reglas de negocio establecidas.
-*   Las restricciones de seguridad funcional y control de acceso por centro y rol.
+* Los requisitos funcionales definidos.
+* Las reglas de negocio establecidas.
+* Las restricciones de seguridad funcional y control de acceso por centro y rol.
 
-## 3. Alcance de las Pruebas (Scope)
+# 3. Alcance Funcional y Limitaciones Técnicas del Ciclo 01
 
-### ✅ Incluido
-*   Validación funcional completa del módulo (UI).
-*   Validación de la Capa de API (Backend)
-*   Validación de persistencia en PostgreSQL Serverless
-*   Validación de reglas de negocio.
-*   Seguridad básica simulada
-*   Escenarios positivos y negativos.
-*   Pruebas de regresión y smoke.
-*   Pruebas de confirmación.
-*   Performance básico < 2 segundos.
+Las pruebas se realizan en etapa temprana donde la lógica de seguridad y estados es experimental, dado que los Módulos de Gestión de Estados y Autenticación y Seguridad se encuentran aún en fase de desarrollo. Debido al estado actual del MVP, se adoptó una estrategia de Mocks de Identidad, que nos permite validar la robustez del backend ante intentos de acceso no autorizados por Rol, asegurando que la lógica de negocio esté protegida incluso antes de la implementación del módulo de Autenticación real. 
 
-### ❌ No Incluido
-*   Pruebas de carga, estrés o pentesting.
-*   Integraciones externas reales.
-*   Migraciones de datos
-*   Pruebas unitarias.
-*   Infraestructura de Autenticación Real: Queda fuera del alcance de este ciclo de pruebas la validación del flujo de Login/Logout, gestión de tokens JWT y expiración de sesiones en el servidor, debido a que el módulo EPIC-03 (Autenticación y Roles) se encuentra actualmente en fase de desarrollo. Para esta etapa del MVP, se emplea un Mecanismo de Simulación de Identidad mediante selectores de usuario e inyección de headers (x-user-id).
+El objetivo de estas pruebas es validar que el flujo principal (Core) funciona correctamente bajo las reglas de negocio definidas y las consideraciones del proyecto.
 
-## 4. Estrategias de Prueba
+## ✅ Incluido
 
-### 4.1. Enfoque General
+- Validación funcional completa del módulo (UI).
+- Validación de la robustez de la API y la integridad de los datos maestros.
+- Validación de reglas de negocio.
+- Pruebas Smoke, Regresión y Confirmación.
+- Validación de performance básico.
+- Pruebas de Autorización: Se validará la restricción de acciones (Crear/Modificar) mediante la simulación de roles en el header. La falta de cumplimiento de estas restricciones en la UI o API será reportada como defecto de Seguridad.
+- Pruebas de Visibilidad: Se verificará la segregación de registros por Rol y Centro. Cualquier desviación donde un rol acceda a estados o datos no permitidos (ej: Aprobador viendo estado 'Creada') se documentará como un hallazgo de Privacidad.
+  
+
+## ❌ No Incluido
+
+- Pruebas de carga, estrés o pentesting.
+- Integraciones externas reales.
+- Migraciones de datos
+- Pruebas unitarias.
+- Validación de transiciones de estado (EPIC-02), limitándose el alcance a la asignación automática del estado inicial 'Creada' al momento del guardado.
+- Se excluyen pruebas de infraestructura de seguridad (AuthN), gestión de tokens y persistencia de sesión activa.
+
+# 4. Estrategias de Prueba
+
+## 4.1. Enfoque General
 
 Se aplicará un enfoque combinado de:
 
@@ -43,64 +49,81 @@ Se aplicará un enfoque combinado de:
  * **Pruebas de caja gris**
  * **Priorización basada en riesgo**
 
-### 4.2. Pruebas Funcionales
-  - Creación de solicitudes
-  - Modificación
-  - Visualización
-  - Listado  
+## 4.2. Pruebas Funcionales
 
-### 4.3. Pruebas de Seguridad (Simuladas)
-  - Validación por rol
-  - Usuario inactivo
-  - Usuario no autenticado
+  - Flujo Principal (Creación, Listado, Visualización y Modificación)
+  - Validación de interacción del usuario
+  - Navegación
+  - Mensajes
+
+## 4.3. Pruebas de Seguridad (Simuladas)
+
+  - Visibilidad por rol y centro
   - Acceso a recursos ajenos
 
-### 4.4. Pruebas No Funcionales (Básicas)
+## 4.4. API Testing
+
+   - Endpoints (GET, POST, PATCH)
+   - Status codes
+   - Validación de contratos
+   - Consistencia request/response
+   - Validaciones de reglas de negocio a nivel de servicio (no solo UI)   
+
+## 4.5. Database Testing
+
+   - Validación de constraints
+   - Integridad referencial
+   - Persistencia
+   - Reglas de negocio en DB
+
+## 4.6. Pruebas No Funcionales (Básicas)
+
   - Validación de tiempos de respuesta
   - Validación manual en entorno controlado
 
-### 4.5. Técnicas de Diseño
+## 4.7. Testing basado en Riesgo
 
-  - Partición de equivalencias
-  - Análisis de valores límite
-  - Testing basado en estados
-  - Testing de API REST (validación de contratos)
-  - Data Integrity Testing
-  - Testing exploratorio
-
-## 5. Testing basado en Riesgo
-
-### 5.1. Clasificación de Riesgo
+### 4.7.1. Clasificación de Riesgo
 
 **Alto Riesgo**
 - Creación de solicitudes (flujo principal)
-- Validación de duplicidad
-- Seguridad (roles, usuario inactivo, no autenticado, acceso por ID ajeno)
+- Validación de Reglas de Negocio Críticas:
+    - Duplicidad
+    - Centro no Autorizado
+    - Solicitud de Material sin Almacén
+    - Almacén no autorizado a Centro 
+- Seguridad (roles, acceso por ID ajeno)
 - Persistencia
 
 **Riesgo Medio**
 - Modificación de solicitudes
-- Transiciones de estado
 
 **Bajo Riesgo**
 - Listado de solicitudes
 - Comportamiento visual de la UI
 - Mensajes informativos
 
-### Priorización de Ejecución
+### 4.7.2. Priorización de Ejecución
 
  1. Alto riesgo
  2. Riesgo medio
  3. Bajo riesgo
 
-## 6. Estrategia de Ejecución de Pruebas
+# 5. Técnicas de Diseño
 
-### 6.1. Flujo de Ejecución
+  - Partición de equivalencias
+  - Análisis de valores límite
+  - Tabla de decisiones
+  - Testing exploratorio
+
+# 6. Estrategia de Ejecución de Pruebas
+
+## 6.1. Flujo de Ejecución
 
   - Ejecución priorizada por riesgo
   - Validación incremental por capas
 
-### 6.2.	Pruebas Smoke
+## 6.2. Pruebas Smoke
 
 Al inicio de cada ciclo de pruebas se ejecutarán pruebas Smoke para validar la estabilidad básica del módulo. Se verificará:
 
@@ -112,7 +135,7 @@ Al inicio de cada ciclo de pruebas se ejecutarán pruebas Smoke para validar la 
 
 Solo si estas pruebas son satisfactorias se continuará con la ejecución completa.
 
-### 6.3.	Pruebas Funcionales
+## 6.3. Pruebas Funcionales
 
 Las pruebas funcionales se ejecutarán priorizando por riesgo e impacto en el negocio, siguiendo el siguiente orden:
 *	Flujos principales (Happy Path).
@@ -121,7 +144,7 @@ Las pruebas funcionales se ejecutarán priorizando por riesgo e impacto en el ne
 *	Escenarios negativos.
 *	Validaciones de límites y valores extremos.
 
-### 6.4. Testing Exploratorio
+## 6.4. Testing Exploratorio
 
 Se realizará testing exploratorio con el objetivo de identificar:
 *	Inconsistencias en la experiencia de usuario.
@@ -130,51 +153,33 @@ Se realizará testing exploratorio con el objetivo de identificar:
 *	Desviaciones no contempladas en los escenarios formales.
 *   Tiempos de respuesta básicos en funcionalidades críticas.   
 
-### 6.5. Consideraciones sobre funcionalidades no implementadas
+## 6.5. Consideraciones sobre funcionalidades no implementadas
 
 Los Módulos de Seguridad (autenticación real) y Gestión de Estados no se encuentran  implementados en este fase. Sin embargo, se consideran de **alto riesgo**, por lo que:
 
 - Se validarán mediante mecanismos de simulación (mock de usuario, headers x-user-id)
-- Se ejecutarán pruebas parciales enfocadas en la lógica de autorización y restricciones actuales
+- Se ejecutarán pruebas parciales enfocadas en la lógica de autorización y restricciones actuales por rol
 - Se identifican como áreas críticas para validación futura en fases posteriores
 
-# 7. Niveles de Prueba
+# 7. Estrategia de datos de prueba
 
-## 7.2 UI Testing:
-   - Validación de interacción del usuario
-   - Navegación
-   - Mensajes
+## 7.1. Usuarios (Mocks de Identidad)
 
-## 7.3 API Testing
-   - Endpoints (GET, POST, PATCH)
-   - Status codes
-   - Validación de contratos
-   - Consistencia request/response
+| Rol         | Username                | Centro Autorizado | Estado  |
+| ----------- | ----------------------- | ----------------- | ------- | 
+| Solicitante | `eileen_solic_01`       | 1000, 2000        | Activo  | 
+| Aprobador   | `aprobador_centro_1000` | 1000              | Activo  | 
+| Admin (ATF) | `atf_admin_01`          | Global            | Activo  | 
+| Inactivo    | `user_inactivo_01`      | 1000              | Inactivo| 
 
-## 7.4 Database Testing
-   - Validación de constraints
-   - Integridad referencial
-   - Persistencia
-   - Reglas de negocio en DB
 
-# 8. Estrategia de datos de prueba
+## 7.2. Datos de Negocio
 
-## 8.1. Usuarios
-
-| Rol         | Estado          | Centro           |
-| ----------- | --------------- | ---------------- |
-| Solicitante | Activo/Inactivo | Con/Sin permisos |
-| Aprobador   | Activo/Inactivo | Con/Sin permisos |
-| Admin       | Activo/Inactivo | Global           |
-| Invitado    | -               | Sin acceso       |
-
-## 8.2. Datos de Negocio
-
-  - Estados: Creada, En Revisión, Rechazada, Aprobada
+  - Estados: Creada, En Revisión
   - Centros y almacenes
   - Duplicidad (Item + Centro + Fecha, estado ≠ Rechazada)
 
-## 8.3 Datos por Campo
+## 7.3. Datos por Campo
 
    - ID válido / inválido
    - Descripción (límites)
@@ -183,12 +188,12 @@ Los Módulos de Seguridad (autenticación real) y Gestión de Estados no se encu
    - Unidad de medida
    - Tipo (Material vs Servicio)
 
-## 8.4. Datos para pruebas no funcionales
+## 7.4. Datos para pruebas no funcionales
 
    - Dataset mínimo
    - Dataset moderado   
 
-# 9. Cobertura de Pruebas API (Endpoints)
+# 8. Cobertura de Pruebas API (Endpoints)
 
 | Endpoint              | Método | Escenario      | Status  |
 | --------------------- | ------ | -------------- | ------- |
@@ -199,6 +204,14 @@ Los Módulos de Seguridad (autenticación real) y Gestión de Estados no se encu
 | /api/solicitudes/[id] | GET    | Consulta       | 200/404 |
 | /api/solicitudes/[id] | PATCH  | Modificación   | 200/400 |
 | /api/catalogos        | GET    | Datos maestros | 200     |
+
+# 9. Ambiente de Pruebas
+
+  - UI: Navegador Chrome
+  - API: Postman
+  - Infraestructura: Vercel
+  - DB: Prisma Studio
+  - Mock Autenticación
 
 # 10. Matriz de Trazabilidad
 
@@ -296,30 +309,32 @@ Los Módulos de Seguridad (autenticación real) y Gestión de Estados no se encu
 # 11. Criterios de Entrada
 
 *	Módulo disponible.
-*	Los requisitos funcionales y reglas de negocio definidos y aprobados.
-*	El ambiente de pruebas disponible y configurado.
+*	Los requisitos funcionales y reglas de negocio están definidos y aprobados.
+*	El ambiente de pruebas está disponible y configurado.
 *	Los datos de prueba necesarios han sido preparados.
 *	Los casos de prueba han sido diseñados y revisados.
 *	La herramienta de gestión de defectos se encuentra disponible.
 
+# 12. Criterios de Salida
 
-# 12.  Criterios de Salida
-*   **90%** de casos ejecutados.
+*   **90%** de cobertura de casos ejecutados.
+*   **95%** umbral de aceptación.
 *   **0** defectos críticos o bloqueantes abiertos.
-*   Defectos de severidad media o baja se encuentren corregidos, diferidos o aceptados formalmente.
-*	Se hayan ejecutado pruebas de confirmación y regresión asociadas a los defectos corregidos.
+*   **100%** de casos críticos ejecutados
+*   Defectos de severidad media o baja se encuentran corregidos, diferidos o aceptados formalmente.
+*	  Se hayan ejecutado pruebas de confirmación y regresión asociadas a los defectos corregidos.
 *   Informe final aprobado.
 
 # 13. Gestión de Defectos
 
 En caso de detectarse defectos críticos bloqueantes, se suspenderá la ejecución de pruebas sobre la funcionalidad afectada hasta su corrección. Posteriormente se ejecutarán pruebas de confirmación y regresión asociadas.
 
-## 13.1 Clasificación de Defectos
+## 13.1. Clasificación de Defectos
 
 **Severidad**
 
 - **S1/Crítica:** El sistema no cumple su función principal y no existe un workaround para continuar (ej: No se crea la solicitud cuando presionas Guardar)
-- **S2/Mayor:** Fallo en una funcionalidad crítica del sistema y aún asi continúa estable (ej: Fallo en regla de negocio de duplicidad y aún asi crea la solicitud).
+- **S2/Mayor:** Fallo en una funcionalidad crítica del sistema y aún así continúa estable (ej: Fallo en regla de negocio de duplicidad y aún asi crea la solicitud).
 - **S3/Menor:** Errores visuales, pero en el backend persiste todo correctamente (ej:variación de colores, desalineamiento de textos, fuentes incosistentes). 
 - **S4/Trivial:** El sistema funciona correctamente y existen detalles casi "Nulos" que podrían pasar desapercibidos, pues no generan incomodidad al usuario.
 
@@ -330,18 +345,18 @@ En caso de detectarse defectos críticos bloqueantes, se suspenderá la ejecuci�
 - **P3-Media** El defecto no afecta funcionalidades o reglas de negocio críticas, no bloquea pruebas ni compromete la entrega, puede planificarse para el próximo sprint.
 - **P4-Baja** El defecto entonces puede transferirse pues funcionalmente no compromete nada en el Sprint, puede solucionarse más adelante
 
-# 14.  Riesgos
+# 14. Riesgos
 
-## 14.1 Riesgos de Requerimientos
+## 14.1. Riesgos de Requerimientos
 
-### Alcance No Controlado (Scope Creep)
+**Alcance No Controlado (Scope Creep)**
 Cambios en reglas de negocio o funcionalidades sin actualización del plan de pruebas o cronograma, generando retrasos y retrabajo.
 
 **Mitigación:**
 - Validación y congelamiento del alcance antes de iniciar pruebas.
 - Actualización del Test Plan ante cambios aprobados.
 
-### Ambigüedad en requisitos
+**Ambigüedad en requisitos**
 Interpretación incorrecta de criterios de aceptación o reglas de negocio, especialmente en desarrollos generados por IA.
 
 **Mitigación:**
@@ -349,104 +364,94 @@ Interpretación incorrecta de criterios de aceptación o reglas de negocio, espe
 - Refinamiento continuo y validación temprana mediante pruebas exploratorias.
 - Validación de inconsistencias documentales.
 
-## 14.2 Riesgos Técnicos
+## 14.2. Riesgos Técnicos
 
-### Rendimiento insuficiente
+**Rendimiento insuficiente:**
 El sistema puede presentar degradación en tiempos de respuesta al aumentar el volumen de datos.
 
 **Mitigación:**
 - Validación temprana de tiempos de respuesta básicos.
 - Pruebas con volúmenes moderados de datos simulados.
 
-### Calidad del código generado por IA
+**Calidad del código generado por IA:**
 Código difícil de mantener o propenso a errores no detectados.
 
 **Mitigación:**
 - Pruebas funcionales exhaustivas.
 - Regresión frecuente tras modificaciones.
 
-### Incompatibilidad futura con integraciones externas
+**Incompatibilidad futura con integraciones externas:**
 Posible dificultad al integrar el módulo con APIs o sistemas externos.
 
 **Mitigación:**
 - Documentación clara de reglas y estructuras actuales.
 - Validación de consistencia de datos.
 
-### Inconsistencia en los Datos Maestros (Seed): 
-Sin un entorno estable, los datos de prueba (Materiales/Servicios/Centros//Almacenes/Unidades de Medida) podrían cambiar durante el desarrollo, invalidando los casos de prueba ya diseñados.
+**Inconsistencia en los Datos Maestros (Seed):** 
+Sin un entorno estable, los datos de prueba (Materiales/Servicios/Centros/Almacenes/Unidades de Medida) podrían cambiar durante el desarrollo, invalidando los casos de prueba ya diseñados.
 
 **Mitigación:**
 - Congelamiento de los scripts de seed al inicio de cada ciclo de pruebas.
 
-## 14.3 Riesgos de Seguridad
+## 14.3. Riesgos de Seguridad
 
-### Configuración incorrecta de permisos
+**Configuración incorrecta de permisos:**
 Usuarios podrían acceder a funcionalidades no autorizadas.
 
 **Mitigación:**
 - Pruebas exhaustivas por rol y estado.
 - Validación cruzada de restricciones backend y frontend.
 
-### Transiciones de estado no autorizadas
-Modificación indebida del estado inicial o transición incorrecta entre estados.
-
-**Mitigación:**
-- Testing basado en estados.
-- Validación negativa de transiciones inválidas.
-
-### Exposición de datos sensibles
+**Exposición de datos sensibles:**
 Visualización indebida de solicitudes de otros usuarios.
 
 **Mitigación:**
 - Pruebas de acceso cruzado entre roles.
 - Validación de filtros por centro y propietario.
 
-### Brecha de Seguridad por Simulación:
+**Brecha de Seguridad por Simulación:**
 El uso de un selector de usuarios para simular roles podría ocultar fallos de lógica que solo aparecerían con un sistema de autenticación real.
 
 **Mitigación:** 
 - Validar manualmente la consistencia del header x-user-id en todas las capas (UI -> API -> DB).
 
-# 15. Ambiente de Pruebas
+# 15. Roles y Responsabilidades
 
-  - UI: Navegador
-  - API: Postman
-  - Infraestructura: Vercel
-  - DB: Prisma Studio
-  - Mock: Postman + selector de usuario
+**Líder QA**
 
-# 16. Roles y Responsabilidades
-
-### Líder QA
 - Definir y aprobar la Estrategia y el Plan de Pruebas.
 - Supervisar el diseño y ejecución de casos de prueba.
 - Gestionar riesgos de calidad.
 - Aprobar el cierre del ciclo de pruebas.
 
-### QA
+**QA**
+
 - Diseñar los casos de prueba.
 - Ejecutar pruebas funcionales y no funcionales básicas.
 - Reportar y dar seguimiento a defectos.
 - Ejecutar pruebas de confirmación y regresión.
 
-### Desarrollo (Dev)
+**Desarrollo (Dev)**
+
 - Implementar las funcionalidades.
 - Ejecutar pruebas unitarias.
 - Corregir defectos reportados.
 - Entregar nuevas versiones para validación.
 
-### Product Owner (PO)
+**Product Owner (PO)**
+
 - Validar requisitos y criterios de aceptación.
 - Ejecutar o coordinar pruebas UAT.
 - Aprobar la liberación del módulo.
 
-### Scrum Master
+**Scrum Master**
+
 - Facilitar la coordinación entre equipos.
 - Asegurar que el proceso de pruebas pueda ejecutarse sin impedimentos.
 
 > Es importante destacar que el MVP se realizó por una misma persona acompañada de la IA, para agilizar, apoyar y revisar consistencia en el proceso de documentación y para la implementación de la UX. Pero se decidió reflejar los roles involucrados para ofrecer un matiz más orientado a proyectos reales.
 
-## 13. Entregables
+# 16. Entregables
 
 Como resultado del proceso de pruebas del módulo Gestión de Solicitudes de Compra se generarán los siguientes entregables:
 

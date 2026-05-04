@@ -1,10 +1,19 @@
 {
   "css.lint.unknownAtRules": "ignore",
   "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"']*)[\"'`]"],
-    ["cx\\(([^)]*)\\)", "[\"'`]([^\"']*)[\"'`]"]
+    [
+      "cva\\(([^)]*)\\)",
+      "[\"'`]([^\"']*)[\"'`]"
+    ],
+    [
+      "cx\\(([^)]*)\\)",
+      "[\"'`]([^\"']*)[\"'`]"
+    ]
   ],
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "cSpell.words": [
+    "Compra"
+  ]
 }

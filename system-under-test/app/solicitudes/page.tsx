@@ -6,13 +6,13 @@ import { SolicitudesTable } from "@/components/solicitudes-table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ClipboardPlus, List, UserCircle, LogOut, ShieldCheck, ChevronDown } from "lucide-react"
 import type { SolicitudCompra, Centro, Almacen, Material, Servicio, Usuario } from "@/lib/types"
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuLabel, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -33,7 +33,7 @@ export default function SolicitudesPage() {
   const [loadingSolicitudes, setLoadingSolicitudes] = useState(false)
   const [activeTab, setActiveTab] = useState("crear")
   const [editingSolicitud, setEditingSolicitud] = useState<SolicitudCompra | null>(null)
-  
+
   // Estado de Sesión Simulada
   const [availableUsers, setAvailableUsers] = useState<Usuario[]>([])
   const [currentUser, setCurrentUser] = useState<Usuario | null>(null)
@@ -47,7 +47,7 @@ export default function SolicitudesPage() {
         const json = await res.json()
         if (json.success) {
           setAvailableUsers(json.data)
-          
+
           // Intentar recuperar sesión de localStorage
           const savedUserId = localStorage.getItem("qa-session-user-id")
           if (savedUserId) {
@@ -201,8 +201,8 @@ export default function SolicitudesPage() {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {availableUsers.map((user) => (
-                  <DropdownMenuItem 
-                    key={user.id} 
+                  <DropdownMenuItem
+                    key={user.id}
                     onClick={() => handleLogin(user)}
                     className="flex flex-col items-start gap-1 py-2 cursor-pointer"
                   >
@@ -213,7 +213,7 @@ export default function SolicitudesPage() {
                       )}
                     </div>
                     <div className="flex gap-1 flex-wrap">
-                      {user.roles.map(r => (
+                      {user.roles?.map(r => (
                         <span key={r.id} className="text-[9px] uppercase font-bold text-muted-foreground bg-muted px-1 rounded">
                           {r.nombre}
                         </span>
@@ -224,7 +224,7 @@ export default function SolicitudesPage() {
                 {currentUser && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={handleLogout}
                       className="text-destructive focus:text-destructive gap-2 cursor-pointer"
                     >
@@ -248,7 +248,7 @@ export default function SolicitudesPage() {
             </div>
             <h2 className="mb-2 text-xl font-semibold">Bienvenido al Módulo de Compras</h2>
             <p className="mb-8 max-w-sm text-muted-foreground text-sm">
-              Para comenzar las pruebas funcionales, debe seleccionar una identidad en el menú superior. 
+              Para comenzar las pruebas funcionales, debe seleccionar una identidad en el menú superior.
               Esto simula el inicio de sesión y permite validar permisos de negocio.
             </p>
             <Button onClick={() => document.querySelector<HTMLButtonElement>('[aria-haspopup="menu"]')?.click()}>
